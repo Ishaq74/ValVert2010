@@ -79,9 +79,6 @@ public static class ValVertEventBus
     /// <summary>Full reset: domain/subsystem registration and tests ONLY.</summary>
     public static void ResetForDomain() { _map.Clear(); _last.Clear(); _publishDepth = 0; }
 
-    [Obsolete("Global clear wipes independent subscribers. Use ResetForDomain() in tests only.")]
-    public static void ClearAll() => ResetForDomain();
-
     // Enter Play Mode with domain reload disabled keeps statics alive: reset once per play session.
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
     static void DomainReset() => ResetForDomain();
