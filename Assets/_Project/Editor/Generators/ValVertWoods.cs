@@ -1211,7 +1211,7 @@ public static class ValVertWoods {
         t.treeDistance=main.treeDistance; t.treeBillboardDistance=main.treeBillboardDistance; East=t; L("east terrain built"); return t;
     }
     // Field grass: placement extracted to ValVertGrassField (architecture Vegetation).
-    // Default config still uses legacy homemade grass_blades until Asset Store 138810 is wired.
+    // Grass uses the authentic Asset Store 138810 cards (config pack.cards; private ThirdParty import).
     public static void Grass(Terrain terr){ ValVertGrassField.Build(terr); }
 
     static Material CM(string n,Color c,float sm,float met=0,bool emis=false){ var m=ValVertDress.Mat(n,null,null,false,c,sm); m.SetFloat("_Metallic",met); m.SetFloat("_Cull",0); if(emis){ m.EnableKeyword("_EMISSION"); m.SetColor("_EmissionColor",c*0.35f); m.globalIlluminationFlags=MaterialGlobalIlluminationFlags.None; } EditorUtility.SetDirty(m); return m; }

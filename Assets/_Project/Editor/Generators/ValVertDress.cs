@@ -26,6 +26,7 @@ public static class ValVertDress {
         {"plaque_13","Assets/_Project/Runtime/World/Props/Entrance/Materials/plaque_13.mat"},
         {"plaque_14","Assets/_Project/Runtime/World/Props/Entrance/Materials/plaque_14.mat"},
     };
+    public static void RelocMat(string name,string path){ MatRelocs[name]=path; }
     public static string MatPath(string name)=>MatRelocs.TryGetValue(name,out var p)?p:("Assets/ValVert/Mats/"+name+".mat");
     public static Material Mat(string name,Texture2D d,Texture2D n,bool cut,Color col,float smooth=0.1f){
         string path=MatPath(name);
