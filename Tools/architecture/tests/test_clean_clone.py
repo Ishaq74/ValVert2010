@@ -69,7 +69,7 @@ class RealRepo(unittest.TestCase):
     def test_tracked_city_meshes_are_not_ignored_and_are_lfs(self):
         attrs = (ROOT / ".gitattributes").read_text()
         for p in ["Assets/Generated/m_Bld_facade.asset", "Assets/Generated/m_Bld_kerb.asset", "Assets/Generated/m_Bld_metal.asset",
-                  "Assets/Generated/m_Bld_white_trim.asset", "Assets/Generated/m_OuterRing.asset", "Assets/World/Meshes/demfix_Urban_-2392.asset"]:
+                  "Assets/Generated/m_Bld_white_trim.asset", "Assets/Generated/m_OuterRing.asset", "Assets/World/Meshes/demfix_Urban.asset"]:
             self.assertEqual(subprocess.run(["git", "check-ignore", "-q", p], cwd=ROOT).returncode, 1, p + " must not be gitignored")
             self.assertIn(p + " filter=lfs", attrs)
 

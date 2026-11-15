@@ -3,6 +3,16 @@ public static class ValVertSetup {
     const string SRC="/workspace/valvert/clean/"; const string SHOTS="/workspace/valvert/unity_shots/";
     const int R=2049;
     static void L(string s){ Debug.Log("[VV] "+s); }
+    /// <summary>Deterministic output name (no instance ids): demfix_&lt;MeshFilter name&gt;, with _2, _3 … if two filters share a name.
+    /// An existing asset at that path is overwritten IN PLACE (CopySerialized) so its GUID and fileID survive a rebuild.</summary>
+    static Mesh SaveDemfixMesh(Mesh msh,string baseName,System.Collections.Generic.HashSet<string> used){
+        string n=baseName; int k=2; while(!used.Add(n)) n=baseName+"_"+(k++);
+        msh.name=n; string path="Assets/World/Meshes/"+n+".asset";
+        var existing=AssetDatabase.LoadAssetAtPath<Mesh>(path);
+        if(existing){ EditorUtility.CopySerialized(msh,existing); existing.name=n; EditorUtility.SetDirty(existing); Object.DestroyImmediate(msh); return existing; }
+        AssetDatabase.CreateAsset(msh,path); return msh;
+    }
+
     public static void Build(){
         string fbx="Assets/World/Meshes/valvert_clean.fbx";
         var mi=(ModelImporter)AssetImporter.GetAtPath(fbx);
@@ -36,11 +46,12 @@ public static class ValVertSetup {
         foreach(var t in root.GetComponentsInChildren<Transform>(true)) if(t.name=="Water"){ t.gameObject.SetActive(false); L("hidden old Water (replaced by v3 stream ribbon)"); }
         { // IGN DEM offset fix (gen_woods demfix_delta.raw): lower the old FBX surface meshes with the terrain so nothing floats
           var dpath=SRC+"demfix_delta.raw"; if(File.Exists(dpath)){ var db=File.ReadAllBytes(dpath); int DR=2049; float dsx=1064f/2048f, dsz=709.293f/2048f; int nmv=0;
+            var usedNames=new System.Collections.Generic.HashSet<string>();
             System.Func<float,float,float> DL=(x,z)=>{ float fx=(x+532f)/dsx, fz=(z+354.646f)/dsz; if(fx<0||fz<0||fx>=DR-1||fz>=DR-1) return 0f; int i=(int)fx,j=(int)fz; float a=fx-i,b=fz-j;
               System.Func<int,int,float> G=(ii,jj)=>System.BitConverter.ToSingle(db,(jj*DR+ii)*4); return G(i,j)*(1-a)*(1-b)+G(i+1,j)*a*(1-b)+G(i,j+1)*(1-a)*b+G(i+1,j+1)*a*b; };
             foreach(var mf in root.GetComponentsInChildren<MeshFilter>(true)){ if(mf.name=="Terrain"||!mf.sharedMesh) continue; var msh=Object.Instantiate(mf.sharedMesh); var vv=msh.vertices; var m2w=mf.transform.localToWorldMatrix; var w2m=mf.transform.worldToLocalMatrix; bool ch=false;
               for(int k=0;k<vv.Length;k++){ var w=m2w.MultiplyPoint3x4(vv[k]); float dd=DL(w.x,w.z); if(dd>0.01f){ w.y-=dd; vv[k]=w2m.MultiplyPoint3x4(w); ch=true; nmv++; } }
-              if(ch){ msh.vertices=vv; msh.RecalculateBounds(); AssetDatabase.CreateAsset(msh,"Assets/World/Meshes/demfix_"+mf.name+"_"+mf.GetInstanceID()+".asset"); mf.sharedMesh=msh; var mc=mf.GetComponent<MeshCollider>(); if(mc) mc.sharedMesh=msh; } }
+              if(ch){ msh.vertices=vv; msh.RecalculateBounds(); msh=SaveDemfixMesh(msh,"demfix_"+mf.name,usedNames); mf.sharedMesh=msh; var mc=mf.GetComponent<MeshCollider>(); if(mc) mc.sharedMesh=msh; } }
             L("DEMFIX lowered FBX vertices: "+nmv); } }
         foreach(var nm in new[]{"Buildings","Paths","Roads","Courts"}){
             var mf=root.GetComponentsInChildren<MeshFilter>(true).FirstOrDefault(m=>m.name==nm); if(!mf) continue;

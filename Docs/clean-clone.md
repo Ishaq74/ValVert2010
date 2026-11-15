@@ -18,7 +18,7 @@ Résultat sur `main` (0aff3b5), clone propre : **818 GUID manquants** → class�
 | `rebuild-unity` | 781 | 762 chunks `Gen/grass_N.asset` (seed 5), 17 préfabs `Prefabs/{ef,uns}_*`, 2 mats `ThirdParty/ValVertGrass/grass_pack_*` | `ValVertGeneratedAssets.RegenerateAll` + **pins de GUID** (voir ci-dessous) |
 | `vendor` | (via les préfabs/terrain) | `ThirdParty/InnerverseInteractive` (UNS), `ThirdParty/RealisticTrees` (EF), pack *Grass Flowers* | import des `.unitypackage` vérifiés par SHA256 (`Tools/rebuild/vendor_manifest.json`) — **jamais commités** (EULA) |
 | `package` | 9 | scripts/mats URP | résolus par UPM à l'import |
-| `tracked-lfs` (**défaut corrigé ici**) | 10 | `Gen/m_Bld_{kerb,white_trim,facade,metal}.asset`, `m_OuterRing.asset` (153 Mo), 5 `demfix_*_<id>.asset` (33 Mo) | désormais **suivis en Git LFS** (chemins exacts dans `.gitattributes`, retirés du `.gitignore`) : `ValVertSetup.Build` n'est pas rejouable de façon prouvée et la scène les référence |
+| `tracked-lfs` (**défaut corrigé ici**) | 10 | `Gen/m_Bld_{kerb,white_trim,facade,metal}.asset`, `m_OuterRing.asset` (153 Mo), 5 `demfix_{Forest,Parks,Paths,Roads,Urban}.asset` | désormais **suivis en Git LFS** (chemins exacts dans `.gitattributes`, retirés du `.gitignore`) : `ValVertSetup.Build` n'est pas rejouable de façon prouvée et la scène les référence |
 | `frozen-exception` | 9 | matériaux `plateF/plateR/bumper/paint` des voitures | introuvables dans **aucun** checkout (même complet). **Exception gelée explicite** : `Assets/Cars` est gelé par décision du propriétaire → les 9 GUID sont listés dans `Tools/architecture/clean_clone_expected.json` (`frozenExceptions`), pas corrigés. Tout autre GUID manquant est un défaut. |
 
 ## Pourquoi des *pins* de GUID
@@ -47,6 +47,6 @@ python3 Tools/rebuild/restore_world.py \
 
 ## Limites honnêtes
 
-* Les 5 `demfix_*_<instanceId>.asset` portent un id d'instance dans leur nom (`ValVertSetup.cs`) : chaque `Build` complet en crée de nouveaux et laisse des orphelins ; seuls ces 5 sont référencés. Dette connue, non traitée ici.
+* Les `demfix_*` ont un **nom déterministe** (`demfix_<nom du MeshFilter>`, sans id d'instance ; `ValVertSetup.SaveDemfixMesh` réécrit l'asset existant en place, GUID conservé). Les 5 référencés par la scène (`Forest`, `Parks`, `Paths`, `Roads`, `Urban`) sont renommés avec leur GUID (R100) et suivis en LFS ; les 72 orphelins (0 référence, preuve `prove_unreferenced.py`) sont supprimés.
 * `ValVertSetup.Build` complet n'est toujours pas rejoué/prouvé ; les maillages ville sont donc **suivis** et non reconstruits.
 * Rendu prouvé en llvmpipe (CPU).
