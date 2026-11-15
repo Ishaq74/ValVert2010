@@ -140,7 +140,7 @@ Chaque PR de migration est validée (compilation à 0 erreur, tests Play Mode, v
 - `Docs/` : architecture, manifests de migration. Point d'entrée « 10 minutes » : `Docs/architecture-newcomer.md`.
 - `ARCHITECTURE.md` : architecture totale (Val Vert 2010 × Val Vert II).
 - `Docs/ValVertII/` : manuel maître de Val Vert II (`manuel-maitre.md`) et sa correspondance avec le projet réel (`correspondance.md`).
-- `Assets/Runtime/Core/` (assembly `ValVertII.Core`, 13 fichiers d'Ishaq74), les assemblies vides `ValVertII.{Input,Player,Narrative,AI,Save,ECS,Developer}` (un dossier chacun sous `Assets/Runtime/`), `Assets/Runtime/World/Sectors/` (`ValVertII.World`), `Assets/Editor/ValVertII/` (`ValVertII.Editor`), `Assets/Tests/EditMode/` (`ValVertII.Tests.EditMode`), `Assets/Settings/Input/` (cartes d'entrée du manuel) et les scènes squelettes `Assets/Scenes/{Bootstrap,Menus,SeynodRoot}/` : le noyau de Val Vert II repris de https://github.com/Ishaq74/ValVertII (compilé sous Unity 6000.3, **pas encore branché ni testé** ; non ajouté aux Build Settings).
+- `Assets/Runtime/Core/` (assembly `ValVertII.Core`, 13 fichiers d'Ishaq74), `Assets/Tests/EditMode/` (`ValVertII.Tests.EditMode`), `Assets/Settings/Input/` (cartes d'entrée du manuel) et les scènes squelettes `Assets/Scenes/{Bootstrap,Menus,SeynodRoot}/` : le noyau de Val Vert II repris de https://github.com/Ishaq74/ValVertII (compilé sous Unity 6000.3, branché et prouvé : voir la chaîne de démarrage ; les assemblies `ValVertII.{Input,Player,Narrative,AI,Save,ECS,World,Developer,Editor}`, vides et sans référence, ont été supprimées : chacune se recrée avec son premier code).
 - `Tools/architecture/`, `Tools/rebuild/`, `Tools/vegetation/` : vérificateurs de migration et de GUID, reconstruction des données générées, pré-contrôle du pack d'herbe.
 - `CREDITS_ASSETS.txt` : crédits détaillés.
 
@@ -208,14 +208,14 @@ Détails : `Docs/generated-rebuild.md`, manifeste `Tools/rebuild/manifest.json`.
 | Système du manuel | Assembly / dossier cible | Statut |
 |---|---|---|
 | Démarrage, services, scènes, événements durables | `ValVertII.Core` — `Assets/Runtime/Core/` | **branché et prouvé** (catalogue, adaptateur, pont durable ; reste à bâtir les systèmes) |
-| Entrées et modes de contrôle | `ValVertII.Input` — `Assets/Runtime/Input/` + `Settings/Input/` | squelette |
-| Joueur, caméras, interactions | `ValVertII.Player` — `Assets/Runtime/Player/` | à construire |
-| Téléphone, dialogues, relations, mémoire | `ValVertII.Narrative` — `Assets/Runtime/Narrative/` | à construire |
-| Habitants, routines, navigation | `ValVertII.AI` — `Assets/Runtime/AI/` | à construire |
-| Secteurs, intérieurs, portes, sièges | `ValVertII.World` — `Assets/Runtime/World/Sectors/` (+ `Runtime/World/Streaming` existant) | à construire |
-| Sauvegarde | `ValVertII.Save` — `Assets/Runtime/Save/` | à construire |
-| Mode développeur | `ValVertII.Developer` — `Assets/Runtime/Developer/` (compilé seulement avec `VALVERT_DEV`) | à construire |
-| ECS | `ValVertII.ECS` — `Assets/Runtime/ECS/` | option, seulement si mesuré |
+| Entrées et modes de contrôle | `ValVertII.Input` — `Assets/Runtime/Input/` + `Settings/Input/` | asmdef à créer avec le premier code |
+| Joueur, caméras, interactions | `ValVertII.Player` — `Assets/Runtime/Player/` | asmdef à créer avec le premier code |
+| Téléphone, dialogues, relations, mémoire | `ValVertII.Narrative` — `Assets/Runtime/Narrative/` | asmdef à créer avec le premier code |
+| Habitants, routines, navigation | `ValVertII.AI` — `Assets/Runtime/AI/` | asmdef à créer avec le premier code |
+| Secteurs, intérieurs, portes, sièges | `ValVertII.World` — `Assets/Runtime/World/Sectors/` (+ `Runtime/World/Streaming` existant) | asmdef à créer avec le premier code |
+| Sauvegarde | `ValVertII.Save` — `Assets/Runtime/Save/` | asmdef à créer avec le premier code |
+| Mode développeur | `ValVertII.Developer` — `Assets/Runtime/Developer/` (compilé seulement avec `VALVERT_DEV`) | asmdef à créer avec le premier code |
+| ECS | `ValVertII.ECS` — `Assets/Runtime/ECS/` | asmdef à créer avec le premier code |
 | Horloge, saisons, météo | `ValVert.Runtime` — `Runtime/Gameplay/` | **existe** |
 | Monde, génération, rendu, herbe | `Editor/Generators/`, `Assets/World/`, `Assets/Generated/`, `Tools/` | **existe** |
 

@@ -209,20 +209,20 @@ Règle : **on ajoute, on met à jour les chemins déplacés, on ne retire aucune
 
 | Assembly | Dossier | Dépend de | Plateformes | Statut |
 |---|---|---|---|---|
-| `ValVert.Runtime` | `Assets/Runtime/` | `Unity.InputSystem` (+ `ValVertII.Core` pour le pont, étape 3) | toutes | **existe** |
+| `ValVert.Runtime` | `Assets/Runtime/` | `Unity.InputSystem`, `ValVertII.Core` | toutes | **existe** |
 | `ValVertII.Core` | `Assets/Runtime/Core/` | `Unity.InputSystem` | toutes | repris d'Ishaq |
-| `ValVertII.Input` | `Assets/Runtime/Input/` | `ValVertII.Core`, `Unity.InputSystem` | toutes | repris, vide |
-| `ValVertII.Save` | `Assets/Runtime/Save/` | `ValVertII.Core` | toutes | repris, vide |
-| `ValVertII.Narrative` | `Assets/Runtime/Narrative/` | `ValVertII.Core` | toutes | repris, vide |
-| `ValVertII.AI` | `Assets/Runtime/AI/` | `ValVertII.Core`, `ValVertII.Narrative` (+ `Unity.AI.Navigation` à l'arrivée du premier habitant) | toutes | repris, vide |
-| `ValVertII.ECS` | `Assets/Runtime/ECS/` | `ValVertII.Core` (+ Entities, **seulement** si retenu) | toutes | repris, vide |
-| `ValVertII.World` | `Assets/Runtime/World/Sectors/` | `ValVertII.Core`, `ValVert.Runtime` | toutes | repris, vide |
-| `ValVertII.Player` | `Assets/Runtime/Player/` | `ValVertII.Core`, `ValVertII.Input`, `ValVert.Runtime` (pont vers `SimpleFPS` pendant la transition) | toutes | repris, vide |
-| `ValVertII.Developer` | `Assets/Runtime/Developer/` | `ValVertII.Core`, `ValVertII.Input` ; `defineConstraints: ["VALVERT_DEV"]` | Éditeur + Development | repris, vide |
-| `ValVertII.Editor` | `Assets/Editor/ValVertII/` | assemblies `ValVertII.*` | **Éditeur seul** | repris, vide |
+| `ValVertII.Input` | `Assets/Runtime/Input/` | `ValVertII.Core`, `Unity.InputSystem` | toutes | **supprimé (asmdef vide, 0 référence) — à recréer avec le premier code** |
+| `ValVertII.Save` | `Assets/Runtime/Save/` | `ValVertII.Core` | toutes | **supprimé (asmdef vide, 0 référence) — à recréer avec le premier code** |
+| `ValVertII.Narrative` | `Assets/Runtime/Narrative/` | `ValVertII.Core` | toutes | **supprimé (asmdef vide, 0 référence) — à recréer avec le premier code** |
+| `ValVertII.AI` | `Assets/Runtime/AI/` | `ValVertII.Core`, `ValVertII.Narrative` (+ `Unity.AI.Navigation` à l'arrivée du premier habitant) | toutes | **supprimé (asmdef vide, 0 référence) — à recréer avec le premier code** |
+| `ValVertII.ECS` | `Assets/Runtime/ECS/` | `ValVertII.Core` (+ Entities, **seulement** si retenu) | toutes | **supprimé (asmdef vide, 0 référence) — à recréer avec le premier code** |
+| `ValVertII.World` | `Assets/Runtime/World/Sectors/` | `ValVertII.Core`, `ValVert.Runtime` | toutes | **supprimé (asmdef vide, 0 référence) — à recréer avec le premier code** |
+| `ValVertII.Player` | `Assets/Runtime/Player/` | `ValVertII.Core`, `ValVertII.Input`, `ValVert.Runtime` (pont vers `SimpleFPS` pendant la transition) | toutes | **supprimé (asmdef vide, 0 référence) — à recréer avec le premier code** |
+| `ValVertII.Developer` | `Assets/Runtime/Developer/` | `ValVertII.Core`, `ValVertII.Input` ; `defineConstraints: ["VALVERT_DEV"]` | Éditeur + Development | **supprimé (asmdef vide, 0 référence) — à recréer avec le premier code** |
+| `ValVertII.Editor` | `Assets/Editor/ValVertII/` | assemblies `ValVertII.*` | **Éditeur seul** | **supprimé (asmdef vide, 0 référence) — à recréer avec le premier code** |
 | *(assembly Éditeur par défaut)* | `Assets/Editor/{Generators,Tools,Validation,Debug}` | voit `ValVert.Runtime` | Éditeur | **existe**, inchangé |
 | `ValVert.Tests.PlayMode` | `Assets/Tests/PlayMode/` | `ValVert.Runtime`, Test Runner | tests | **existe** |
-| `ValVertII.Tests.EditMode` | `Assets/Tests/EditMode/` | `ValVertII.*`, Test Runner | tests | **fait (étape 7)** : 13 tests (bus, session, registre d'ID, catalogue, pont durable) ; reste `SceneLoader`, `ProjectValidator`, sauvegarde |
+| `ValVertII.Tests.EditMode` | `Assets/Tests/EditMode/` | `ValVertII.Core`, `ValVert.Runtime`, Test Runner | tests | **fait (étape 7)** : 13 tests (bus, session, registre d'ID, catalogue, dérivation d'événements durables) ; reste `SceneLoader`, `ProjectValidator`, sauvegarde |
 
 ### 5.2 Graphe de dépendances autorisé (flèche = « peut référencer »)
 
@@ -449,7 +449,7 @@ Chaque étape = **une PR**, fusion normale, pas de force-push. Chaque PR est val
 
 | Élément | Règle |
 |---|---|
-| **Véhicules et Aldi** (`Assets/Cars/**`, `Runtime/Vehicles/**`, `ValVertAldi*`, contenu Aldi de la scène) | non modifiés par aucune étape. Le dossier `Runtime/Vehicles/` reste un squelette ; le manuel (vélo, transports, véhicules : §6) classe de toute façon les véhicules en « extension ultérieure ». |
+| **Véhicules et Aldi** (`Assets/Cars/**`, `Runtime/Vehicles/**`, `ValVertAldi*`, contenu Aldi de la scène) | non modifiés par aucune étape. Le dossier squelette `Runtime/Vehicles/` est supprimé (vide) ; le manuel (vélo, transports, véhicules : §6) classe de toute façon les véhicules en « extension ultérieure ». |
 | **Scène `ValVert.unity`** | seuls les ajouts idempotents et vérifiés par outil (`ValVertSceneWire`-like) sont permis ; jamais d'ouverture/enregistrement manuel. |
 | **Zones validées** (layout, preuves photo, entrée, rampe 9–13, parking arrière, chemins) | gelées ; toute correction passe par une revue d'abord. |
 | **GUID** des assets et pins de `generated_guid_pins.json` | jamais réécrits. |
