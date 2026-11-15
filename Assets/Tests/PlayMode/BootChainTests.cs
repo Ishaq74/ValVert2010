@@ -79,6 +79,12 @@ public class BootChainTests
         Assert.IsTrue(ValVertEventBus.TryGetLast<WorldStartedEvent>(out var ws));
         Assert.AreEqual(SceneIds.SectorValVertCore, ws.StartingSectorId);
 
+        foreach (var go in SceneManager.GetSceneByPath(Root).GetRootGameObjects())
+        {
+            Assert.IsNull(go.GetComponentInChildren<Camera>(true), "02_SeynodRoot is a pure container: no camera");
+            Assert.IsNull(go.GetComponentInChildren<Light>(true), "02_SeynodRoot is a pure container: no light");
+        }
+
         // ---- the real ValVert.unity systems run inside the session
         for (int i = 0; i < 10; i++) yield return null;
         Assert.IsTrue(ValVertServices.TryGet<ValVertClock>(out _), "ValVert clock registered");
