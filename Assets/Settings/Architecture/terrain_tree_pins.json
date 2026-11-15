@@ -1,0 +1,108 @@
+{
+ "terrains": [
+  "Assets/World/Terrain/ValVertTerrain.asset",
+  "Assets/World/Terrain/ValVertTerrainEast.asset"
+ ],
+ "prototypes": [
+  {
+   "name": "ef_slot_autumnA",
+   "guid": "b5585ae32dca624e28e64bb083c9ee77",
+   "rootFileId": 7973277251340695540
+  },
+  {
+   "name": "uns_spruce_autumnA",
+   "guid": "3a2f076a781f6fe07b9a9a12194765ab",
+   "rootFileId": 6197684964880814522
+  },
+  {
+   "name": "ef_slot_autumnB",
+   "guid": "bc29c60b60990c1708342294f4655077",
+   "rootFileId": 4186423776342331851
+  },
+  {
+   "name": "uns_spruce_autumnB",
+   "guid": "371bddea9a55cb4a69496ab7bc00e903",
+   "rootFileId": 1378141766206757739
+  },
+  {
+   "name": "ef_slot_green",
+   "guid": "8f42132c38bb3f81f998ec4a1de4abc3",
+   "rootFileId": 3694918585594848014
+  },
+  {
+   "name": "uns_spruce_green",
+   "guid": "78c5ff92a5aae2b31ae1680f9d1a711f",
+   "rootFileId": 2875343826213623516
+  },
+  {
+   "name": "uns_bush_a",
+   "guid": "640c660d06b1bc2a19809b1f1a9be9d5",
+   "rootFileId": 171758391056935625
+  },
+  {
+   "name": "uns_bush_c",
+   "guid": "a3f900a3c9fcebc0689affe22d0ee281",
+   "rootFileId": 5446103607940138790
+  },
+  {
+   "name": "fern_b",
+   "guid": "ed2a87a24b124cec29348e88d10a5c11",
+   "rootFileId": 2339125491276610472
+  },
+  {
+   "name": "fern_c",
+   "guid": "5d8dfc2261cb5444fb61fadbb13a8ea8",
+   "rootFileId": 5336564166814579656
+  },
+  {
+   "name": "laurel_cc0",
+   "guid": "c102a907ef5d65e3d973453eeb3f4898",
+   "rootFileId": 4775215090815264770
+  },
+  {
+   "name": "ef_ash_1",
+   "guid": "b28550d80a78b80a38f0a6b68d29e0e6",
+   "rootFileId": 6925791443890533513
+  },
+  {
+   "name": "ef_ash_4",
+   "guid": "42f6ad685ea471fb892f5a3fc3e95f40",
+   "rootFileId": 3316429805313217806
+  },
+  {
+   "name": "ef_ash_5",
+   "guid": "2aa0753c679f00b3daef9f6e3996e639",
+   "rootFileId": 7118032611969473117
+  },
+  {
+   "name": "ef_ash_8",
+   "guid": "79d711db5963ac2b3bd24d6dffff5b95",
+   "rootFileId": 3674885515424341183
+  },
+  {
+   "name": "ef_chestnut_3",
+   "guid": "57e5b0e8f1b637c088a15b31c84f23e9",
+   "rootFileId": 1802694253731203887
+  },
+  {
+   "name": "ef_chestnut_4",
+   "guid": "5eab06f9b19f4f8babf63aaae935116f",
+   "rootFileId": 3624652220036052225
+  },
+  {
+   "name": "ef_chestnut_8",
+   "guid": "967590aa5528e1712abe227427c5e3e9",
+   "rootFileId": 3744842751710039230
+  },
+  {
+   "name": "ef_birch_2",
+   "guid": "445edfc30e675f920bee32008eb9efbc",
+   "rootFileId": 7156365513067342709
+  },
+  {
+   "name": "ef_birch_6",
+   "guid": "875bcc0048d3c89cf94aafbf71dcb60a",
+   "rootFileId": 8064939100895108740
+  }
+ ]
+}

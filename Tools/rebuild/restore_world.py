@@ -104,6 +104,11 @@ def main() -> int:
         r = run([a.unity, "-batchmode", "-nographics", "-quit", "-projectPath", ROOT, "-executeMethod", "ValVertGeneratedAssets.RegenerateAll", "-logFile", a.log_dir / "regenerate.log"])
         if r.returncode != 0: print(f"RegenerateAll failed (exit {r.returncode}); see {a.log_dir / 'regenerate.log'}"); return 41
 
+        step("4b/5 terrain tree prototypes: pin prefab root fileIDs, then verify")
+        if run([sys.executable, "Tools/architecture/tree_pins.py", "apply"]).returncode != 0: return 42
+        r = run([a.unity, "-batchmode", "-nographics", "-quit", "-projectPath", ROOT, "-executeMethod", "ValVertGeneratedAssets.ReportTreesBatch", "-logFile", a.log_dir / "trees.log"])
+        if r.returncode != 0: print(f"terrain tree prototypes still broken (exit {r.returncode}); see {a.log_dir / 'trees.log'}"); return 43
+
     step("5/5 audit gate")
     r = run([sys.executable, "Tools/architecture/clean_clone_audit.py", "--tree", ROOT])
     return 0 if r.returncode == 0 else 50
