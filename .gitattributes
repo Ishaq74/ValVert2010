@@ -1,3 +1,33 @@
+# --- Règles texte / YAML Unity ajoutées depuis ValVertII (modèle gitattributes/Unity) ---
+# Placées AVANT nos règles LFS : les règles LFS plus bas restent prioritaires. Pas de règles LFS larges (png, jpg, mp3…)
+# reprises de ValVertII : elles changeraient le suivi des fichiers déjà commités.
+[attr]unity-json        eol=lf linguist-language=json
+[attr]unity-yaml        merge=unityyamlmerge eol=lf linguist-language=yaml
+*.cginc                 text
+*.compute               text linguist-language=hlsl
+*.hlsl                  text linguist-language=hlsl
+*.raytrace              text linguist-language=hlsl
+*.shader                text
+*.cs                    text diff=csharp
+*.asmdef                unity-json
+*.asmref                unity-json
+*.inputactions          unity-json
+*.shadergraph           unity-json
+*.shadersubgraph        unity-json
+*.uss                   text diff=css linguist-language=css
+*.uxml                  text linguist-language=xml linguist-detectable
+*.anim                  unity-yaml
+*.controller            unity-yaml
+*.mat                   unity-yaml
+*.meta                  unity-yaml
+*.prefab                unity-yaml
+*.unity                 unity-yaml
+*.terrainlayer          unity-yaml
+*.shadervariants        unity-yaml
+*.asset                 unity-yaml
+Packages/packages-lock.json linguist-generated
+LightingData.asset      binary
+
 *.fbx filter=lfs diff=lfs merge=lfs -text
 *.FBX filter=lfs diff=lfs merge=lfs -text
 *.exr filter=lfs diff=lfs merge=lfs -text
