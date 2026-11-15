@@ -18,7 +18,7 @@ def build(out_dir: Path, plaster: Path) -> list[Path]:
     # Prefer calling Tools/generators/facade_atlas logic by exec with patched globals
     legacy = Path(__file__).resolve().parents[2] / "generators" / "facade_atlas.py"
     code = legacy.read_text()
-    code = code.replace("G='/workspace/ValVertGame/Assets/ValVert/Gen/'", f"G=r'{gdir.as_posix()}/'")
+    code = code.replace("G='/workspace/ValVertGame/Assets/Generated/'", f"G=r'{gdir.as_posix()}/'")
     code = code.replace("A.save(G+'facade_atlas.png')", f"A.save(r'{(out_dir / 'facade_atlas.png').as_posix()}')")
     ns = {"__name__": "__main__"}
     exec(compile(code, str(legacy), "exec"), ns)

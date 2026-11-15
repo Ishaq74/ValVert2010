@@ -32,7 +32,7 @@ public static class ValVertPhotoCompare {
         var sa=GameObject.Find("V3_StairApproach"); if(sa) Object.DestroyImmediate(sa);
         var ld=GameObject.Find("V3_LogStairsDress"); if(ld) Object.DestroyImmediate(ld);
         if(ValVertWoods.MATS==null) ValVertWoods.MATS=new System.Collections.Generic.Dictionary<string,Material>();
-        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/rock.mat");
+        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat");
         if(rock!=null) ValVertWoods.MATS["rock"]=rock;
         ValVertWoods.StairApproach(); // includes LogStairsDress
         cam=new GameObject("photocmp_cam").AddComponent<Camera>();

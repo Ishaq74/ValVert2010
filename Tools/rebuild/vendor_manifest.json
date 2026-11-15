@@ -5,8 +5,8 @@
   "Assets/InnerverseInteractive/*",
   "Assets/Realistic Tree/*",
   "Assets/ThirdParty/ALP_Assets/*",
-  "Assets/ValVert/Gen/snowtrees/*",
-  "Assets/ValVert/Gen/snow/shell_*"
+  "Assets/Generated/snowtrees/*",
+  "Assets/Generated/snow/shell_*"
  ],
  "packages": [
   {

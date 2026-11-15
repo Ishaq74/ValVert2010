@@ -36,6 +36,15 @@ def main() -> int:
             errs.append(f"missing runtime foundation {rf}")
         else:
             print("OK runtime", rf)
+    for pm in data.get("prefixMoves", []):
+        src = pm["from"]
+        left = [x for x in ROOT.glob(src + ("" if "*" in src else "/**/*")) if x.is_file() and x.suffix != ".meta"]
+        if left:
+            errs.append(f"prefix move incomplete: {len(left)} file(s) still under {src} (e.g. {left[0].relative_to(ROOT)})")
+        if not (ROOT / pm["to"]).is_dir():
+            errs.append(f"prefix move destination missing {pm['to']}")
+    if data.get("prefixMoves"):
+        print("OK prefixMoves", len(data["prefixMoves"]))
     if errs:
         for e in errs:
             print("FAIL", e)

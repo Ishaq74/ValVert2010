@@ -4,10 +4,10 @@ public static class ValVertSetup {
     const int R=2049;
     static void L(string s){ Debug.Log("[VV] "+s); }
     public static void Build(){
-        string fbx="Assets/ValVert/valvert_clean.fbx";
+        string fbx="Assets/World/Meshes/valvert_clean.fbx";
         var mi=(ModelImporter)AssetImporter.GetAtPath(fbx);
         mi.globalScale=1; mi.useFileUnits=true; mi.bakeAxisConversion=false; mi.addCollider=true; mi.importAnimation=false; mi.SaveAndReimport();
-        foreach(var d in new[]{"Assets/ValVert/Mats","Assets/ValVert/Prefabs"}) AssetDatabase.DeleteAsset(d); foreach(var g in AssetDatabase.FindAssets("t:TerrainLayer",new[]{"Assets/ValVert/Ground"})) AssetDatabase.DeleteAsset(AssetDatabase.GUIDToAssetPath(g));
+        foreach(var d in new[]{"Assets/World/Materials","Assets/World/Prefabs"}) AssetDatabase.DeleteAsset(d); foreach(var g in AssetDatabase.FindAssets("t:TerrainLayer",new[]{"Assets/World/Ground"})) AssetDatabase.DeleteAsset(AssetDatabase.GUIDToAssetPath(g));
         var scene=EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
         var root=(GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(fbx));
         root.transform.position=Vector3.zero; root.transform.rotation=Quaternion.Euler(0,180,0); // FBX arrives rotated 180 vs heightmap (README step a4)
@@ -30,7 +30,7 @@ public static class ValVertSetup {
         eN/=cnt; eF/=cnt;
         L($"align mean abs err (m) over {cnt} FBX terrain verts: normal={eN:F2} flipped={eF:F2}");
         if(eF<eN){ td.SetHeights(0,0,hf); L("FLIPPED heightmap"); } else L("kept heightmap unflipped");
-        string tdPath="Assets/ValVert/ValVertTerrain.asset"; AssetDatabase.CreateAsset(td,tdPath);
+        string tdPath="Assets/World/Terrain/ValVertTerrain.asset"; AssetDatabase.CreateAsset(td,tdPath);
         // hide area layers
         foreach(var t in root.GetComponentsInChildren<Transform>(true)) if(t!=root.transform && Hidden(t.name)) { t.gameObject.SetActive(false); L("hidden "+t.name);}
         foreach(var t in root.GetComponentsInChildren<Transform>(true)) if(t.name=="Water"){ t.gameObject.SetActive(false); L("hidden old Water (replaced by v3 stream ribbon)"); }
@@ -40,7 +40,7 @@ public static class ValVertSetup {
               System.Func<int,int,float> G=(ii,jj)=>System.BitConverter.ToSingle(db,(jj*DR+ii)*4); return G(i,j)*(1-a)*(1-b)+G(i+1,j)*a*(1-b)+G(i,j+1)*(1-a)*b+G(i+1,j+1)*a*b; };
             foreach(var mf in root.GetComponentsInChildren<MeshFilter>(true)){ if(mf.name=="Terrain"||!mf.sharedMesh) continue; var msh=Object.Instantiate(mf.sharedMesh); var vv=msh.vertices; var m2w=mf.transform.localToWorldMatrix; var w2m=mf.transform.worldToLocalMatrix; bool ch=false;
               for(int k=0;k<vv.Length;k++){ var w=m2w.MultiplyPoint3x4(vv[k]); float dd=DL(w.x,w.z); if(dd>0.01f){ w.y-=dd; vv[k]=w2m.MultiplyPoint3x4(w); ch=true; nmv++; } }
-              if(ch){ msh.vertices=vv; msh.RecalculateBounds(); AssetDatabase.CreateAsset(msh,"Assets/ValVert/demfix_"+mf.name+"_"+mf.GetInstanceID()+".asset"); mf.sharedMesh=msh; var mc=mf.GetComponent<MeshCollider>(); if(mc) mc.sharedMesh=msh; } }
+              if(ch){ msh.vertices=vv; msh.RecalculateBounds(); AssetDatabase.CreateAsset(msh,"Assets/World/Meshes/demfix_"+mf.name+"_"+mf.GetInstanceID()+".asset"); mf.sharedMesh=msh; var mc=mf.GetComponent<MeshCollider>(); if(mc) mc.sharedMesh=msh; } }
             L("DEMFIX lowered FBX vertices: "+nmv); } }
         foreach(var nm in new[]{"Buildings","Paths","Roads","Courts"}){
             var mf=root.GetComponentsInChildren<MeshFilter>(true).FirstOrDefault(m=>m.name==nm); if(!mf) continue;
@@ -163,9 +163,9 @@ public static class ValVertSetup {
     static TerrainLayer Layer(string name,Color c,float noise){
         var tex=new Texture2D(256,256,TextureFormat.RGBA32,true);
         for(int y=0;y<256;y++)for(int x=0;x<256;x++){ float nn=Mathf.PerlinNoise(x*.08f,y*.08f)*.6f+Random.value*.4f; {var cc=c*(1-noise+noise*2*nn); cc.a=0f; tex.SetPixel(x,y,cc);}}
-        tex.Apply(); string p="Assets/ValVert/"+name+".png"; File.WriteAllBytes(p,tex.EncodeToPNG()); AssetDatabase.ImportAsset(p);
+        tex.Apply(); string p="Assets/World/Terrain/"+name+".png"; File.WriteAllBytes(p,tex.EncodeToPNG()); AssetDatabase.ImportAsset(p);
         var tl=new TerrainLayer(); tl.diffuseTexture=AssetDatabase.LoadAssetAtPath<Texture2D>(p); tl.tileSize=new Vector2(4,4); tl.smoothness=0f; tl.metallic=0f; tl.specular=Color.black;
-        AssetDatabase.CreateAsset(tl,"Assets/ValVert/"+name+".terrainlayer"); return tl;
+        AssetDatabase.CreateAsset(tl,"Assets/World/Terrain/"+name+".terrainlayer"); return tl;
     }
     static void Paint(TerrainData td){
         td.terrainLayers=new[]{ Layer("Grass",new Color(.36f,.42f,.2f),.3f), Layer("ForestFloor",new Color(.38f,.27f,.15f),.35f), Layer("PathDirt",new Color(.55f,.48f,.38f),.2f) };

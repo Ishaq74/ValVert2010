@@ -15,9 +15,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 PINS = ROOT / "Assets/Settings/Architecture/generated_guid_pins.json"
 PATTERNS = [
-    "Assets/ValVert/Gen/grass_*.asset",                 # field grass chunks (ValVertGrassField, seed 5)
-    "Assets/ValVert/Prefabs/ef_*.prefab",               # European Forests variants (vendor-derived, ignored)
-    "Assets/ValVert/Prefabs/uns_*.prefab",              # Ultimate Nature Starter variants (vendor-derived, ignored)
+    "Assets/Generated/grass_*.asset",                 # field grass chunks (ValVertGrassField, seed 5)
+    "Assets/World/Prefabs/ef_*.prefab",               # European Forests variants (vendor-derived, ignored)
+    "Assets/World/Prefabs/uns_*.prefab",              # Ultimate Nature Starter variants (vendor-derived, ignored)
     "Assets/ThirdParty/ValVertGrass/grass_pack_*.mat",  # pack-derived grass materials (ignored)
 ]
 GUID = re.compile(r"^guid: ([0-9a-f]{32})\s*$", re.M)

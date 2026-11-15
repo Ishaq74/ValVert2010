@@ -20,8 +20,8 @@
       ],
       "outputs": [
         {
-          "path": "Assets/ValVert/Gen/sign_danger.png",
-          "meta": "Assets/ValVert/Gen/sign_danger.png.meta",
+          "path": "Assets/Generated/sign_danger.png",
+          "meta": "Assets/Generated/sign_danger.png.meta",
           "compare": "bytes"
         }
       ],
@@ -35,18 +35,18 @@
       "inputs": [],
       "outputs": [
         {
-          "path": "Assets/ValVert/Ground/asphalt_ww_diff.jpg",
-          "meta": "Assets/ValVert/Ground/asphalt_ww_diff.jpg.meta",
+          "path": "Assets/World/Ground/asphalt_ww_diff.jpg",
+          "meta": "Assets/World/Ground/asphalt_ww_diff.jpg.meta",
           "compare": "bytes"
         },
         {
-          "path": "Assets/ValVert/Ground/asphalt_ww_nor.jpg",
-          "meta": "Assets/ValVert/Ground/asphalt_ww_nor.jpg.meta",
+          "path": "Assets/World/Ground/asphalt_ww_nor.jpg",
+          "meta": "Assets/World/Ground/asphalt_ww_nor.jpg.meta",
           "compare": "bytes"
         },
         {
-          "path": "Assets/ValVert/Ground/asphalt_ww_ms.png",
-          "meta": "Assets/ValVert/Ground/asphalt_ww_ms.png.meta",
+          "path": "Assets/World/Ground/asphalt_ww_ms.png",
+          "meta": "Assets/World/Ground/asphalt_ww_ms.png.meta",
           "compare": "bytes"
         }
       ],
@@ -60,18 +60,18 @@
       "inputs": [],
       "outputs": [
         {
-          "path": "Assets/ValVert/Gen/parking.png",
-          "meta": "Assets/ValVert/Gen/parking.png.meta",
+          "path": "Assets/Generated/parking.png",
+          "meta": "Assets/Generated/parking.png.meta",
           "compare": "pixels_rgb"
         },
         {
-          "path": "Assets/ValVert/Gen/parking_nor.jpg",
-          "meta": "Assets/ValVert/Gen/parking_nor.jpg.meta",
+          "path": "Assets/Generated/parking_nor.jpg",
+          "meta": "Assets/Generated/parking_nor.jpg.meta",
           "compare": "bytes"
         },
         {
-          "path": "Assets/ValVert/Gen/parking_ms.png",
-          "meta": "Assets/ValVert/Gen/parking_ms.png.meta",
+          "path": "Assets/Generated/parking_ms.png",
+          "meta": "Assets/Generated/parking_ms.png.meta",
           "compare": "bytes"
         }
       ],
@@ -84,15 +84,15 @@
       "seed": 7,
       "inputs": [
         {
-          "path": "Assets/ValVert/Gen/grey_plaster_diff_1k.jpg",
+          "path": "Assets/Generated/grey_plaster_diff_1k.jpg",
           "kind": "tracked_source",
           "required": true
         }
       ],
       "outputs": [
         {
-          "path": "Assets/ValVert/Gen/facade_atlas.png",
-          "meta": "Assets/ValVert/Gen/facade_atlas.png.meta",
+          "path": "Assets/Generated/facade_atlas.png",
+          "meta": "Assets/Generated/facade_atlas.png.meta",
           "compare": "bytes"
         }
       ],

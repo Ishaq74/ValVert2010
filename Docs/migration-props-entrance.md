@@ -7,23 +7,23 @@ Décision utilisateur : « Vazy » — migrer uniquement les accessoires du déc
 
 **Groupe :** entrée d’immeuble Val Vert (propre, non vendor).
 
-Constat d’audit : la plupart des « props » urbains (bollards, bancs, lampadaires, clôtures) sont des **primitives procédurales** (`CreatePrimitive`) + matériaux sous `Assets/ValVert/Mats/`, pas des fichiers prefab. Premier lot sûr = le seul prefab d’accessoire own-authored clairement isolé : `vv_entrance`, avec ses matériaux et textures **exclusifs**.
+Constat d’audit : la plupart des « props » urbains (bollards, bancs, lampadaires, clôtures) sont des **primitives procédurales** (`CreatePrimitive`) + matériaux sous `Assets/World/Materials/`, pas des fichiers prefab. Premier lot sûr = le seul prefab d’accessoire own-authored clairement isolé : `vv_entrance`, avec ses matériaux et textures **exclusifs**.
 
 **Inclus (19 assets + metas) :**
 
 | Ancien chemin | Nouveau chemin | GUID |
 |---|---|---|
-| `Assets/ValVert/Prefabs/vv_entrance.prefab` | `Assets/Runtime/World/Props/Entrance/Prefabs/vv_entrance.prefab` | `1005397838e350487ba5dea45715821c` |
-| `Assets/ValVert/Mats/door_alum_grey.mat` | `…/Entrance/Materials/door_alum_grey.mat` | `5636d3876a34ecc47849d2f79b90d3fd` |
-| `Assets/ValVert/Mats/door_glass.mat` | `…/Entrance/Materials/door_glass.mat` | `dd42d158d65854c038583542de8d662c` |
-| `Assets/ValVert/Mats/handle_brushed.mat` | `…/Entrance/Materials/handle_brushed.mat` | `98ec511653ccdf4438069fddca80280c` |
-| `Assets/ValVert/Mats/shutter_grey.mat` | `…/Entrance/Materials/shutter_grey.mat` | `a717c5df0c3d56e9d8dd7d59d9945793` |
-| `Assets/ValVert/Mats/interphone.mat` | `…/Entrance/Materials/interphone.mat` | `e1f5ad1d561242472be652443a3586c5` |
-| `Assets/ValVert/Mats/globe_lamp.mat` | `…/Entrance/Materials/globe_lamp.mat` | `03f587e820e7a356abfb0d9308a29903` |
-| `Assets/ValVert/Mats/plaque_{7,9,11,13,14}.mat` | `…/Entrance/Materials/plaque_*.mat` | (inchangés, voir commit) |
-| `Assets/ValVert/Gen/intercom_panel.png` | `…/Entrance/Textures/intercom_panel.png` | `7997f8223b18a6e488d748da3df12817` |
-| `Assets/ValVert/Gen/roller_shutter.png` | `…/Entrance/Textures/roller_shutter.png` | `cd471f1366f594c2f93243db1da7cb2a` |
-| `Assets/ValVert/Gen/plaque_{7,9,11,13,14}.png` | `…/Entrance/Textures/plaque_*.png` | (inchangés) |
+| `Assets/World/Prefabs/vv_entrance.prefab` | `Assets/World/Props/Entrance/Prefabs/vv_entrance.prefab` | `1005397838e350487ba5dea45715821c` |
+| `Assets/World/Materials/door_alum_grey.mat` | `…/Entrance/Materials/door_alum_grey.mat` | `5636d3876a34ecc47849d2f79b90d3fd` |
+| `Assets/World/Materials/door_glass.mat` | `…/Entrance/Materials/door_glass.mat` | `dd42d158d65854c038583542de8d662c` |
+| `Assets/World/Materials/handle_brushed.mat` | `…/Entrance/Materials/handle_brushed.mat` | `98ec511653ccdf4438069fddca80280c` |
+| `Assets/World/Materials/shutter_grey.mat` | `…/Entrance/Materials/shutter_grey.mat` | `a717c5df0c3d56e9d8dd7d59d9945793` |
+| `Assets/World/Materials/interphone.mat` | `…/Entrance/Materials/interphone.mat` | `e1f5ad1d561242472be652443a3586c5` |
+| `Assets/World/Materials/globe_lamp.mat` | `…/Entrance/Materials/globe_lamp.mat` | `03f587e820e7a356abfb0d9308a29903` |
+| `Assets/World/Materials/plaque_{7,9,11,13,14}.mat` | `…/Entrance/Materials/plaque_*.mat` | (inchangés, voir commit) |
+| `Assets/Generated/intercom_panel.png` | `…/Entrance/Textures/intercom_panel.png` | `7997f8223b18a6e488d748da3df12817` |
+| `Assets/Generated/roller_shutter.png` | `…/Entrance/Textures/roller_shutter.png` | `cd471f1366f594c2f93243db1da7cb2a` |
+| `Assets/Generated/plaque_{7,9,11,13,14}.png` | `…/Entrance/Textures/plaque_*.png` | (inchangés) |
 
 **Exclus volontairement :**
 

@@ -3,6 +3,6 @@
 // Tools/architecture/verify_migration.py); change a folder here + in the manifest, never as scattered literals.
 public static class ValVertPaths
 {
-    public const string SkyMaterials = "Assets/Runtime/World/Sky/Materials/";
-    public const string SkyShaders = "Assets/Runtime/World/Sky/Shaders/";
+    public const string SkyMaterials = "Assets/World/Sky/Materials/";
+    public const string SkyShaders = "Assets/World/Sky/Shaders/";
 }

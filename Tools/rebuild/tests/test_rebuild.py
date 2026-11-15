@@ -70,7 +70,7 @@ class RebuildTests(unittest.TestCase):
         try:
             bad = staging / "sign_danger.png"
             bad.write_bytes(b"not-a-real-png")
-            ok, reason = validate_against_baselines("Assets/ValVert/Gen/sign_danger.png", bad)
+            ok, reason = validate_against_baselines("Assets/Generated/sign_danger.png", bad)
             self.assertFalse(ok)
             self.assertIn("!=", reason)
         finally:
@@ -80,7 +80,7 @@ class RebuildTests(unittest.TestCase):
         """If baseline validation fails, live targets must stay unchanged."""
         m = load_manifest()
         # Pick asphalt_ww_diff as canary; snapshot hash if present
-        canary_rel = "Assets/ValVert/Ground/asphalt_ww_diff.jpg"
+        canary_rel = "Assets/World/Ground/asphalt_ww_diff.jpg"
         canary = ROOT / canary_rel
         before = sha256_file(canary) if canary.is_file() else None
         staging = Path(tempfile.mkdtemp(prefix="vv-atomic-"))

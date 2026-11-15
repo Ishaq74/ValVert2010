@@ -3,16 +3,16 @@ public static class ValVertAldi {
     public static void Rebuild(){
         UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/ValVert.unity");
         if(ValVertWoods.MATS==null) ValVertWoods.MATS=new Dictionary<string,Material>();
-        var asp=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/asphalt_road.mat");
+        var asp=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/asphalt_road.mat");
         if(asp!=null) ValVertWoods.MATS["asphalt"]=asp;
-        var paint=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/road_paint.mat");
+        var paint=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/road_paint.mat");
         if(paint!=null){ paint.SetColor("_BaseColor",new Color(.92f,.92f,.90f)); EditorUtility.SetDirty(paint); ValVertWoods.MATS["paint"]=paint; }
-        var metal=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/metal_grey.mat");
-        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/rock.mat");
+        var metal=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/metal_grey.mat");
+        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat");
         if(rock!=null) ValVertWoods.MATS["rock"]=rock;
 
                 // Parking_Aldi = lot asphalt (plain). Never touch city-wide Parking mat (would wipe other lots).
-        var asphalt=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/asphalt_road.mat");
+        var asphalt=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/asphalt_road.mat");
         foreach(var r in Object.FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None)){
             if(!r) continue;
             string gn=r.gameObject.name;
@@ -23,7 +23,7 @@ public static class ValVertAldi {
         }
 
         var old=GameObject.Find("V3_AldiParking"); if(old) Object.DestroyImmediate(old);
-        AssetDatabase.DeleteAsset("Assets/ValVert/Gen/m_aldi_cover.asset");
+        AssetDatabase.DeleteAsset("Assets/Generated/m_aldi_cover.asset");
         ValVertWoods.AldiParking();
         var ap=GameObject.Find("V3_AldiParking");
         if(ap&&metal) foreach(var r in ap.GetComponentsInChildren<MeshRenderer>())

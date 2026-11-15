@@ -90,7 +90,7 @@ public static class ValVertSiteCompare {
         foreach(var n in new[]{"V3_StairApproach","V3_LogStairsDress","V3_Ramp9to13","V3_RearPark91113","V3_Batch2Dress","V3_Entrances"}){
             var o=GameObject.Find(n); if(o) Object.DestroyImmediate(o); }
         if(ValVertWoods.MATS==null) ValVertWoods.MATS=new System.Collections.Generic.Dictionary<string,Material>();
-        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/rock.mat");
+        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat");
         if(rock!=null){ ValVertWoods.EnsureUrp(rock); ValVertWoods.MATS["rock"]=rock; }
         ValVertWoods.StairApproach();
         int fixedN=ValVertWoods.FixBrokenMaterials();

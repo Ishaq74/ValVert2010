@@ -55,7 +55,7 @@ class RealRepo(unittest.TestCase):
     def test_pins_wellformed_and_unique(self):
         d = P.load(); self.assertEqual(P.validate(d), [])
         kinds = {k.rsplit("/", 1)[0] for k in d["assets"]}
-        self.assertTrue({"Assets/ValVert/Gen", "Assets/ValVert/Prefabs", "Assets/ThirdParty/ValVertGrass"} <= kinds)
+        self.assertTrue({"Assets/Generated", "Assets/World/Prefabs", "Assets/ThirdParty/ValVertGrass"} <= kinds)
         self.assertGreater(len(d["assets"]), 700)
 
     def test_pins_never_collide_with_tracked_guids(self):
@@ -68,8 +68,8 @@ class RealRepo(unittest.TestCase):
 
     def test_tracked_city_meshes_are_not_ignored_and_are_lfs(self):
         attrs = (ROOT / ".gitattributes").read_text()
-        for p in ["Assets/ValVert/Gen/m_Bld_facade.asset", "Assets/ValVert/Gen/m_Bld_kerb.asset", "Assets/ValVert/Gen/m_Bld_metal.asset",
-                  "Assets/ValVert/Gen/m_Bld_white_trim.asset", "Assets/ValVert/Gen/m_OuterRing.asset", "Assets/ValVert/demfix_Urban_-2392.asset"]:
+        for p in ["Assets/Generated/m_Bld_facade.asset", "Assets/Generated/m_Bld_kerb.asset", "Assets/Generated/m_Bld_metal.asset",
+                  "Assets/Generated/m_Bld_white_trim.asset", "Assets/Generated/m_OuterRing.asset", "Assets/World/Meshes/demfix_Urban_-2392.asset"]:
             self.assertEqual(subprocess.run(["git", "check-ignore", "-q", p], cwd=ROOT).returncode, 1, p + " must not be gitignored")
             self.assertIn(p + " filter=lfs", attrs)
 
@@ -83,7 +83,7 @@ class RealRepo(unittest.TestCase):
         self.assertTrue(ex and all(re.fullmatch(r"[0-9a-f]{32}", k) for k in ex))
 
     def test_pin_patterns_cover_only_ignored_paths(self):
-        for p in ["Assets/ValVert/Gen/grass_0.asset", "Assets/ValVert/Prefabs/ef_ash_1.prefab", "Assets/ValVert/Prefabs/uns_bush_a.prefab", "Assets/ThirdParty/ValVertGrass/grass_pack_0.mat"]:
+        for p in ["Assets/Generated/grass_0.asset", "Assets/World/Prefabs/ef_ash_1.prefab", "Assets/World/Prefabs/uns_bush_a.prefab", "Assets/ThirdParty/ValVertGrass/grass_pack_0.mat"]:
             self.assertEqual(subprocess.run(["git", "check-ignore", "-q", p], cwd=ROOT).returncode, 0, p + " is generated: must be ignored (else pin it differently)")
 
 if __name__ == "__main__":

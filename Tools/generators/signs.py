@@ -8,4 +8,4 @@ def ctext(y,t,s,c):
     f=ImageFont.truetype(FB,s); w=d.textlength(t,font=f); d.text(((512-w)/2,y),t,font=f,fill=c)
 ctext(212,'DANGER',72,(200,20,20)); ctext(290,'DE MORT',72,(200,20,20))
 ctext(378,'Bassin de rétention - montée',24,'black'); ctext(408,'brutale des eaux - accès interdit',24,'black')
-im.filter(ImageFilter.GaussianBlur(0.6)).save('/workspace/ValVertGame/Assets/ValVert/Gen/sign_danger.png')
+im.filter(ImageFilter.GaussianBlur(0.6)).save('/workspace/ValVertGame/Assets/Generated/sign_danger.png')

@@ -37,8 +37,8 @@ class ArchitectureTests(unittest.TestCase):
 
     def test_sky_prefab_guids_stable_files(self):
         for rel in (
-            "Assets/Runtime/World/Sky/kloofendal_overcast_puresky_2k.hdr",
-            "Assets/Runtime/World/Vegetation/Prefabs/fern_b.prefab",
+            "Assets/World/Sky/kloofendal_overcast_puresky_2k.hdr",
+            "Assets/World/Vegetation/Prefabs/fern_b.prefab",
         ):
             self.assertTrue((ROOT / rel).is_file(), rel)
             self.assertTrue((ROOT / (rel + ".meta")).is_file(), rel + ".meta")

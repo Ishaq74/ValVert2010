@@ -1,6 +1,6 @@
 using UnityEngine; using UnityEditor; using UnityEngine.Rendering; using System.IO; using System.Linq; using System.Collections.Generic;
 public static class ValVertWoods {
-    const string SRC="/workspace/valvert/clean/"; const string G="Assets/ValVert/Ground/"; const string GEN="Assets/ValVert/Gen/";
+    const string SRC="/workspace/valvert/clean/"; const string G="Assets/World/Ground/"; const string GEN="Assets/Generated/";
     [System.Serializable] public class MI{ public string name,mat; public float[] v; public int[] t; public float[] uv; }
     [System.Serializable] public class ML{ public MI[] items; public float[] trees; public float[] hide; public int[] hideLen; }
     static List<Vector2[]> hid;
@@ -175,7 +175,7 @@ public static class ValVertWoods {
     // via LoadPrefabContents, then rebind prototypes so the terrain cache drops leaf meshes.
     public static int DisableBrokenLeafCards(){
         int n=0;
-        foreach(var guid in AssetDatabase.FindAssets("t:Prefab", new[]{"Assets/ValVert/Prefabs"})){
+        foreach(var guid in AssetDatabase.FindAssets("t:Prefab", new[]{"Assets/World/Prefabs"})){
             var path=AssetDatabase.GUIDToAssetPath(guid);
             string fn=System.IO.Path.GetFileName(path);
             if(!(fn.StartsWith("ef_")||fn.StartsWith("uns_")||fn.StartsWith("laurel")||fn.StartsWith("fern"))) continue;
@@ -235,7 +235,7 @@ public static class ValVertWoods {
     }
 
     public static void WarmFoliageShaders(){
-        var svc=AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>("Assets/ValVert/FoliageVariants.shadervariants");
+        var svc=AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>("Assets/World/Post/FoliageVariants.shadervariants");
         if(svc!=null) svc.WarmUp();
         foreach(var guid in AssetDatabase.FindAssets("t:Material", new[]{"Assets/Realistic Tree/Source/Materials/URP/Leaves"})){
             var m=AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
@@ -327,9 +327,9 @@ public static class ValVertWoods {
     }
 
     public static int FixBrokenMaterials(GameObject root=null){
-        var plaster=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/plaster.mat");
-        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/rock.mat")??plaster;
-        var wood=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/log_fence.mat")??plaster;
+        var plaster=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/plaster.mat");
+        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat")??plaster;
+        var wood=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/log_fence.mat")??plaster;
         int n=0;
         var rends=root?root.GetComponentsInChildren<Renderer>(true):Object.FindObjectsByType<Renderer>(FindObjectsInactive.Include,FindObjectsSortMode.None);
         foreach(var r in rends){
@@ -393,7 +393,7 @@ public static class ValVertWoods {
             {"shopfront",M("shopfront",ValVertDress.Tex(GEN+"shopfront.png"),null,Color.white,0.7f).Also()},
             {"school_wall",M("school_wall",ValVertDress.Tex(GEN+"school_facade.png"),null,Color.white,0.1f).Also()},
             {"store_wall",M("store_wall",ValVertDress.Tex(GEN+"cladding_light_diff.png"),ValVertDress.Tex(GEN+"corrugated_iron_02_nor_gl_1k.jpg",true),Color.white,0.4f,0.35f).Also()},
-            {"roof_flat",M("roof_flat",ValVertDress.Tex("Assets/ValVert/Ground/cc0/Gravel022_col.jpg"),ValVertDress.Tex("Assets/ValVert/Ground/cc0/Gravel022_nor.jpg",true),new Color(.75f,.75f,.75f),0.05f).Also()},
+            {"roof_flat",M("roof_flat",ValVertDress.Tex("Assets/World/Ground/cc0/Gravel022_col.jpg"),ValVertDress.Tex("Assets/World/Ground/cc0/Gravel022_nor.jpg",true),new Color(.75f,.75f,.75f),0.05f).Also()},
             {"roof_shelter",M("roof_shelter",null,null,new Color(.35f,.37f,.38f),0.4f,0.5f).Also()},
             {"lamp_head",M("lamp_head",null,null,new Color(.3f,.3f,.3f),0.5f,0.5f).Also()},
             {"glass",Glass()},
@@ -425,7 +425,7 @@ public static class ValVertWoods {
             {"coping",M("coping",null,null,new Color(.62f,.62f,.60f),0.1f)},
             {"cladding",M("cladding",ValVertDress.Tex(GEN+"cladding_light_diff.png"),ValVertDress.Tex(GEN+"corrugated_iron_02_nor_gl_1k.jpg",true),Color.white,0.4f,0.35f)},
             {"paint",M("road_paint",null,null,new Color(.92f,.92f,.90f),0.2f).Also()},
-            {"kerb",M("kerb",ValVertDress.Tex("Assets/ValVert/Ground/cc0/Concrete034_col.jpg"),ValVertDress.Tex("Assets/ValVert/Ground/cc0/Concrete034_nor.jpg",true),new Color(.78f,.77f,.74f),0.1f)},
+            {"kerb",M("kerb",ValVertDress.Tex("Assets/World/Ground/cc0/Concrete034_col.jpg"),ValVertDress.Tex("Assets/World/Ground/cc0/Concrete034_nor.jpg",true),new Color(.78f,.77f,.74f),0.1f)},
             {"lamp_pole",M("lamp_pole",null,null,new Color(.36f,.38f,.40f),0.5f,0.6f)},
             {"lamp_lens",M("lamp_lens",null,null,new Color(.95f,.93f,.85f),0.9f)},
             {"tl_head",M("tl_head",null,null,new Color(.06f,.06f,.06f),0.4f)},
@@ -451,21 +451,21 @@ public static class ValVertWoods {
             {"band_grey",M("band_grey",null,null,new Color(.66f,.67f,.68f),0.35f).Also()},
             {"glass_refl",M("glass_refl",ValVertDress.Tex(GEN+"window_interior.png"),null,new Color(.62f,.64f,.66f),0.93f,0.15f)},
             {"shutter",M("shutter_pvc",ValVertDress.Tex(GEN+"shutter_diff.png"),ValVertDress.Tex(GEN+"shutter_nor.png",true),Color.white,0.35f)},
-            {"render_beige",M("render_beige",ValVertDress.Tex("Assets/ValVert/Ground/cc0/Plaster007_col.jpg"),ValVertDress.Tex("Assets/ValVert/Ground/cc0/Plaster007_nor.jpg",true),new Color(.84f,.80f,.72f),0.1f)},
+            {"render_beige",M("render_beige",ValVertDress.Tex("Assets/World/Ground/cc0/Plaster007_col.jpg"),ValVertDress.Tex("Assets/World/Ground/cc0/Plaster007_nor.jpg",true),new Color(.84f,.80f,.72f),0.1f)},
             {"glass_door",M("glass_door",null,null,new Color(.16f,.20f,.23f),0.9f,0.2f)},
-            {"render_grey",M("render_grey",ValVertDress.Tex("Assets/ValVert/Ground/cc0/PaintedPlaster017_col.jpg"),ValVertDress.Tex("Assets/ValVert/Ground/cc0/PaintedPlaster017_nor.jpg",true),new Color(.78f,.77f,.74f),0.1f)},
-            {"render_white",M("render_white",ValVertDress.Tex("Assets/ValVert/Ground/cc0/Plaster001_col.jpg"),ValVertDress.Tex("Assets/ValVert/Ground/cc0/Plaster001_nor.jpg",true),new Color(.80f,.79f,.76f),0.1f).Also()},
+            {"render_grey",M("render_grey",ValVertDress.Tex("Assets/World/Ground/cc0/PaintedPlaster017_col.jpg"),ValVertDress.Tex("Assets/World/Ground/cc0/PaintedPlaster017_nor.jpg",true),new Color(.78f,.77f,.74f),0.1f)},
+            {"render_white",M("render_white",ValVertDress.Tex("Assets/World/Ground/cc0/Plaster001_col.jpg"),ValVertDress.Tex("Assets/World/Ground/cc0/Plaster001_nor.jpg",true),new Color(.80f,.79f,.76f),0.1f).Also()},
             {"corr_leaves",M("corr_leaves",ValVertDress.Tex(GEN+"corrugated_leaves.png"),ValVertDress.Tex(GEN+"corrugated_iron_02_nor_gl_1k.jpg",true),new Color(1f,1f,1f),0.1f).Also()},
             {"leafground",M("leafground",ValVertDress.Tex(G+"forest_leaves_02_diff.jpg"),ValVertDress.Tex(G+"forest_leaves_02_nor.jpg",true),new Color(.9f,.8f,.7f),0.05f)},
             {"asphalt_leaves",M("asphalt_leaves",ValVertDress.Tex(GEN+"asphalt_leaves.png"),ValVertDress.Tex(G+"asphalt_02_nor.jpg",true),new Color(1f,1f,1f),0.12f)},
             {"stair_earth",M("stair_earth",ValVertDress.Tex(G+"forest_leaves_02_diff.jpg"),ValVertDress.Tex(G+"forest_leaves_02_nor.jpg",true),new Color(2.1f,1.7f,1.25f),0.05f)},
             {"sign_blue_bay",M("sign_blue_bay",null,null,new Color(.08f,.3f,.75f),0.2f)},
-            {"forest_fg02",M("forest_fg02",ValVertDress.Tex("Assets/ValVert/Veg/pilot6/fg02_diff.jpg"),ValVertDress.Tex("Assets/ValVert/Veg/pilot6/fg02_nor.jpg",true),Color.white,0.1f)},   // pilot6: Yughues CC0 forest ground, #9 bank + beds only
+            {"forest_fg02",M("forest_fg02",ValVertDress.Tex("Assets/World/Vegetation/pilot6/fg02_diff.jpg"),ValVertDress.Tex("Assets/World/Vegetation/pilot6/fg02_nor.jpg",true),Color.white,0.1f)},   // pilot6: Yughues CC0 forest ground, #9 bank + beds only
             {"bed_soil",M("bed_soil",ValVertDress.Tex(G+"stony_dirt_path_diff.jpg"),null,new Color(.55f,.45f,.38f),0.05f)},
             {"glass_green",M("glass_green",null,null,new Color(.55f,.58f,.60f),0.85f,0.05f)},
             {"door_maroon",M("door_maroon",ValVertDress.Tex(GEN+"corrugated_iron_02_diff_1k.jpg"),null,new Color(.45f,.16f,.17f),0.3f)},
             {"rock",M("rock",ValVertDress.Tex(G+"rock_wall_08_diff.jpg"),ValVertDress.Tex(G+"rock_wall_08_nor.jpg",true),new Color(.8f,.8f,.78f),0.1f)},
-            {"path_concrete",M("path_concrete",ValVertDress.Tex("Assets/ValVert/Ground/cc0/Concrete047A_col.jpg"),ValVertDress.Tex("Assets/ValVert/Ground/cc0/Concrete047A_nor.jpg",true),new Color(.8f,.8f,.78f),0.1f)},
+            {"path_concrete",M("path_concrete",ValVertDress.Tex("Assets/World/Ground/cc0/Concrete047A_col.jpg"),ValVertDress.Tex("Assets/World/Ground/cc0/Concrete047A_nor.jpg",true),new Color(.8f,.8f,.78f),0.1f)},
             {"lamp_black",M("lamp_black",null,null,new Color(.05f,.05f,.06f),0.5f,0.5f)},
             {"sign_danger",M("sign_danger",ValVertDress.Tex(GEN+"sign_danger.png"),null,Color.white,0.2f).Also()},
         };
@@ -509,15 +509,15 @@ public static class ValVertWoods {
     };
     public static void AldiParking(){
         var root=new GameObject("V3_AldiParking"); Physics.SyncTransforms();
-        var am=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/asphalt_road.mat");
+        var am=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/asphalt_road.mat");
         if(am==null&&MATS!=null&&MATS.ContainsKey("asphalt")) am=MATS["asphalt"];
-        var pm=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/road_paint.mat");
+        var pm=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/road_paint.mat");
         if(pm!=null) pm.SetColor("_BaseColor",new Color(.92f,.92f,.90f));
         else pm=M("aldi_bay_paint",null,null,new Color(.92f,.92f,.90f),0.15f);
         var blue=M("aldi_disabled_blue",null,null,new Color(.12f,.35f,.78f),0.35f);
-        var grass=M("aldi_strip_grass",ValVertDress.Tex("Assets/ValVert/Ground/leafy_grass_diff.jpg"),ValVertDress.Tex("Assets/ValVert/Ground/leafy_grass_nor.jpg",true),new Color(.45f,.72f,.32f),0.05f);
-        var bollardMat=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/metal_grey.mat")
-            ?? AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/bollard_m.mat")
+        var grass=M("aldi_strip_grass",ValVertDress.Tex("Assets/World/Ground/leafy_grass_diff.jpg"),ValVertDress.Tex("Assets/World/Ground/leafy_grass_nor.jpg",true),new Color(.45f,.72f,.32f),0.05f);
+        var bollardMat=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/metal_grey.mat")
+            ?? AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/bollard_m.mat")
             ?? ValVertDress.Mat("aldi_bollard",null,null,false,new Color(.55f,.55f,.52f),0.35f);
         // 1) plain asphalt cover — hides every baked parking.png marking on this lot
         float x0=ALDI_WALL_X+0.05f, x1=520f, z0l=40.0f, z1l=83.0f;
@@ -577,13 +577,13 @@ public static class ValVertWoods {
         foreach(var r in Object.FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None)){
           if(!r||!r.sharedMaterial) continue; var n=r.sharedMaterial.name.ToLower();
           if(r.name=="Parking_Aldi"){
-                var asphaltPlain=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/asphalt_road.mat");
+                var asphaltPlain=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/asphalt_road.mat");
                 if(asphaltPlain!=null) r.sharedMaterial=asphaltPlain;
                 r.enabled=true; L("Aldi: Parking_Aldi asphalt ON");
             }
         }
         // Wipe old diagonal fan / facade stubs: destroy orphan paint quads; force asphalt on any parking_lot in lot
-        var asphaltWipe=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/asphalt_road.mat");
+        var asphaltWipe=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/asphalt_road.mat");
         foreach(var r in Object.FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None)){
           if(!r) continue;
           var t=r.transform; if(t.root!=null&&t.root.name=="V3_AldiParking") continue;
@@ -644,7 +644,7 @@ public static class ValVertWoods {
     public static void StairApproach(){
         var root=new GameObject("V3_StairApproach"); Physics.SyncTransforms();
         // Force heal log_fence / rock onto URP Lit before any primitives (CreatePrimitive default is magenta under URP)
-        var wood=M("log_fence",ValVertDress.Tex("Assets/ValVert/Veg/tex/fir_tree_01_bark_diff_1k.jpg"),ValVertDress.Tex("Assets/ValVert/Veg/tex/fir_tree_01_bark_nor_gl_1k.jpg",true),new Color(.62f,.55f,.48f),0.08f);
+        var wood=M("log_fence",ValVertDress.Tex("Assets/World/Vegetation/tex/fir_tree_01_bark_diff_1k.jpg"),ValVertDress.Tex("Assets/World/Vegetation/tex/fir_tree_01_bark_nor_gl_1k.jpg",true),new Color(.62f,.55f,.48f),0.08f);
         var rockM=MATS!=null&&MATS.ContainsKey("rock")?MATS["rock"]:wood;
         System.Func<float,float,float> gy=(x,z)=>{ var t=Terrain.activeTerrain; float ty=t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y; if(Physics.Raycast(new Vector3(x,ty+3f,z),Vector3.down,out var hh,6f)&&!(hh.collider is TerrainCollider)) return Mathf.Max(ty,hh.point.y); return ty; };
         System.Action<string,Vector3,Vector3,float> log=(nm,a,b,r)=>{ var g=GameObject.CreatePrimitive(PrimitiveType.Cylinder); Object.DestroyImmediate(g.GetComponent<Collider>()); g.name=nm; g.transform.SetParent(root.transform,false);
@@ -658,7 +658,7 @@ public static class ValVertWoods {
         var rockPrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/InnerverseInteractive/Ultimate Nature – Starter/Environment/Rocks/Forest/Prefabs/UNS_Standard_Rock_03.prefab");
         GameObject bo;
         bo=GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.DestroyImmediate(bo.GetComponent<Collider>());
-            { var rm=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/rock.mat")??rockM??wood; EnsureUrp(rm); bo.GetComponent<MeshRenderer>().sharedMaterial=rm; }
+            { var rm=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat")??rockM??wood; EnsureUrp(rm); bo.GetComponent<MeshRenderer>().sharedMaterial=rm; }
         bo.name="boulder"; bo.transform.SetParent(root.transform,false);
         // low wide, sink ~40% into ground
         bo.transform.localScale=new Vector3(1.6f,0.85f,1.35f);
@@ -675,9 +675,9 @@ public static class ValVertWoods {
     public static void LogStairsDress(){
         var root=GameObject.Find("V3_LogStairsDress"); if(root) Object.DestroyImmediate(root);
         root=new GameObject("V3_LogStairsDress"); Physics.SyncTransforms();
-        var wood=M("log_fence",ValVertDress.Tex("Assets/ValVert/Veg/tex/fir_tree_01_bark_diff_1k.jpg"),ValVertDress.Tex("Assets/ValVert/Veg/tex/fir_tree_01_bark_nor_gl_1k.jpg",true),new Color(.55f,.48f,.40f),0.08f);
-        var gravel=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/stair_earth.mat")
-            ?? M("stair_gravel",ValVertDress.Tex("Assets/ValVert/Ground/forest_leaves_02_diff.jpg"),null,new Color(1.6f,1.4f,1.1f),0.05f);
+        var wood=M("log_fence",ValVertDress.Tex("Assets/World/Vegetation/tex/fir_tree_01_bark_diff_1k.jpg"),ValVertDress.Tex("Assets/World/Vegetation/tex/fir_tree_01_bark_nor_gl_1k.jpg",true),new Color(.55f,.48f,.40f),0.08f);
+        var gravel=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/stair_earth.mat")
+            ?? M("stair_gravel",ValVertDress.Tex("Assets/World/Ground/forest_leaves_02_diff.jpg"),null,new Color(1.6f,1.4f,1.1f),0.05f);
         var rockM=MATS!=null&&MATS.ContainsKey("rock")?MATS["rock"]:wood;
         System.Func<float,float,float> gy=(x,z)=>{ var t=Terrain.activeTerrain; float ty=t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y; if(Physics.Raycast(new Vector3(x,ty+4f,z),Vector3.down,out var hh,8f)&&!(hh.collider is TerrainCollider)) return Mathf.Max(ty,hh.point.y); return ty; };
         System.Action<string,Vector3,Vector3,float> log=(nm,a,b,r)=>{ var g=GameObject.CreatePrimitive(PrimitiveType.Cylinder); Object.DestroyImmediate(g.GetComponent<Collider>()); g.name=nm; g.transform.SetParent(root.transform,false);
@@ -723,7 +723,7 @@ public static class ValVertWoods {
             GameObject bo;
             // Prefer procedural rock with known URP Lit rock.mat — UNS rock prefabs often carry unsupported shaders (magenta)
             bo=GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.DestroyImmediate(bo.GetComponent<Collider>());
-            var rm=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/rock.mat")??rockM??wood;
+            var rm=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat")??rockM??wood;
             EnsureUrp(rm); bo.GetComponent<MeshRenderer>().sharedMaterial=rm;
             bo.name=$"park_boulder_{i}"; bo.transform.SetParent(root.transform,false);
             bo.transform.localScale=new Vector3(sc,sc*0.65f,sc*0.9f);
@@ -766,14 +766,14 @@ public static class ValVertWoods {
     public static void Ramp9to13(){
         var old=GameObject.Find("V3_Ramp9to13"); if(old) Object.DestroyImmediate(old);
         var root=new GameObject("V3_Ramp9to13"); Physics.SyncTransforms();
-        var wood=M("log_fence",ValVertDress.Tex("Assets/ValVert/Veg/tex/fir_tree_01_bark_diff_1k.jpg"),ValVertDress.Tex("Assets/ValVert/Veg/tex/fir_tree_01_bark_nor_gl_1k.jpg",true),new Color(.55f,.48f,.40f),0.08f);
-        var asp=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/asphalt_leaves.mat")
-            ?? AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/asphalt_road.mat");
-        var gravel=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/stair_earth.mat")
-            ?? M("stair_gravel",ValVertDress.Tex("Assets/ValVert/Ground/forest_leaves_02_diff.jpg"),null,new Color(1.6f,1.4f,1.1f),0.05f);
-        var grass=M("ramp_island_grass",ValVertDress.Tex("Assets/ValVert/Ground/leafy_grass_diff.jpg"),ValVertDress.Tex("Assets/ValVert/Ground/leafy_grass_nor.jpg",true),new Color(.42f,.68f,.30f),0.05f);
-        var hedge=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/hedge.mat")??wood;
-        var brick=M("brick_path_red",ValVertDress.Tex("Assets/ValVert/Ground/cc0/Concrete047A_col.jpg"),ValVertDress.Tex("Assets/ValVert/Ground/cc0/Concrete047A_nor.jpg",true),new Color(.72f,.32f,.24f),0.12f);
+        var wood=M("log_fence",ValVertDress.Tex("Assets/World/Vegetation/tex/fir_tree_01_bark_diff_1k.jpg"),ValVertDress.Tex("Assets/World/Vegetation/tex/fir_tree_01_bark_nor_gl_1k.jpg",true),new Color(.55f,.48f,.40f),0.08f);
+        var asp=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/asphalt_leaves.mat")
+            ?? AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/asphalt_road.mat");
+        var gravel=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/stair_earth.mat")
+            ?? M("stair_gravel",ValVertDress.Tex("Assets/World/Ground/forest_leaves_02_diff.jpg"),null,new Color(1.6f,1.4f,1.1f),0.05f);
+        var grass=M("ramp_island_grass",ValVertDress.Tex("Assets/World/Ground/leafy_grass_diff.jpg"),ValVertDress.Tex("Assets/World/Ground/leafy_grass_nor.jpg",true),new Color(.42f,.68f,.30f),0.05f);
+        var hedge=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/hedge.mat")??wood;
+        var brick=M("brick_path_red",ValVertDress.Tex("Assets/World/Ground/cc0/Concrete047A_col.jpg"),ValVertDress.Tex("Assets/World/Ground/cc0/Concrete047A_nor.jpg",true),new Color(.72f,.32f,.24f),0.12f);
         var rockM=MATS!=null&&MATS.ContainsKey("rock")?MATS["rock"]:wood;
         System.Func<float,float,float> gy=(x,z)=>{ var t=Terrain.activeTerrain; float ty=t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y; if(Physics.Raycast(new Vector3(x,ty+5f,z),Vector3.down,out var hh,10f)&&!(hh.collider is TerrainCollider)) return Mathf.Max(ty,hh.point.y); return ty; };
         System.Action<string,Vector3,Vector3,float> log=(nm,a,b,r)=>{ var g=GameObject.CreatePrimitive(PrimitiveType.Cylinder); Object.DestroyImmediate(g.GetComponent<Collider>()); g.name=nm; g.transform.SetParent(root.transform,false);
@@ -840,7 +840,7 @@ public static class ValVertWoods {
             var rockPrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/InnerverseInteractive/Ultimate Nature – Starter/Environment/Rocks/Forest/Prefabs/UNS_Standard_Rock_03.prefab");
             GameObject bo;
             bo=GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.DestroyImmediate(bo.GetComponent<Collider>());
-            { var rm=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/rock.mat")??rockM??wood; EnsureUrp(rm); bo.GetComponent<MeshRenderer>().sharedMaterial=rm; }
+            { var rm=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat")??rockM??wood; EnsureUrp(rm); bo.GetComponent<MeshRenderer>().sharedMaterial=rm; }
             bo.name="ramp_boulder"; bo.transform.SetParent(root.transform,false);
             bo.transform.localScale=new Vector3(1.15f,0.7f,1.0f); bo.transform.rotation=Quaternion.Euler(10,55,-8);
             float gy0=gy(bx,bz); var rend=bo.GetComponentsInChildren<MeshRenderer>();
@@ -850,9 +850,9 @@ public static class ValVertWoods {
         }
         // manhole cover on path near stairs bottom
         {
-            var mhMat=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Gen/decals/manhole.mat");
+            var mhMat=AssetDatabase.LoadAssetAtPath<Material>("Assets/Generated/decals/manhole.mat");
             if(mhMat==null){
-                var tex=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/ValVert/Gen/decals/manhole.png");
+                var tex=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Generated/decals/manhole.png");
                 mhMat=M("manhole_cover",tex,null,new Color(.35f,.36f,.37f),0.4f);
             }
             patch("ramp_manhole", 364.8f, 150.2f, 0.7f, 0.7f, mhMat, 0.045f);
@@ -906,8 +906,8 @@ public static class ValVertWoods {
     public static void RearPark91113(){
         var old=GameObject.Find("V3_RearPark91113"); if(old) Object.DestroyImmediate(old);
         var root=new GameObject("V3_RearPark91113"); Physics.SyncTransforms();
-        var asp=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/asphalt_road.mat")
-            ?? AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/parking_lot.mat");
+        var asp=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/asphalt_road.mat")
+            ?? AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/parking_lot.mat");
         System.Func<float,float,float> gy=(x,z)=>{ var t=Terrain.activeTerrain; float ty=t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y; if(Physics.Raycast(new Vector3(x,ty+5f,z),Vector3.down,out var hh,10f)&&!(hh.collider is TerrainCollider)) return Mathf.Max(ty,hh.point.y); return ty; };
         System.Action<string,float,float,float,float,float> strip=(nm,x0,z0,x1,z1,w)=>{
             float cx=(x0+x1)*0.5f, cz=(z0+z1)*0.5f; float dx=x1-x0, dz=z1-z0; float len=Mathf.Sqrt(dx*dx+dz*dz);
@@ -953,16 +953,16 @@ public static class ValVertWoods {
     // Reusable Val Vert entrance: grey alu glazed door, side glazing, grey concrete canopy,
     // house-number plaque, round wall lamp, intercom, roller shutter. Prefab saved once, instanced per OSM address.
     public static GameObject BuildEntrancePrefab(){
-        string path="Assets/Runtime/World/Props/Entrance/Prefabs/vv_entrance.prefab";
-        Directory.CreateDirectory("Assets/Runtime/World/Props/Entrance/Prefabs");
+        string path="Assets/World/Props/Entrance/Prefabs/vv_entrance.prefab";
+        Directory.CreateDirectory("Assets/World/Props/Entrance/Prefabs");
         var existing=AssetDatabase.LoadAssetAtPath<GameObject>(path);
         if(existing){ AssetDatabase.DeleteAsset(path); }
         var root=new GameObject("vv_entrance");
         var metal=M("door_alum_grey",null,null,new Color(.42f,.44f,.46f),0.45f,0.35f); EnsureUrp(metal);
         var glass=M("door_glass",null,null,new Color(.62f,.70f,.78f,1f),0.85f,0.05f); EnsureUrp(glass);
-        var canopyMat=M("canopy",ValVertDress.Tex("Assets/ValVert/Gen/concrete_canopy.png"),null,new Color(.78f,.79f,.80f),0.18f,0.05f); EnsureUrp(canopyMat);
-        var interMat=M("interphone",ValVertDress.Tex("Assets/Runtime/World/Props/Entrance/Textures/intercom_panel.png"),null,Color.white,0.35f); EnsureUrp(interMat);
-        var shutMat=M("shutter_grey",ValVertDress.Tex("Assets/Runtime/World/Props/Entrance/Textures/roller_shutter.png"),null,Color.white,0.2f); EnsureUrp(shutMat);
+        var canopyMat=M("canopy",ValVertDress.Tex("Assets/Generated/concrete_canopy.png"),null,new Color(.78f,.79f,.80f),0.18f,0.05f); EnsureUrp(canopyMat);
+        var interMat=M("interphone",ValVertDress.Tex("Assets/World/Props/Entrance/Textures/intercom_panel.png"),null,Color.white,0.35f); EnsureUrp(interMat);
+        var shutMat=M("shutter_grey",ValVertDress.Tex("Assets/World/Props/Entrance/Textures/roller_shutter.png"),null,Color.white,0.2f); EnsureUrp(shutMat);
         var handle=M("handle_brushed",null,null,new Color(.7f,.72f,.74f),0.6f); EnsureUrp(handle);
         var lampM=M("globe_lamp",null,null,new Color(.95f,.95f,.90f),0.85f); EnsureUrp(lampM);
         System.Action<string,Vector3,Vector3,Material> box=(nm,pos,sc,mat)=>{
@@ -1036,7 +1036,7 @@ public static class ValVertWoods {
             // Prefab faces -X; yaw rotates around Y (0=west, 90=north, 180=east, 270=south)
             inst.transform.rotation=Quaternion.Euler(0, pl.yaw, 0);
             // Swap plaque material to correct number
-            var plaqueTex=ValVertDress.Tex($"Assets/Runtime/World/Props/Entrance/Textures/plaque_{pl.num}.png");
+            var plaqueTex=ValVertDress.Tex($"Assets/World/Props/Entrance/Textures/plaque_{pl.num}.png");
             var plaqueMat=M($"plaque_{pl.num}", plaqueTex, null, Color.white, 0.25f); EnsureUrp(plaqueMat);
             var plaque=inst.transform.Find("plaque");
             if(plaque){ var mr=plaque.GetComponent<MeshRenderer>(); if(mr) mr.sharedMaterial=plaqueMat; }
@@ -1051,17 +1051,17 @@ public static class ValVertWoods {
     public static void Batch2Dress(){
         var old=GameObject.Find("V3_Batch2Dress"); if(old) Object.DestroyImmediate(old);
         var root=new GameObject("V3_Batch2Dress"); Physics.SyncTransforms();
-        var wood=M("log_fence",ValVertDress.Tex("Assets/ValVert/Veg/tex/fir_tree_01_bark_diff_1k.jpg"),ValVertDress.Tex("Assets/ValVert/Veg/tex/fir_tree_01_bark_nor_gl_1k.jpg",true),new Color(.55f,.48f,.40f),0.08f);
+        var wood=M("log_fence",ValVertDress.Tex("Assets/World/Vegetation/tex/fir_tree_01_bark_diff_1k.jpg"),ValVertDress.Tex("Assets/World/Vegetation/tex/fir_tree_01_bark_nor_gl_1k.jpg",true),new Color(.55f,.48f,.40f),0.08f);
         var metal=M("door_alum_grey",null,null,new Color(.42f,.44f,.46f),0.45f,0.35f); EnsureUrp(metal);
         var glass=M("door_glass",null,null,new Color(.62f,.70f,.78f,1f),0.85f,0.05f); EnsureUrp(glass);
-        var plaster=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/plaster.mat");
+        var plaster=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/plaster.mat");
         var panel=M("facade_panel_grey",null,null,new Color(.62f,.63f,.64f),0.25f);
-        var asp=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/asphalt_leaves.mat")
-            ?? AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/asphalt_road.mat");
-        var pebble=M("pebble_bed",ValVertDress.Tex("Assets/ValVert/Ground/forest_leaves_02_diff.jpg"),null,new Color(1.4f,1.35f,1.3f),0.05f);
-        var hedge=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/hedge.mat")??wood;
-        var concrete=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/path_concrete.mat")
-            ?? M("agg_path",ValVertDress.Tex("Assets/ValVert/Ground/cc0/Concrete047A_col.jpg"),ValVertDress.Tex("Assets/ValVert/Ground/cc0/Concrete047A_nor.jpg",true),new Color(.75f,.74f,.70f),0.12f);
+        var asp=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/asphalt_leaves.mat")
+            ?? AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/asphalt_road.mat");
+        var pebble=M("pebble_bed",ValVertDress.Tex("Assets/World/Ground/forest_leaves_02_diff.jpg"),null,new Color(1.4f,1.35f,1.3f),0.05f);
+        var hedge=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/hedge.mat")??wood;
+        var concrete=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/path_concrete.mat")
+            ?? M("agg_path",ValVertDress.Tex("Assets/World/Ground/cc0/Concrete047A_col.jpg"),ValVertDress.Tex("Assets/World/Ground/cc0/Concrete047A_nor.jpg",true),new Color(.75f,.74f,.70f),0.12f);
         var rockM=MATS!=null&&MATS.ContainsKey("rock")?MATS["rock"]:wood;
         var white=M("sign_white",null,null,new Color(.92f,.92f,.90f),0.2f);
         var zebra=M("zebra_white",null,null,new Color(.95f,.95f,.93f),0.15f);
@@ -1157,7 +1157,7 @@ public static class ValVertWoods {
         foreach(var (bx,bz,sc) in new[]{(368.5f,175.2f,1.0f),(370.2f,174.8f,0.85f),(372.0f,175.5f,1.1f)}){
             GameObject bo;
             bo=GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.DestroyImmediate(bo.GetComponent<Collider>());
-            { var rm=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/rock.mat")??rockM??wood; EnsureUrp(rm); bo.GetComponent<MeshRenderer>().sharedMaterial=rm; }
+            { var rm=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat")??rockM??wood; EnsureUrp(rm); bo.GetComponent<MeshRenderer>().sharedMaterial=rm; }
             bo.name=$"vv_verge_boulder_{bx}"; bo.transform.SetParent(root.transform,false);
             bo.transform.localScale=new Vector3(sc,sc*0.65f,sc*0.9f);
             float gy0=gy(bx,bz); var rend=bo.GetComponentsInChildren<MeshRenderer>();
@@ -1179,14 +1179,14 @@ public static class ValVertWoods {
         for(float t=0;t<=1.001f;t+=0.08f){
             float x=Mathf.Lerp(355f,348f,t); float z=Mathf.Lerp(128f,145f,t);
             box($"earth_path9_{t:F2}", new Vector3(x, gy(x,z)+0.025f, z), new Vector3(1.0f, 0.04f, 1.3f),
-                AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/path_dirt.mat")??pebble);
+                AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/path_dirt.mat")??pebble);
         }
 
         // ===== 10: extra mossy boulders at car-park edge (complements LogStairsDress row) =====
         foreach(var (bx,bz,sc) in new[]{(366.5f,126.8f,1.2f),(367.8f,125.0f,0.95f),(378.0f,118.0f,1.05f)}){
             GameObject bo;
             bo=GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.DestroyImmediate(bo.GetComponent<Collider>());
-            { var rm=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/rock.mat")??rockM??wood; EnsureUrp(rm); bo.GetComponent<MeshRenderer>().sharedMaterial=rm; }
+            { var rm=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat")??rockM??wood; EnsureUrp(rm); bo.GetComponent<MeshRenderer>().sharedMaterial=rm; }
             bo.name=$"park_edge_boulder_{bx}"; bo.transform.SetParent(root.transform,false);
             bo.transform.localScale=new Vector3(sc,sc*0.6f,sc*0.85f); bo.transform.rotation=Quaternion.Euler(8,40,-10);
             float gy0=gy(bx,bz); var rend=bo.GetComponentsInChildren<MeshRenderer>();
@@ -1205,7 +1205,7 @@ public static class ValVertWoods {
         var ti=(TextureImporter)AssetImporter.GetAtPath(GEN+"east_ortho.jpg"); ti.maxTextureSize=4096; ti.wrapMode=TextureWrapMode.Clamp; ti.SaveAndReimport();
         var tl=new TerrainLayer{diffuseTexture=AssetDatabase.LoadAssetAtPath<Texture2D>(GEN+"east_ortho.jpg"),tileSize=new Vector2(432f,709.293f),tileOffset=Vector2.zero,smoothness=0};
         AssetDatabase.CreateAsset(tl,GEN+"east_ortho.terrainlayer"); td.terrainLayers=new[]{tl};
-        AssetDatabase.CreateAsset(td,"Assets/ValVert/ValVertTerrainEast.asset");
+        AssetDatabase.CreateAsset(td,"Assets/World/Terrain/ValVertTerrainEast.asset");
         var go=Terrain.CreateTerrainGameObject(td); go.name="ValVertTerrainEast"; go.transform.position=new Vector3(532f,0.002f,-354.646f);
         var t=go.GetComponent<Terrain>(); t.materialTemplate=main.materialTemplate; t.SetNeighbors(main,null,null,null); main.SetNeighbors(null,null,t,null);
         t.treeDistance=main.treeDistance; t.treeBillboardDistance=main.treeBillboardDistance; East=t; L("east terrain built"); return t;

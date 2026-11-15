@@ -1,6 +1,6 @@
 # ---- name signs on buildings (OSM names only)
 def _nuv(n):
-    i=SROW[n]; H=_Im.open('/workspace/ValVertGame/Assets/ValVert/Gen/sign_names.png').size[1] if False else _AH; u1=SASP[n][0]
+    i=SROW[n]; H=_Im.open('/workspace/ValVertGame/Assets/Generated/sign_names.png').size[1] if False else _AH; u1=SASP[n][0]
     v0=1-(i+1)*_RH/_AH; v1=1-i*_RH/_AH; return [(0,v0+.002),(u1,v0+.002),(u1,v1-.002),(0,v1-.002)]
 def _sign(n,p,g,yt,kind,target,small=False):
     r=[tuple(q) for q in p]

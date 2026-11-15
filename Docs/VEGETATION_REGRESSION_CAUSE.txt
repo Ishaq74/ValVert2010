@@ -14,19 +14,19 @@ Evidence (ValVertTreeProbe on the same scene after the bad review)
     [TREE] ValVertTerrainEast trees=1625 protos=20 ... all prefab=NULL
     [TREE] ef_ash_1=True renderers=12     ← wrapper prefabs still on disk
     [TREE] uns_spruce=True
-    [TREE] Assets/ValVert/Veg/tree_small_02_r25.fbx size=132 lfsPointer=True
+    [TREE] Assets/World/Vegetation/tree_small_02_r25.fbx size=132 lfsPointer=True
 
 Root cause
   TerrainData still held ~46k TreeInstances, but every TreePrototype.prefab
   reference was null, so Unity drew zero trees.
   How it happened on this box:
-    1. During push prep we ran `git checkout HEAD -- Assets/ValVert/ValVertTerrain*.asset`
+    1. During push prep we ran `git checkout HEAD -- Assets/World/Terrain/ValVertTerrain*.asset`
        to avoid committing LFS-expanded binaries (pointers were 132–133 bytes).
     2. The working-tree terrain assets became LFS pointer files; Unity then failed
        to load them ("Failed to load ValVertTerrain.asset") until we copied the
        LFS object blobs back from .git/lfs/objects/.
     3. After that restore, TerrainData.treePrototypes[] no longer resolved the
-       local-only/git-ignored EF+UNS wrapper prefabs (Assets/ValVert/Prefabs/ef_*,
+       local-only/git-ignored EF+UNS wrapper prefabs (Assets/World/Prefabs/ef_*,
        uns_*), so prefab fields were null at runtime. Instance counts remained.
   This was NOT "trees deleted from the merged scene on main" as a content change;
   main still serializes the TerrainData + instance list. The break was local
