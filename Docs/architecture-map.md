@@ -70,8 +70,8 @@ Grass / m_Bld / Setup.Build : non sandboxés dans ce milestone.
 
 | Piece | Path | Role |
 |---|---|---|
-| Event bus | `Runtime/Boot/ValVertEventBus.cs` | Time/season/weather pub-sub |
-| Services | `Runtime/Boot/ValVertServices.cs` | Lightweight registry |
+| Event bus | `Runtime/Core/ValVertEventBus.cs` | Time/season/weather pub-sub |
+| Services | `Runtime/Core/ValVertServices.cs` | Lightweight registry |
 | Bootstrap | `Runtime/Boot/ValVertRuntimeBootstrap.cs` | Wired from `ValVertEnvWire` |
 | Streaming | `Runtime/World/Streaming/ValVertWorldStreaming.cs` | Region SetActive by distance |
 | World config SO | script `Runtime/Boot/Config/ValVertWorldConfig.cs`, data `Settings/World/ValVertWorldConfig.asset` | Authored region list + radii (script moved out of Settings, same GUID) |

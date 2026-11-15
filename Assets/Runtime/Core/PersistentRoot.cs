@@ -11,12 +11,6 @@ namespace ValVertII.Core
     {
         public static PersistentRoot Instance { get; private set; }
 
-        /// <summary>Raised once all services are initialised (one-way hook for adapters, e.g. ValVertII.Bridge).</summary>
-        public static event Action<PersistentRoot> ServicesReady;
-
-        /// <summary>Raised before services are shut down, so adapters can withdraw what they published.</summary>
-        public static event Action<PersistentRoot> ServicesShuttingDown;
-
         [Header("Startup")]
         [SerializeField]
         private string mainMenuScenePath =
@@ -37,10 +31,10 @@ namespace ValVertII.Core
             new List<IAppService>();
 
         private bool _isShuttingDown;
+        private DurableEventDeriver _deriver;
 
         public AppLogger Logger { get; private set; }
         public DiagnosticsService Diagnostics { get; private set; }
-        public WorldEventBus Events { get; private set; }
         public SceneLoader SceneLoader { get; private set; }
         public WorldSession WorldSession { get; private set; }
         public IdRegistry IdRegistry { get; private set; }
@@ -84,7 +78,7 @@ namespace ValVertII.Core
                 IsReady = true;
 
                 Logger.Info("PersistentRoot prêt.");
-                ServicesReady?.Invoke(this);
+                PublishServices();
 
                 if (startWithMainMenu)
                     await SceneLoader.LoadSingleAsync(ResolveScenePath(SceneIds.MenuMain));
@@ -107,7 +101,6 @@ namespace ValVertII.Core
         {
             Logger = Register(new AppLogger());
             Diagnostics = Register(new DiagnosticsService());
-            Events = Register(new WorldEventBus());
             IdRegistry = Register(new IdRegistry());
             SceneLoader = Register(new SceneLoader(Logger));
             WorldSession = Register(new WorldSession());
@@ -124,6 +117,39 @@ namespace ValVertII.Core
             if (!report.IsValid)
                 Logger.Warning(
                     "Le contenu chargé présente des erreurs d'identifiants.");
+        }
+
+        /// <summary>Publishes the application services into the single <see cref="ValVertServices"/> registry (owner-safe)
+        /// and starts deriving durable events onto the single <see cref="ValVertEventBus"/>.</summary>
+        private void PublishServices()
+        {
+            ValVertServices.Register(this);
+            ValVertServices.Register(Logger);
+            ValVertServices.Register(SceneLoader);
+            ValVertServices.Register(WorldSession);
+            ValVertServices.Register(IdRegistry);
+            ValVertServices.Register(Modes);
+            ValVertServices.Register(Diagnostics);
+            if (sceneCatalog != null) ValVertServices.Register(sceneCatalog);
+
+            _deriver = new DurableEventDeriver(
+                () => WorldSession != null && WorldSession.IsRunning ? WorldSession.StartingSectorId : string.Empty);
+        }
+
+        /// <summary>Withdraws exactly what <see cref="PublishServices"/> registered (owner-safe: other systems' entries are untouched).</summary>
+        private void WithdrawServices()
+        {
+            _deriver?.Dispose();
+            _deriver = null;
+
+            ValVertServices.Unregister(this);
+            if (Logger != null) ValVertServices.Unregister(Logger);
+            if (SceneLoader != null) ValVertServices.Unregister(SceneLoader);
+            if (WorldSession != null) ValVertServices.Unregister(WorldSession);
+            if (IdRegistry != null) ValVertServices.Unregister(IdRegistry);
+            if (Modes != null) ValVertServices.Unregister(Modes);
+            if (Diagnostics != null) ValVertServices.Unregister(Diagnostics);
+            if (sceneCatalog != null) ValVertServices.Unregister(sceneCatalog);
         }
 
         private T Register<T>(T service) where T : IAppService
@@ -148,7 +174,7 @@ namespace ValVertII.Core
             await SceneLoader.LoadSingleAsync(worldScenePath);
 
             WorldSession.BeginNewSession(startingSectorId);
-            Events.Publish(new WorldStartedEvent(startingSectorId));
+            ValVertEventBus.Publish(new WorldStartedEvent(startingSectorId));
 
             Logger.Info(
                 $"WorldSession démarrée : {WorldSession.SessionId}");
@@ -191,7 +217,7 @@ namespace ValVertII.Core
 
             _isShuttingDown = true;
 
-            try { ServicesShuttingDown?.Invoke(this); }
+            try { WithdrawServices(); }
             catch (Exception exception) { Debug.LogException(exception); }
 
             IsReady = false;

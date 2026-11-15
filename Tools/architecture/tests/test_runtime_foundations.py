@@ -12,12 +12,12 @@ class ArchitectureTests(unittest.TestCase):
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
 
     def test_event_bus_api(self):
-        t = (ROOT / "Assets/Runtime/Boot/ValVertEventBus.cs").read_text()
+        t = (ROOT / "Assets/Runtime/Core/ValVertEventBus.cs").read_text()
         for s in ("Subscribe", "Unsubscribe", "Publish", "ValVertTimeChanged", "ValVertWeatherChanged"):
             self.assertIn(s, t)
 
     def test_services_api(self):
-        t = (ROOT / "Assets/Runtime/Boot/ValVertServices.cs").read_text()
+        t = (ROOT / "Assets/Runtime/Core/ValVertServices.cs").read_text()
         self.assertIn("Register", t)
         self.assertIn("TryGet", t)
 
