@@ -1,6 +1,6 @@
 {
-  "name": "ValVertII.Core",
-  "rootNamespace": "ValVertII.Core",
+  "name": "ValVert.Core",
+  "rootNamespace": "ValVert.Core",
   "references": [
     "Unity.InputSystem",
     "UnityEngine.UI"

@@ -5,7 +5,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.TestTools;
-using ValVertII.Core;
+using ValVert.Core;
 
 /// <summary>Step 7 (Play Mode): PersistentRoot + single registry + single bus (durable events derived on it), and the guarantee that without a root nothing changes.</summary>
 public class PersistentRootIntegrationTests

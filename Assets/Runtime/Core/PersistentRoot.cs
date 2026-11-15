@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     [DefaultExecutionOrder(-10000)]
     public sealed class PersistentRoot : MonoBehaviour
@@ -107,7 +107,7 @@ namespace ValVertII.Core
             Modes = Register(new AppModeManager(InputRouter));
 
             Logger.Info(
-                $"Démarrage Val Vert II — Unity {Application.unityVersion}");
+                $"Démarrage Val Vert — Unity {Application.unityVersion}");
 
             ValidationReport report = Validator.ValidateLoadedContent();
 

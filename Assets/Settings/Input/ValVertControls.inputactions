@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "name": "ValVertII_InputActions",
+    "name": "ValVertControls",
     "maps": [
         {
             "name": "Gameplay",

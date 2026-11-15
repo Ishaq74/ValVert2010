@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     /// <summary>Player settings (volume, graphics quality, fullscreen): persisted in PlayerPrefs, applied to the engine at startup and on change.</summary>
     public sealed class GameSettings : IAppService

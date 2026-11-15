@@ -4,7 +4,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     /// <summary>
     /// Main menu (uGUI built in code: no asset, built-in font), in French, navigable with mouse, keyboard (arrows, Enter, Escape)

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     public enum ValidationSeverity
     {

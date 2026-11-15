@@ -1,7 +1,7 @@
 {
     "name": "ValVert.Runtime",
     "rootNamespace": "",
-    "references": [ "Unity.InputSystem", "ValVertII.Core" ],
+    "references": [ "Unity.InputSystem", "ValVert.Core" ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -1,6 +1,6 @@
 using System;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     public sealed class WorldSession : IAppService
     {

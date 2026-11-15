@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     /// <summary>
     /// Derives the narrative-valued durable facts (new hour, new season quarter, rain starting or stopping) from the

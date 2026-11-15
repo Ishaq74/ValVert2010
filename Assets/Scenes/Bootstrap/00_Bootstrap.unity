@@ -366,7 +366,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d667fd038db804441b02e4d7291878fe, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: ValVertII.Core::ValVertII.Core.PersistentRoot
+  m_EditorClassIdentifier: ValVert.Core::ValVert.Core.PersistentRoot
   startWithMainMenu: 1
   sceneCatalog: {fileID: 11400000, guid: ddf4ef1bacaf41cd8cfefba5ec70aece, type: 2}
   inputActions: {fileID: -944628639613478452, guid: cddda87c056b6f14cb916ce0851a5af1, type: 3}

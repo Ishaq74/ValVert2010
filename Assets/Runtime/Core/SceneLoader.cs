@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     public enum SceneLoadState
     {

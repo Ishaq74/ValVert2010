@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
-using ValVertII.Core;
+using ValVert.Core;
 
 /// <summary>Main menu: French labels, 'Continuer' only with a save, keyboard/gamepad navigation (same events the Input System UI module sends),
 /// and Options saved through GameSettings.</summary>

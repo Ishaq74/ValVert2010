@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     /// <summary>Stable logical scene ids (ARCHITECTURE.md §6). Code asks for an id, never for an asset path.</summary>
     public static class SceneIds
