@@ -13,7 +13,7 @@ import argparse, fnmatch, json, re, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-PINS = ROOT / "Assets/_Project/Settings/Architecture/generated_guid_pins.json"
+PINS = ROOT / "Assets/Settings/Architecture/generated_guid_pins.json"
 PATTERNS = [
     "Assets/ValVert/Gen/grass_*.asset",                 # field grass chunks (ValVertGrassField, seed 5)
     "Assets/ValVert/Prefabs/ef_*.prefab",               # European Forests variants (vendor-derived, ignored)

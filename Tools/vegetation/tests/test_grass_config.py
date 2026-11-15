@@ -5,7 +5,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 PRE = ROOT / "Tools/vegetation/preflight.py"
-CFG = ROOT / "Assets/_Project/Settings/World/Vegetation/grass_field_config.json"
+CFG = ROOT / "Assets/Settings/World/Vegetation/grass_field_config.json"
 sys.path.insert(0, str(ROOT / "Tools/vegetation"))
 import preflight as PF  # noqa
 
@@ -66,9 +66,9 @@ class GrassConfigTests(unittest.TestCase):
         self.assertEqual(PF.check(cfg()), [])
 
     def test_woods_delegates_and_cs_uses_pack_config(self):
-        woods = (ROOT / "Assets/_Project/Editor/Generators/ValVertWoods.cs").read_text()
+        woods = (ROOT / "Assets/Editor/Generators/ValVertWoods.cs").read_text()
         self.assertIn("ValVertGrassField.Build", woods)
-        field = (ROOT / "Assets/_Project/Editor/Generators/Vegetation/ValVertGrassField.cs").read_text()
+        field = (ROOT / "Assets/Editor/Generators/Vegetation/ValVertGrassField.cs").read_text()
         for s in ("Settings/World/Vegetation/grass_field_config.json", "ExpectedPackId", "FinitePositive", "GUID mismatch", "ExpectedSchema = \"2\""):
             self.assertIn(s, field)
         self.assertNotIn("legacy_homemade\")", field)

@@ -17,7 +17,7 @@ from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-MAN = ROOT / "Assets/_Project/Settings/Architecture/migration_manifest.json"
+MAN = ROOT / "Assets/Settings/Architecture/migration_manifest.json"
 YAML_EXT = {".unity", ".prefab", ".mat", ".asset", ".terrainlayer", ".controller", ".anim", ".shadervariants", ".lighting", ".physicMaterial"}
 TEXT_EXT = {".cs", ".py", ".json", ".md", ".txt"}
 HISTORY_DOCS = ("Docs/architecture-", "Docs/migration-", "Docs/props-inventory", "Docs/generated-rebuild")

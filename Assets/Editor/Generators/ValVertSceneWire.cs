@@ -12,7 +12,7 @@ public static class ValVertSceneWire
 {
     public const string ScenePath = "Assets/Scenes/ValVert.unity";
     public const string HostName = "ValVertEnvironment";
-    public const string ConfigPath = "Assets/_Project/Settings/World/ValVertWorldConfig.asset";
+    public const string ConfigPath = "Assets/Settings/World/ValVertWorldConfig.asset";
 
     public static GameObject Ensure()
     {

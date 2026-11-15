@@ -5,7 +5,7 @@ import json, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-MAN = ROOT / "Assets/_Project/Settings/Architecture/migration_manifest.json"
+MAN = ROOT / "Assets/Settings/Architecture/migration_manifest.json"
 
 def meta_guid(asset: Path) -> str | None:
     m = Path(str(asset) + ".meta")

@@ -6,11 +6,11 @@ Unity 6 URP recreation of Seynod “Val Vert” (2010). Free assets only; OSM/IG
 ## Where things live
 | Area | Path |
 |---|---|
-| Playable systems | `Assets/_Project/Runtime/` (World, Gameplay, Characters…) |
-| Editor generators / validation | `Assets/_Project/Editor/{Generators,Validation,Tools,Debug}/` |
-| **Source** config | `Assets/_Project/Settings/` (not Generated) |
+| Playable systems | `Assets/Runtime/` (World, Gameplay, Characters…) |
+| Editor generators / validation | `Assets/Editor/{Generators,Validation,Tools}/` |
+| **Source** config | `Assets/Settings/` (`Architecture`, `World`, `Rendering` = URP) — not `Assets/Generated/` |
 | Generated rebuild pipeline | `Tools/rebuild/` + `Docs/generated-rebuild.md` |
-| Migration ledger | `Assets/_Project/Settings/Architecture/migration_manifest.json` |
+| Migration ledger | `Assets/Settings/Architecture/migration_manifest.json` |
 | Historical art still co-located | `Assets/ValVert/` (Mats/Ground/Gen…) — migrating by system |
 | Vendor (ignored) | `Assets/ThirdParty/`, `InnerverseInteractive/`, `Realistic Tree/` |
 
@@ -21,7 +21,7 @@ Unity 6 URP recreation of Seynod “Val Vert” (2010). Free assets only; OSM/IG
 - `ValVertWorldStreaming` — **region** activate/deactivate by distance (not LOD)
 
 ## Rebuild proven today
-`sign_danger`, `asphalt_ww`, `parking` only. Grass field generator exists but pack 138810 not wired; not byte-proven.
+`sign_danger`, `asphalt_ww`, `parking` (byte-proven). Grass field: pack 138810 is wired; regenerated chunks proven byte-identical (`Docs/clean-clone.md`).
 
 ## Don’t
 - Commit Asset Store binaries or user photos

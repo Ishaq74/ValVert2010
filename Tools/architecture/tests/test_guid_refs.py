@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 V = ROOT / "Tools/architecture/verify_guid_refs.py"
-MAN = ROOT / "Assets/_Project/Settings/Architecture/migration_manifest.json"
+MAN = ROOT / "Assets/Settings/Architecture/migration_manifest.json"
 
 def run(manifest=None):
     cmd = [sys.executable, str(V)] + (["--manifest", str(manifest)] if manifest else [])
@@ -24,7 +24,7 @@ class GuidRefTests(unittest.TestCase):
         sky = [m for m in json.loads(MAN.read_text())["moves"] if m["system"] == "World/Sky"]
         names = {Path(m["to"]).name for m in sky}
         self.assertTrue({"VVSkyBlend.shader", "sky.mat", "sky_blend.mat", "sky_overcast.mat"} <= names)
-        for m in sky: self.assertTrue(m["to"].startswith("Assets/_Project/Runtime/World/Sky/"))
+        for m in sky: self.assertTrue(m["to"].startswith("Assets/Runtime/World/Sky/"))
 
     def test_tampered_guid_is_caught(self):
         d = json.loads(MAN.read_text()); d["moves"][-1]["guid"] = "0" * 32
@@ -32,7 +32,7 @@ class GuidRefTests(unittest.TestCase):
         r = run(f.name); self.assertEqual(r.returncode, 2); self.assertIn("GUID CHANGED", r.stdout)
 
     def test_stale_old_path_is_caught(self):
-        d = json.loads(MAN.read_text()); d["moves"][-1]["from"] = "Assets/_Project/Editor/Generators/ValVertPaths.cs"  # exists -> "source still present"
+        d = json.loads(MAN.read_text()); d["moves"][-1]["from"] = "Assets/Editor/Generators/ValVertPaths.cs"  # exists -> "source still present"
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f: json.dump(d, f)
         r = run(f.name); self.assertEqual(r.returncode, 2)
 

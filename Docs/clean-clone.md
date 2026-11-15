@@ -23,7 +23,7 @@ Résultat sur `main` (0aff3b5), clone propre : **818 GUID manquants** → class�
 
 ## Pourquoi des *pins* de GUID
 
-Un asset généré naît avec un GUID aléatoire ; la scène committée stocke l'ancien. `Assets/_Project/Settings/Architecture/generated_guid_pins.json` (chemin → GUID, 781 entrées, uniquement GUID/chemins, rien de dérivé d'un vendor) restaure les GUID : après génération, `ValVertGeneratedAssets` réécrit la ligne `guid:` du `.meta` et réimporte (testé : le GUID aléatoire disparaît, le GUID épinglé résout vers le chemin). La scène **n'est jamais sauvegardée** par la régénération → pas de diff de scène.
+Un asset généré naît avec un GUID aléatoire ; la scène committée stocke l'ancien. `Assets/Settings/Architecture/generated_guid_pins.json` (chemin → GUID, 781 entrées, uniquement GUID/chemins, rien de dérivé d'un vendor) restaure les GUID : après génération, `ValVertGeneratedAssets` réécrit la ligne `guid:` du `.meta` et réimporte (testé : le GUID aléatoire disparaît, le GUID épinglé résout vers le chemin). La scène **n'est jamais sauvegardée** par la régénération → pas de diff de scène.
 Mise à jour des pins après toute régénération voulue du monde : `python3 Tools/architecture/guid_pins.py export --project <projet complet>` (n'épingle que les GUID atteints par la scène).
 
 ## Preuves

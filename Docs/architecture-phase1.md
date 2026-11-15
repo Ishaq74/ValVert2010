@@ -59,7 +59,7 @@ Au moment de l’audit, le checkout `/workspace/ValVertGame` (branche `fix-folia
 Aucun fichier existant déplacé, renommé ou modifié. Dossiers vides + `.meta` Unity (`folderAsset: yes`, GUID déterministe MD5 du chemin) + `.gitkeep` sur les feuilles.
 
 ```
-Assets/_Project/
+Assets/
   Boot/
   Scenes/
   Settings/
@@ -86,7 +86,7 @@ Compte : **34** dossiers, **34** `.meta` de dossiers, **27** `.gitkeep` (feuille
 
 **Hors phase 1 (à décider avec l’utilisateur, une migration à la fois) :**
 
-1. Props d’abord (proposition) : déplacer progressivement les props non vendor vers `Assets/_Project/Runtime/World/Props` avec mise à jour GUID/références.
+1. Props d’abord (proposition) : déplacer progressivement les props non vendor vers `Assets/Runtime/World/Props` avec mise à jour GUID/références.
 2. Puis scripts runtime Environment → `Runtime/Gameplay/{Season,Weather,DayNight}`.
 3. Puis Editor tools → `_Project/Editor/...`.
 4. Vendor : rester dans `Assets/ThirdParty/` **sans** republier le contenu Asset Store brut.

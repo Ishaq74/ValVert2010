@@ -1,6 +1,6 @@
 // Val Vert — field grass generator (architecture: World/Vegetation).
 // Placement/batching/exclusions extracted from ValVertWoods.Grass.
-// Config SOURCE: Assets/_Project/Settings/World/Vegetation/grass_field_config.json
+// Config SOURCE: Assets/Settings/World/Vegetation/grass_field_config.json
 // Pack card files + GUIDs come from the verified Asset Store package (config pack.cards); nothing is invented.
 using UnityEngine;
 using UnityEditor;
@@ -12,7 +12,7 @@ using System.IO;
 public static class ValVertGrassField
 {
     const string GEN = "Assets/ValVert/Gen/";
-    public const string ConfigPath = "Assets/_Project/Settings/World/Vegetation/grass_field_config.json";
+    public const string ConfigPath = "Assets/Settings/World/Vegetation/grass_field_config.json";
     public const string ExpectedPackId = "138810";
     public const string ExpectedSchema = "2";
 

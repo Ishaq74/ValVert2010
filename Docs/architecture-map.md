@@ -1,13 +1,13 @@
 # Carte d’architecture Val Vert — réorganisation Runtime + Editor
 
 Date : 2026-11-09 (Europe/Paris). Base : `origin/main` après PR #11 (props Entrance).
-Objectif : ranger les **systèmes existants** sous `Assets/_Project` sans changer le gameplay ni l’apparence.
+Objectif : ranger les **systèmes existants** sous `Assets/Runtime` et `Assets/Editor` (dossier `Assets/_Project` supprimé depuis, voir `ARCHITECTURE.md`) sans changer le gameplay ni l’apparence.
 
 ## Runtime (joueur / scène)
 
 | Avant | Après | Rôle |
 |---|---|---|
-| `Assets/Scripts/Environment/ValVertClock.cs` | `Assets/_Project/Runtime/Gameplay/DayNight/` | Horloge, soleil, cycle jour/nuit |
+| `Assets/Scripts/Environment/ValVertClock.cs` | `Assets/Runtime/Gameplay/DayNight/` | Horloge, soleil, cycle jour/nuit |
 | `…/ValVertSeasons.cs` | `…/Gameplay/Season/` | Phénologie / saisons |
 | `…/ValVertWeather.cs` | `…/Gameplay/Weather/` | Météo synthétique, neige/pluie |
 | `…/ValVertStreetLights.cs` | `…/World/Props/Lighting/` | Lampadaires (positions depuis meshes existants) |

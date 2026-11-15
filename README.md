@@ -77,7 +77,7 @@ Détail : `Docs/architecture-runtime.md`.
 - `ValVertRuntimeBootstrap` : un seul primaire à la fois (les autres restent inertes puis sont promus) ; retransmet horloge, saisons et météo sur le bus ; crée le streaming depuis `Settings/World/ValVertWorldConfig.asset`.
 - `ValVertWorldStreaming` : **activation de régions par distance** (pas de LOD, pas de chargement asynchrone) avec hystérésis et règles de sûreté (jamais de désactivation sous le joueur). Dans la scène réelle : 768 régions (762 chunks d'herbe, 4 enfants est, 2 terrains).
 - Dans `ValVert.unity` : un hôte `ValVertEnvironment` = `ValVertClock` + `ValVertSeasons` + `ValVertRuntimeBootstrap`.
-- **Tests** : 25 tests Play Mode synthétiques + 1 test de la scène complète (`Assets/_Project/Tests/PlayMode/`).
+- **Tests** : 25 tests Play Mode synthétiques + 1 test de la scène complète (`Assets/Tests/PlayMode/`).
 
 ## Herbe (pack Asset Store 138810)
 
@@ -97,7 +97,7 @@ Sans les paquets Asset Store, le script s'arrête en indiquant le nom et le SHA2
 
 Conception complète : **[`ARCHITECTURE.md`](ARCHITECTURE.md)**. Décision du propriétaire du 15/11/2026 : **pas d'enveloppe `_Project`, pas de couches dupliquées** (pas de `Scripts/` à côté de `Runtime/`, pas de dossier historique `ValVert/` à côté de l'arborescence neuve) ; on supprime le contenu obsolète prouvé non référencé (tutoriel Unity…), chaque chose a **un seul emplacement** directement sous `Assets/`, les contenus tiers restent séparés.
 
-**Arborescence actuelle (réelle, avant refonte)** : `Assets/Scenes/`, `Assets/ValVert/` (données monde historiques), `Assets/_Project/{Runtime,Editor,Tests,Settings,Generated,…}`, `Assets/Cars/`, `Assets/ThirdParty/`, `Assets/Settings/` (profils URP), plus du contenu de tutoriel Unity (`TutorialInfo`, `Readme.asset`, `SampleScene`).
+**Arborescence actuelle (après l'étape 3 : `_Project` supprimé)** : `Assets/Scenes/`, `Assets/Runtime/`, `Assets/Editor/`, `Assets/Tests/`, `Assets/Settings/` (`Architecture`, `World`, `Rendering` = profils URP), `Assets/Generated/`, `Assets/ValVert/` (données monde historiques, encore à dissoudre), `Assets/ThirdParty/`, `Assets/Cars/` (gelé). Le contenu de tutoriel Unity est supprimé.
 
 **Arborescence cible (en cours de migration, une PR par étape)** :
 
@@ -122,10 +122,10 @@ Principes : le manuel (couche « jeu ») s'intègre dans cette arborescence sans
 Chaque PR de migration est validée (compilation à 0 erreur, tests Play Mode, vérificateurs de GUID et de migration, scène qui s'ouvre) puis fusionnée normalement. Ce README est mis à jour à chaque PR.
 
 ## Contenu
-- `Assets/_Project/` : code et organisation cible (Runtime + Editor + Art). Voir `Docs/architecture-map.md`.
+- `Assets/` : code et organisation cible (Runtime + Editor + Art). Voir `Docs/architecture-map.md`.
 - `Assets/Scenes/ValVert.unity` : scène principale.
-- `Assets/ValVert/` : données monde / matériaux (migration progressive vers `_Project`).
-- `Assets/_Project/Editor/{Generators,Tools,Validation,Debug}/` : outils Unity classés par rôle.
+- `Assets/ValVert/` : données monde / matériaux historiques (sera dissous vers `Assets/World/` et `Assets/Generated/`, voir `ARCHITECTURE.md`).
+- `Assets/Editor/{Generators,Tools,Validation,Debug}/` : outils Unity classés par rôle.
 - `Tools/generators/` : scripts Python hors Unity (OSM, IGN).
 - `Captures/` : derniers rendus (racine du dépôt).
 - `Docs/` : architecture, manifests de migration. Point d'entrée « 10 minutes » : `Docs/architecture-newcomer.md`.
@@ -149,16 +149,16 @@ Chaque PR de migration est validée (compilation à 0 erreur, tests Play Mode, v
 
 | Système | Emplacement |
 |---|---|
-| Horloge / jour-nuit | `Assets/_Project/Runtime/Gameplay/DayNight/ValVertClock.cs` |
-| Saisons | `Assets/_Project/Runtime/Gameplay/Season/ValVertSeasons.cs` |
-| Météo | `Assets/_Project/Runtime/Gameplay/Weather/ValVertWeather.cs` |
-| Lampadaires | `Assets/_Project/Runtime/World/Props/Lighting/ValVertStreetLights.cs` |
-| Joueur FPS | `Assets/_Project/Runtime/Characters/Player/SimpleFPS.cs` |
-| Smoke test player | `Assets/_Project/Runtime/Gameplay/QA/ValVertSmoke.cs` |
-| Générateurs scène | `Assets/_Project/Editor/Generators/` (`ValVertSetup`, `ValVertWoods`, `ValVertDress`, …) |
-| Outils | `Assets/_Project/Editor/Tools/` |
-| Validation / review | `Assets/_Project/Editor/Validation/` |
-| Entrée Val Vert (props) | `Assets/_Project/Runtime/World/Props/Entrance/` |
+| Horloge / jour-nuit | `Assets/Runtime/Gameplay/DayNight/ValVertClock.cs` |
+| Saisons | `Assets/Runtime/Gameplay/Season/ValVertSeasons.cs` |
+| Météo | `Assets/Runtime/Gameplay/Weather/ValVertWeather.cs` |
+| Lampadaires | `Assets/Runtime/World/Props/Lighting/ValVertStreetLights.cs` |
+| Joueur FPS | `Assets/Runtime/Characters/Player/SimpleFPS.cs` |
+| Smoke test player | `Assets/Runtime/Gameplay/QA/ValVertSmoke.cs` |
+| Générateurs scène | `Assets/Editor/Generators/` (`ValVertSetup`, `ValVertWoods`, `ValVertDress`, …) |
+| Outils | `Assets/Editor/Tools/` |
+| Validation / review | `Assets/Editor/Validation/` |
+| Entrée Val Vert (props) | `Assets/Runtime/World/Props/Entrance/` |
 
 Les noms de classes et les GUID `.meta` sont inchangés : la scène et `-executeMethod NomClasse.Methode` continuent de fonctionner.
 

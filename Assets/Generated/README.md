@@ -1,6 +1,6 @@
 # Generated (architecture)
 
-Future home for migrated generated outputs under `_Project`.
+Future home for migrated generated outputs (derived, reproducible).
 
 Proven rebuild targets currently still emit to historical consumer paths
 (`Assets/ValVert/Ground/…`, `Assets/ValVert/Gen/…`) so scene/material GUIDs

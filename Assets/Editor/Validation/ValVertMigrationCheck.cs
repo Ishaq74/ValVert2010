@@ -11,7 +11,7 @@ using UnityEngine;
 /// </summary>
 public static class ValVertMigrationCheck
 {
-    const string Manifest = "Assets/_Project/Settings/Architecture/migration_manifest.json";
+    const string Manifest = "Assets/Settings/Architecture/migration_manifest.json";
     [System.Serializable] class Move { public string from, to, guid, system; }
     [System.Serializable] class Man { public Move[] moves; }
 
