@@ -35,8 +35,8 @@ Val Vert II est une **simulation narrative en monde ouvert** à Seynod : on vit 
 4. Ouvrir la scène **Assets/Scenes/ValVert.unity**.
 
 > Note sur les fichiers lourds (état vérifié après la PR #20, voir `Docs/clean-clone.md`) :
-> - les gros maillages de la ville (`Assets/ValVert/Gen/m_Bld_kerb`, `m_Bld_white_trim`, `m_Bld_facade`, `m_Bld_metal`, `m_OuterRing` en `.asset`, de 20 à 153 Mo) et les `demfix_*` référencés par la scène sont **suivis en Git LFS** (`git lfs pull` est donc indispensable). Ils ne sont pas reconstruits par `ValVertSetup.Build()`, dont le rejeu complet n'est pas prouvé. *(Avant la PR #20, ils étaient exclus du dépôt et régénérés par `ValVertSetup.Build()` ; ce n'est plus vrai.)*
-> - l'herbe générée (`Assets/ValVert/Gen/grass_*.asset`, environ 400 Mo, 762 chunks) n'est pas dans le dépôt : elle est recréée par `ValVertGeneratedAssets.RegenerateAll` (pilotée par `Tools/rebuild/restore_world.py`), à partir du **pack Asset Store 138810 « Grass Flowers Pack Free »** (la texture et le matériau d'herbe « maison » ont été supprimés). Sans elle, la scène s'ouvre quand même, mais sans les touffes d'herbe.
+> - les gros maillages de la ville (`Assets/Generated/m_Bld_kerb`, `m_Bld_white_trim`, `m_Bld_facade`, `m_Bld_metal`, `m_OuterRing` en `.asset`, de 20 à 153 Mo) et les `demfix_*` référencés par la scène sont **suivis en Git LFS** (`git lfs pull` est donc indispensable). Ils ne sont pas reconstruits par `ValVertSetup.Build()`, dont le rejeu complet n'est pas prouvé. *(Avant la PR #20, ils étaient exclus du dépôt et régénérés par `ValVertSetup.Build()` ; ce n'est plus vrai.)*
+> - l'herbe générée (`Assets/Generated/grass_*.asset`, environ 400 Mo, 762 chunks) n'est pas dans le dépôt : elle est recréée par `ValVertGeneratedAssets.RegenerateAll` (pilotée par `Tools/rebuild/restore_world.py`), à partir du **pack Asset Store 138810 « Grass Flowers Pack Free »** (la texture et le matériau d'herbe « maison » ont été supprimés). Sans elle, la scène s'ouvre quand même, mais sans les touffes d'herbe.
 > - un clone vierge se restaure avec `python3 Tools/rebuild/restore_world.py` (voir « Données générées » plus bas et `Docs/clean-clone.md`).
 
 ## État du projet (honnête)
@@ -48,7 +48,7 @@ Val Vert II est une **simulation narrative en monde ouvert** à Seynod : on vit 
 | Herbe du pack 138810 (762 chunks) | **Fonctionne** ; fleurs du pack : en pause |
 | Fondations runtime : `ValVertEventBus`, `ValVertServices`, `ValVertRuntimeBootstrap`, `ValVertWorldStreaming` | **Fonctionne, 25 tests Play Mode + test de la scène complète** |
 | Reconstruction / restauration d'un clone vierge (`Tools/rebuild`, `restore_world.py`) | **Fonctionne** (3 cibles prouvées + régénération prouvée de l'herbe) |
-| Noyau applicatif de Val Vert II (`PersistentRoot`, `SceneLoader`, `WorldEventBus`, `IdRegistry`…) | **Importé de ValVertII (historique conservé) ; compile sous 6000.3 ; à brancher et à prouver** |
+| Noyau applicatif de Val Vert II (`PersistentRoot`, `SceneLoader`, `WorldEventBus`, `IdRegistry`…) | **Importé de ValVertII (contenu repris à l'identique ; l'historique git d'Ishaq n'est pas fusionné, voir PR #26) ; compile sous 6000.3 ; branché (SceneCatalog, adaptateur, pont durable) et prouvé par 13 tests EditMode et 5 tests Play Mode d'intégration** |
 | Joueur, caméras, téléphone, dialogues, relations, habitants, sauvegarde, intérieurs | **À construire** (`SimpleFPS` est un joueur provisoire) |
 | Véhicules et parking Aldi | **Gelés** : aucune modification |
 
@@ -59,7 +59,7 @@ Val Vert II est une **simulation narrative en monde ouvert** à Seynod : on vit 
 | #1–#8 | Passes de réalisme (voitures maison, asphalte, parking, météo/saisons, neige), correspondance des photos du site (escalier, rampe 9→13, parc arrière), arbres et entrées partagées, caméras photo |
 | #9–#10 | Phase 1 d'architecture : audit mesuré et squelette de dossiers (`Docs/architecture-phase1.md`) |
 | #11 | Props, groupe 1 : entrée Val Vert (`vv_entrance`) migrée avec GUID conservés |
-| #12 | Réorganisation : systèmes runtime sous `Assets/_Project/Runtime`, outils Éditeur classés par rôle |
+| #12 | Réorganisation : systèmes runtime sous `Assets/_Project/Runtime` (aplati ensuite en `Assets/Runtime`, #25), outils Éditeur classés par rôle |
 | #13–#14 | Pipeline de reconstruction des données générées, binaires prouvés désuivis, environnement Python épinglé, empreintes attendues |
 | #15 | Fondations runtime (bus d'événements, services, bootstrap, activation de régions), co-location du ciel et de la végétation |
 | #16 | Correctifs de cycle de vie (bus et services sûrs pour chaque propriétaire, bootstrap unique, activation de régions fondée sur les bornes réelles) + **tests Play Mode** |
@@ -68,6 +68,13 @@ Val Vert II est une **simulation narrative en monde ouvert** à Seynod : on vit 
 | #19 | `ValVertEnvironment` (horloge + saisons + bootstrap) **branché dans `ValVert.unity`** + test de la scène complète |
 | #20 | **Clone propre** : audit, épingles de GUID, `restore_world.py`, maillages ville en LFS, ré-attache des arbres du terrain |
 | #21 | `ARCHITECTURE.md`, README fusionné, manuel maître de Val Vert II (`Docs/ValVertII/`) |
+| #22–#23 | README à jour ; `ARCHITECTURE.md` en arborescence plate (sans `_Project`) |
+| #24 | Étape 2 : contenu obsolète (tutoriel Unity, `SampleScene`, `Readme.asset`) supprimé après preuve de non-référence |
+| #25 | Étape 3 : `Assets/_Project/*` aplati en `Assets/{Runtime,Editor,Tests,Settings,Generated}` (GUID conservés) |
+| #26 | Étape 4 : import de Val Vert II (noyau `ValVertII.*`, scènes `Bootstrap/Menus/SeynodRoot`, entrées, `.vscode`, règles git) |
+| #27 | Étape 5 : `Assets/ValVert` dissous en `Assets/World/*` et `Assets/Generated` (2 117 déplacements, GUID conservés) |
+| #28 | Étape 6 : contenus tiers sous `Assets/ThirdParty/*` (restauration par remappage) |
+| #29 | Étape 7 : `SceneCatalog`, adaptateur `PersistentRoot → ValVertServices`, pont d'événements durables, tests EditMode/Play Mode du noyau |
 
 ## Fondations runtime (réelles, testées)
 
@@ -97,9 +104,9 @@ Sans les paquets Asset Store, le script s'arrête en indiquant le nom et le SHA2
 
 Conception complète : **[`ARCHITECTURE.md`](ARCHITECTURE.md)**. Décision du propriétaire du 15/11/2026 : **pas d'enveloppe `_Project`, pas de couches dupliquées** (pas de `Scripts/` à côté de `Runtime/`, pas de dossier historique `ValVert/` à côté de l'arborescence neuve) ; on supprime le contenu obsolète prouvé non référencé (tutoriel Unity…), chaque chose a **un seul emplacement** directement sous `Assets/`, les contenus tiers restent séparés.
 
-**Arborescence actuelle (après l'étape 4 : `_Project` supprimé, noyau de Val Vert II importé)** : `Assets/Scenes/`, `Assets/Runtime/`, `Assets/Editor/`, `Assets/Tests/`, `Assets/Settings/` (`Architecture`, `World`, `Rendering` = profils URP), `Assets/Generated/`, `Assets/ValVert/` (données monde historiques, encore à dissoudre), `Assets/ThirdParty/`, `Assets/Cars/` (gelé). Le contenu de tutoriel Unity est supprimé.
+**Arborescence actuelle (migration terminée, étapes 0 à 7)** : `Assets/Scenes/`, `Assets/Runtime/`, `Assets/Editor/`, `Assets/Tests/`, `Assets/Settings/` (`Architecture`, `World`, `Rendering` = profils URP), `Assets/World/` (ex-`Assets/ValVert`, dissous), `Assets/Generated/`, `Assets/ThirdParty/`, `Assets/Cars/` (gelé). Le contenu de tutoriel Unity est supprimé.
 
-**Arborescence cible (en cours de migration, une PR par étape)** :
+**Arborescence cible (atteinte ; une PR par étape)** :
 
 ```text
 Assets/
@@ -124,7 +131,9 @@ Chaque PR de migration est validée (compilation à 0 erreur, tests Play Mode, v
 ## Contenu
 - `Assets/` : code et organisation cible (Runtime + Editor + Art). Voir `Docs/architecture-map.md`.
 - `Assets/Scenes/ValVert.unity` : scène principale.
-- `Assets/ValVert/` : données monde / matériaux historiques (sera dissous vers `Assets/World/` et `Assets/Generated/`, voir `ARCHITECTURE.md`).
+- `Assets/World/` : contenu du monde (terrain, maillages, matériaux, sol, végétation, props, ciel, post-traitement) ; `Assets/Generated/` : sorties dérivées reconstructibles (ex-`Assets/ValVert`, dissous à l'étape 5).
+- `Assets/ThirdParty/` : contenus tiers git-ignorés (`InnerverseInteractive`, `RealisticTrees`, `ALP_Assets`, `ValVertGrass`).
+- `Assets/Settings/Catalog/SceneCatalog.asset` : table des scènes par identifiant logique (`MENU_MAIN`, `SECTOR_VALVERT_CORE`…).
 - `Assets/Editor/{Generators,Tools,Validation,Debug}/` : outils Unity classés par rôle.
 - `Tools/generators/` : scripts Python hors Unity (OSM, IGN).
 - `Captures/` : derniers rendus (racine du dépôt).
@@ -141,7 +150,7 @@ Chaque PR de migration est validée (compilation à 0 erreur, tests Play Mode, v
 - Textures et modèles **Poly Haven**, en **CC0**.
 - La liste complète est dans `CREDITS_ASSETS.txt`.
 - Herbe : pack Asset Store **138810 « Grass Flowers Pack Free »** (Objective Environment, EULA Asset Store) — local, **jamais commité**.
-- Manuel maître et noyau applicatif de Val Vert II : © **Ishaq74**, dépôt https://github.com/Ishaq74/ValVertII (historique conservé lors de la fusion).
+- Manuel maître et noyau applicatif de Val Vert II : © **Ishaq74**, dépôt https://github.com/Ishaq74/ValVertII (contenu repris à l'identique ; son historique git n'est pas fusionné, car un objet LFS de son dépôt est introuvable).
 
 **Règles du projet** : tout est **100 % gratuit** ; OSM et IGN sont toujours cités ; aucun binaire d'Asset Store, aucune photo ni dérivé de ces assets n'est publié dans le dépôt ; pas de force-push ni de reset ; fusions normales.
 
@@ -158,7 +167,7 @@ Chaque PR de migration est validée (compilation à 0 erreur, tests Play Mode, v
 | Générateurs scène | `Assets/Editor/Generators/` (`ValVertSetup`, `ValVertWoods`, `ValVertDress`, …) |
 | Outils | `Assets/Editor/Tools/` |
 | Validation / review | `Assets/Editor/Validation/` |
-| Entrée Val Vert (props) | `Assets/Runtime/World/Props/Entrance/` |
+| Entrée Val Vert (props) | `Assets/World/Props/Entrance/` |
 
 Les noms de classes et les GUID `.meta` sont inchangés : la scène et `-executeMethod NomClasse.Methode` continuent de fonctionner.
 
@@ -167,7 +176,7 @@ Les noms de classes et les GUID `.meta` sont inchangés : la scène et `-execute
 La neige se dépose sur les faces tournées vers le ciel (branches, sapins, buissons) via des « coques » générées dans l'éditeur (`ValVertWeatherWire`), en plus des textures de neige au sol/toits/routes (gadoue).
 
 ## Paquets Asset Store (locaux, non redistribués)
-Deux paquets gratuits de l'Asset Store (EULA standard) sont utilisés localement et **git-ignorés** : *Ultimate Nature – Starter* (Innerverse Interactive) et *European Forests – Realistic Trees* (MysticForge), ainsi que leurs dérivés (`Assets/ValVert/Prefabs/uns_*`, `ef_*`, `Assets/ValVert/Gen/snowtrees/`, masques de neige issus des feuilles UNS).
+Deux paquets gratuits de l'Asset Store (EULA standard) sont utilisés localement et **git-ignorés** : *Ultimate Nature – Starter* (Innerverse Interactive) et *European Forests – Realistic Trees* (MysticForge), ainsi que leurs dérivés (`Assets/World/Prefabs/uns_*`, `ef_*`, `Assets/ValVert/Gen/snowtrees/`, masques de neige issus des feuilles UNS).
 Pour les retrouver : les ajouter à votre compte Unity, les importer via Package Manager (sans `Packages/manifest.json`, `Demo`, `Settings`, HDRP), puis lancer `ValVertSetup.Build`.
 **Sans eux**, `ValVertSetup.Build` retombe sur les arbres/buissons CC0 Poly Haven (`tree_small_02`, `fir_tree_01`, `shrub_02`) — rendu moins riche mais complet (repli présent dans le code, non re-testé sur un clone vierge).
 
@@ -188,7 +197,8 @@ Détails : `Docs/generated-rebuild.md`, manifeste `Tools/rebuild/manifest.json`.
 - Jeu Linux autonome : `-executeMethod ValVertPlayer.BuildLinux` ; test fumée : `./ValVert2010.x86_64 -vvsmoke -vvout <dossier>` (parcours scripté, FPS, captures, puis quitte).
 
 ## Tests et vérifications
-- Play Mode (25 tests synthétiques + 1 test de la scène complète) : `Unity -batchmode -nographics -projectPath . -runTests -testPlatform PlayMode -testResults out.xml`
+- Play Mode (31 tests : 25 synthétiques, 1 scène complète, 5 intégration du noyau) : `Unity -batchmode -nographics -projectPath . -runTests -testPlatform PlayMode -testResults out.xml`
+- EditMode (13 tests : noyau applicatif, catalogue de scènes, pont durable) : même commande avec `-testPlatform EditMode`
 - Vérification de migration : `python3 Tools/architecture/verify_migration.py` ; références de GUID : `python3 Tools/architecture/verify_guid_refs.py`
 - Audit d'un clone propre : `python3 Tools/architecture/clean_clone_audit.py --tree <checkout>` ; restauration : `python3 Tools/rebuild/restore_world.py` (voir `Docs/clean-clone.md`)
 - À chaque étape de la refonte : compilation à 0 erreur, tests verts, vérificateurs verts, la scène `ValVert.unity` s'ouvre.
@@ -197,7 +207,7 @@ Détails : `Docs/generated-rebuild.md`, manifeste `Tools/rebuild/manifest.json`.
 
 | Système du manuel | Assembly / dossier cible | Statut |
 |---|---|---|
-| Démarrage, services, scènes, événements durables | `ValVertII.Core` — `Assets/Runtime/Core/` | code repris, à prouver |
+| Démarrage, services, scènes, événements durables | `ValVertII.Core` — `Assets/Runtime/Core/` | **branché et prouvé** (catalogue, adaptateur, pont durable ; reste à bâtir les systèmes) |
 | Entrées et modes de contrôle | `ValVertII.Input` — `Assets/Runtime/Input/` + `Settings/Input/` | squelette |
 | Joueur, caméras, interactions | `ValVertII.Player` — `Assets/Runtime/Player/` | à construire |
 | Téléphone, dialogues, relations, mémoire | `ValVertII.Narrative` — `Assets/Runtime/Narrative/` | à construire |
@@ -207,13 +217,15 @@ Détails : `Docs/generated-rebuild.md`, manifeste `Tools/rebuild/manifest.json`.
 | Mode développeur | `ValVertII.Developer` — `Assets/Runtime/Developer/` (compilé seulement avec `VALVERT_DEV`) | à construire |
 | ECS | `ValVertII.ECS` — `Assets/Runtime/ECS/` | option, seulement si mesuré |
 | Horloge, saisons, météo | `ValVert.Runtime` — `Runtime/Gameplay/` | **existe** |
-| Monde, génération, rendu, herbe | `Editor/Generators/`, `Assets/ValVert/`, `Tools/` | **existe** |
+| Monde, génération, rendu, herbe | `Editor/Generators/`, `Assets/World/`, `Assets/Generated/`, `Tools/` | **existe** |
 
 Statut section par section : `Docs/ValVertII/correspondance.md`.
 
 ## Feuille de route
 
-Étapes de `ARCHITECTURE.md` §12 : 0 documents · 1 squelette et noyau repris · 2 noyau prouvé par des tests · 3 branchement sans changer la scène · 4 données et sauvegarde minimales · 5 migration du monde par système · 6 session de monde et secteur additif · 7 systèmes de jeu un par un (tranche verticale) · 8 durcissement. En parallèle : fleurs du pack d'herbe avec couleurs saisonnières, correspondance des photos, captures de revue.
+**Migration d'architecture (`ARCHITECTURE.md` §12) : terminée, étapes 0 à 7 (PR #21 à #29).**
+
+Reste à faire (étape 8+, un système à la fois, chacun avec ses tests) : joueur, caméras et interactions ; téléphone, dialogues, relations et mémoire ; habitants et routines ; sauvegarde ; secteurs additifs et session de monde par `02_SeynodRoot` (avec bascule des Build Settings vers `00_Bootstrap`) ; fleurs du pack 138810 (en pause) ; paquets Unity du manuel (Cinemachine, etc.), ajoutés compatibles 6000.3.
 
 ## Index des documents
 - `ARCHITECTURE.md` — architecture totale et plan de migration

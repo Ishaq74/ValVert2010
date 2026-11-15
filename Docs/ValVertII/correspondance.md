@@ -12,8 +12,8 @@ Voir `ARCHITECTURE.md` pour la destination de chaque système. Le manuel est dan
 | Paquets de référence : Cinemachine 3.1.7, Entities 1.5.0, Input System 1.20.1… | Seul **Input System 1.20.1** et **AI Navigation 2.0.16** sont dans le manifeste. Les autres arrivent avec leur première fonctionnalité, en version vérifiée compatible 6000.3. |
 | Seynod contemporain | Monde reconstitué **vers 2010** (OSM, IGN ortho 2006-2010). L'époque du jeu est une décision ouverte (ARCHITECTURE.md §14, O1). |
 | Cartes d'entrée `Player`, `UI`, `Developer`, `Cinematic` (§20) | Le code d'Ishaq (`InputRouter`) attend `Gameplay`, `UI`, `Developer`, `Cutscene`. Ce sont ces noms qui font foi tant que l'asset d'entrée n'est pas finalisé. |
-| Racine `Assets/_ValVertII/` (Tome XIV) | Racine réelle : `Assets/_Project/` (voir ARCHITECTURE.md §3). |
-| « Aucun projet Unity n'a été créé » | Un noyau applicatif (« Phase 2 ») existe chez Ishaq ; il est repris sous `Assets/Runtime/Core/` (compile sous 6000.3 après un correctif d'API : `FindObjectsByType(FindObjectsSortMode.None)`) et reste **à prouver** ici. |
+| Racine `Assets/_ValVertII/` (Tome XIV) | Racine réelle : arborescence plate directement sous `Assets/` (`Runtime`, `Editor`, `Tests`, `Settings`, `World`…, voir ARCHITECTURE.md §3 ; `_Project` n'existe plus). |
+| « Aucun projet Unity n'a été créé » | Un noyau applicatif (« Phase 2 ») existe chez Ishaq ; il est repris sous `Assets/Runtime/Core/` (compile sous 6000.3 après un correctif d'API : `FindObjectsByType(FindObjectsSortMode.None)`) et est **branché et prouvé** par des tests (étape 7) ; le chargement réel Bootstrap → SeynodRoot reste à prouver. |
 
 ## Statut par tome / section
 
@@ -44,7 +44,7 @@ Voir `ARCHITECTURE.md` pour la destination de chaque système. Le manuel est dan
 | §53–56 | Sauvegarde | Non implémenté |
 | §57–59 | Outils Éditeur et validation | Partiel : validation du **monde** (`Editor/Validation`, `Tools/architecture`) ; validation du **contenu de jeu** à construire |
 | §60–64 | Tests, performance, builds, CI | Partiel : 25 tests Play Mode + test de scène complète ; reste à construire |
-| §65–74 | Phases 0 à 9 | Phase 1 (projet propre) : faite ; Phase 2 (noyau) : code repris, à prouver ; phase 6 (premier secteur réel) : le monde existe, sans habitants |
+| §65–74 | Phases 0 à 9 | Phase 1 (projet propre) : faite ; Phase 2 (noyau) : code repris, branché (SceneCatalog, adaptateur de services, pont durable) et prouvé par tests EditMode/Play Mode ; le chargement réel Bootstrap → SeynodRoot reste à prouver ; phase 6 (premier secteur réel) : le monde existe, sans habitants |
 | §75–78 | Matrice, risques, décisions, règle de vérité | Repris dans ARCHITECTURE.md §12–14 |
 
 ## Dossier `doc` de ValVertII
