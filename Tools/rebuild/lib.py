@@ -25,7 +25,31 @@ def sha256_file(p: Path) -> str:
 def sha256_bytes(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
 
+def dejavu_font_path() -> Path:
+    """Resolve the pinned DejaVu Sans Bold font on Linux and Windows.
+
+    VALVERT_DEJAVU_BOLD_FONT is useful when the exact pinned file is stored outside
+    the OS font directory. The caller still verifies the checksum before claiming
+    byte-equivalence.
+    """
+    configured = os.environ.get("VALVERT_DEJAVU_BOLD_FONT")
+    if configured:
+        return Path(configured).expanduser()
+
+    rel = Path("usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
+    candidates = [Path("/") / rel]
+    if os.name == "nt":
+        drive_root = Path(os.environ.get("SystemDrive", "C:") + "\\")
+        candidates.extend([
+            drive_root / rel,
+            Path(os.environ.get("LOCALAPPDATA", "")) / "Microsoft/Windows/Fonts/DejaVuSans-Bold.ttf",
+            Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts/DejaVuSans-Bold.ttf",
+        ])
+    return next((p for p in candidates if p.is_file()), candidates[0])
+
 def resolve_input(spec: dict[str, Any], root: Path = ROOT) -> Path:
+    if spec.get("kind") == "system_font":
+        return dejavu_font_path()
     p = Path(spec["path"])
     if not p.is_absolute():
         p = root / p
@@ -45,7 +69,7 @@ def pixel_digest_rgb(path: Path) -> dict[str, Any]:
 
 def current_environment() -> dict[str, Any]:
     import numpy, PIL
-    font = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
+    font = dejavu_font_path()
     return {
         "python": f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}",
         "python_major": sys.version_info.major,

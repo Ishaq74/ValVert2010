@@ -1,6 +1,6 @@
 # Val Vert — Seynod, 2010
 
-Reconstitution 3D du quartier du **Val Vert / Vovray à Seynod (Annecy)** tel qu'il était vers **2010**, et **jeu de simulation narrative en monde ouvert** posé dessus. Projet **Unity 6000.3.27f2 (URP)**, 100 % gratuit, données **OpenStreetMap** et **IGN** citées.
+Reconstitution 3D du quartier du **Val Vert / Vovray à Seynod (Annecy)** tel qu'il était vers **2010**, et **jeu de simulation narrative en monde ouvert** posé dessus. Projet **Unity 6000.6.7f1 (URP)**, 100 % gratuit, données **OpenStreetMap** et **IGN** citées.
 
 > Règle de vérité : **spécifié ≠ implémenté ≠ validé**. Ce qui est écrit « à construire » n'existe pas encore ; un dossier vide ou un script non testé n'est pas un système terminé. Les affirmations de ce document sont vérifiées par les tests et outils cités.
 
@@ -67,7 +67,7 @@ Val Vert est une **simulation narrative en monde ouvert** à Seynod : on y vit u
 
 **Ce que le jeu n'est pas** : un jeu d'action, un simulateur de vie à jauges, un monde persistant en ligne, une copie d'un autre jeu. Le périmètre de production est volontairement mesuré : une **tranche verticale** d'abord (Karim dans une petite portion du bois, un banc, l'appel de sa mère, un choix, une réaction différée, sauvegarde et rechargement, un habitant qui ne sait que ce qu'il a pu apprendre), puis extension.
 
-> Le texte complet de la conception est dans [Partie II](#partie-ii-conception-complète-de-la-couche-jeu). Quand la conception et les faits vérifiés de ce dépôt divergent, **les faits du dépôt priment** : Unity `6000.3.27f2`, monde de **2010**, crédits OSM/IGN, 100 % gratuit (voir [`Docs/design/correspondance.md`](Docs/design/correspondance.md)).
+> Le texte complet de la conception est dans [Partie II](#partie-ii-conception-complète-de-la-couche-jeu). Quand la conception et les faits vérifiés de ce dépôt divergent, **les faits du dépôt priment** : Unity `6000.6.7f1`, monde de **2010**, crédits OSM/IGN, 100 % gratuit (voir [`Docs/design/correspondance.md`](Docs/design/correspondance.md)).
 
 ## 2. Fonctionnalités et état réel
 
@@ -75,17 +75,17 @@ Val Vert est une **simulation narrative en monde ouvert** à Seynod : on y vit u
 |---|---|
 | Monde 2010 : terrain IGN, routes, bâtiments et chemins OSM, bois | **Fonctionne** |
 | Environnement dynamique : horloge solaire, lune, saisons, météo synthétique, lampadaires | **Fonctionne** |
-| Végétation : herbe et fleurs du pack 138810 (762 chunks), arbres, neige sur les branches | **Fonctionne** |
+| Végétation : herbe et fleurs du pack 138810 (762 chunks), arbres, neige sur les branches | Fonctionne dans le monde restauré ; un clone doit aussi recevoir les entrées locales `VV_WORK/clean/` pour régénérer herbe/fleurs. |
 | Noyau applicatif : `PersistentRoot`, `SceneLoader`, `SceneCatalog`, `WorldSession`, `IdRegistry`, bus et registre uniques | **Fonctionne, branché, prouvé** |
 | Menu principal (français, souris, clavier, manette) : Nouvelle partie, Continuer, Options, Quitter | **Fonctionne** |
 | Sauvegarde (emplacement unique, écriture atomique) et réglages (volume, qualité, plein écran) | **Fonctionne** |
 | Chaîne de démarrage `00_Bootstrap → 01_MainMenu → 02_SeynodRoot + ValVert.unity` | **Fonctionne, prouvée** |
-| Restauration d'un clone vierge et audit (`restore_world.py`, `AUDIT_OK`) | **Fonctionne** |
-| Joueur provisoire (`SimpleFPS`) | **Fonctionne** (remplacé par le vrai joueur plus tard) |
+| Restauration d'un clone vierge (`restore_world.py`) | Paquets restaurables ; exige aussi les masques/labels locaux `<VV_WORK>/clean/` (non distribués). Le script s'arrête clairement s'ils manquent. |
+| Explorateur provisoire (`SimpleFPS`) | Déplacement à pied en mode développeur ; vol noclip via `F2`. `F1` active/quitte ce mode dans l'Éditeur ou un Development Build uniquement ; contrôleur désactivé dans Release. Aucun personnage final n'est encore construit. |
 | Joueur réel, caméras, interactions, téléphone, dialogues, relations, mémoire, habitants, intérieurs | **À construire** |
 | Véhicules et parking Aldi | **Gelés** : aucune modification |
 
-Mesures actuelles : EditMode **17/17**, Play Mode **45/45**, 0 erreur de compilation, 0 avertissement « Tree prefab missing », `AUDIT_OK` sur un clone vierge.
+Sur le clone actuel en Unity **6000.6.7f1** : compilation réussie, EditMode **17/17**, arbres **40/40** liés. Play Mode **44/45** ; l'unique échec est `FullSceneSmokeTests` (streaming des chunks au coin de la carte), car les 762 meshes d'herbe et 191 chunks de fleurs ne sont pas restaurés. `restore_world.py` s'arrête avant Unity tant que les cinq entrées locales `VV_WORK/clean/` sont absentes. L'audit classe les **963** références manquantes comme récupérables (954 assets générés + 9 exceptions gelées), mais cela ne signifie pas que le monde est entièrement restauré.
 
 ## 3. Commandes
 
@@ -107,14 +107,15 @@ Mesures actuelles : EditMode **17/17**, Play Mode **45/45**, 0 erreur de compila
 | Courir | `Maj` gauche (8 m/s, marche 4 m/s) |
 | Sauter | `Espace` |
 | Forcer la météo (debug) | `F6` : Auto → Clair → Couvert → Bruine → Pluie → Brouillard → Neige |
+| Explorateur développeur (Éditeur / Development Build seulement) | `F1` entre/quitte le mode dev ; `F2` marche/vol ; en vol `Espace` monte, `Ctrl gauche` descend, `Maj gauche` accélère |
 
 Les cartes d'actions du jeu (`Assets/Settings/Input/ValVertControls.inputactions`) définissent déjà quatre contextes : **Gameplay** (Move, Look, Interact, Pause), **UI** (Navigate, Submit, Cancel), **Developer** (ToggleDeveloper, Move), **CutScene** (Skip). Le menu utilise la carte UI ; le joueur réel adoptera Gameplay à sa construction.
 
 ## 4. Démarrage rapide
 
-1. Installer **Unity Hub** et l'éditeur **Unity 6000.3.27f2** (module Linux/Windows/macOS selon la plateforme).
+1. Installer **Unity Hub** et l'éditeur **Unity 6000.6.7f1** (module Linux/Windows/macOS selon la plateforme).
 2. Cloner avec Git LFS : `git lfs install && git clone https://github.com/polbotweb/ValVert2010 && cd ValVert2010 && git lfs pull`.
-3. Restaurer le monde complet (herbe générée, contenus tiers locaux) : voir [§14](#14-cloner-et-restaurer-le-monde-complet).
+3. Restaurer le monde complet (herbe générée, contenus tiers locaux) : voir [§14](#14-cloner-et-restaurer-le-monde-complet). La restauration de l'herbe/fleurs exige le dossier de sources local `VV_WORK/clean/`.
 4. Unity Hub → **Add** → dossier du projet → ouvrir.
 5. Jouer : ouvrir `Assets/Scenes/ValVert.unity` (le monde, jouable seul) **ou** `Assets/Scenes/Bootstrap/00_Bootstrap.unity` (chaîne complète avec menu), puis *Play*.
 
@@ -262,35 +263,47 @@ L'hôte `ValVertEnvironment` de la scène porte `ValVertClock`, `ValVertSeasons`
 |---|---|---|
 | Ultimate Nature – Starter | Innerverse Interactive | `Assets/ThirdParty/InnerverseInteractive/` |
 | European Forests – Realistic Trees | MysticForge | `Assets/ThirdParty/RealisticTrees/` |
-| Grass Flowers Pack Free (138810) | Objective Environment | `Assets/ThirdParty/ValVertGrass/` |
+| Grass Flowers Pack Free (138810) | Objective Environment | `Assets/ThirdParty/ALP_Assets/GrassFlowersFREE/` |
+| Yughues Free Ground Materials | Yughues | `Assets/ThirdParty/YughuesFreeGroundMaterials/` |
 
-Dérivés ignorés : `Assets/World/Prefabs/uns_*` et `ef_*`, `Assets/Generated/snowtrees/`, masques de neige issus des feuilles UNS, herbe et fleurs générées. Les paquets sont vérifiés par **SHA256** (`Tools/rebuild/vendor_manifest.json`) avant extraction, avec remappage sous `ThirdParty/` et GUID inchangés. Sans eux, la scène s'ouvre quand même (sans herbe ni arbres du pack) ; `ValVertSetup.Build` retombe sur les arbres CC0 Poly Haven.
+Dérivés ignorés : matériaux pack-derivés dans `Assets/ThirdParty/ValVertGrass/`, `Assets/World/Prefabs/uns_*` et `ef_*`, `Assets/Generated/snowtrees/`, masques de neige issus des feuilles UNS, herbe et fleurs générées. Les paquets sont vérifiés par **SHA256** (`Tools/rebuild/vendor_manifest.json`) avant extraction, avec remappage sous `ThirdParty/` et GUID inchangés. Yughues SoilGravel01 fournit les textures diffuse/normale du terrain de sentier `stony_dirt_path` ; routes goudronnées et surfaces bâties restent inchangées. Sans les autres paquets, certains arbres utilisent les remplacements CC0.
 
 ## 14. Cloner et restaurer le monde complet
 
 ```bash
 git lfs install
 git clone https://github.com/polbotweb/ValVert2010 && cd ValVert2010 && git lfs pull
-python3 -m pip install -r Tools/rebuild/requirements.txt      # Python 3.13, numpy 2.5.4, Pillow 13.0.0, police DejaVu
-python3 Tools/rebuild/restore_world.py \
-    --packages-dir <dossier des .unitypackage privés> \
-    --grass-pack "<…/Grass Flowers Pack Free.unitypackage>" \
-    --unity <chemin de l'éditeur Unity 6000.3.27f2>
-python3 Tools/architecture/clean_clone_audit.py --tree .      # doit afficher AUDIT_OK
+# Dans WSL Ubuntu, depuis la racine du dépôt (voir Docs/generated-rebuild.md pour créer le venv)
+VALVERT_DEJAVU_BOLD_FONT=/mnt/c/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf \
+  /tmp/vv-rebuild/bin/python Tools/rebuild/rebuild.py rebuild-proven --apply \
+  --allow-unpinned-env --staging /tmp/vv-rebuild-staging
+```
+
+Puis, dans **PowerShell** depuis la racine du dépôt :
+
+```powershell
+py -3.13 Tools/rebuild/restore_world.py `
+  --packages-dir vendor `
+  --grass-pack "vendor/Grass Flowers Pack Free.unitypackage" `
+  --unity "C:\Program Files\Unity\Hub\Editor\6000.6.7f1\Editor\Unity.exe" `
+  --vv-work "C:\workspace\valvert" `
+  --derive-inputs-from-terrain
+py -3.13 Tools/architecture/clean_clone_audit.py --tree . --require-restored
 ```
 
 - **Git LFS est indispensable** : les gros maillages de la ville (`m_Bld_*`, `m_OuterRing`, `demfix_*`) et les terrains sont suivis en LFS.
-- **Paquets privés** : `UNS_filtered_noManifest.unitypackage`, `EF_filtered.unitypackage` et les prefabs URP supplémentaires d'European Forests, à placer dans `--packages-dir` (non redistribués ; à récupérer depuis votre compte Unity).
+- **Paquets Asset Store** (non redistribués ; à récupérer depuis votre compte Unity) : les exports filtrés vérifiés restent acceptés. Les archives complètes sont aussi acceptées si leur SHA correspond : `Ultimate Nature Starter.unitypackage`, `European Forests - Realistic Trees.unitypackage`, `Grass Flowers Pack Free.unitypackage` et `Yughues Free Ground Materials.unitypackage`. L'archive European Forests complète inclut le marqueur des prefabs URP supplémentaires (`EF_extra`). Wooden Park Bench n'est pas utilisé par le monde.
 - Sans les paquets, le script **s'arrête** en indiquant le nom et le SHA256 attendus : jamais de repli silencieux.
-- `restore_world.py` rejoue les cibles Python prouvées, extrait les paquets, régénère l'herbe, les fleurs et les préfabs (GUID épinglés dans `Assets/Settings/Architecture/generated_guid_pins.json`, fileID racine des arbres dans `terrain_tree_pins.json`), puis audite.
-- Résultat attendu : `AUDIT_OK`, avec **9 GUID de matériaux de voitures** documentés comme exception gelée (introuvables dans tout checkout, `Assets/Cars` étant gelé).
+- **Entrées originales optionnelles** : si `--vv-work/clean/` contient les masques/labels originaux, ils sont utilisés. Sinon `--derive-inputs-from-terrain` les reconstitue à partir des couches peintes du `ValVertTerrain.asset` commité (seuls les fichiers absents sont créés, et la provenance est enregistrée). Cette fallback est cohérente avec le terrain, mais pas byte-identique aux anciens masques externes.
+- `restore_world.py` restaure les images prouvées, extrait les paquets, puis régénère herbe/fleurs et préfabs avec les GUID épinglés (`generated_guid_pins.json`) et les fileID d'arbres (`terrain_tree_pins.json`). Sur Windows natif, les encodages PNG peuvent différer : le contrôle SHA refuse alors l'écriture. Utiliser Linux/WSL pour la reconstruction Python byte-équivalente ; la régénération Unity reste sous Unity 6000.6.7f1.
+- Après restauration complète, l'audit `--require-restored` doit afficher `AUDIT_OK` avec uniquement les **9 GUID de matériaux de voitures** comme exceptions gelées. Sans cette option, `AUDIT_OK` signifie seulement que les manquants sont classés récupérables ; vérifier aussi que `missing_guids=9`.
 
 Détails : [`Docs/clean-clone.md`](Docs/clean-clone.md), [`Docs/generated-rebuild.md`](Docs/generated-rebuild.md).
 
 ```bash
-python3 Tools/rebuild/rebuild.py preflight                    # état des cibles reconstructibles
-python3 Tools/rebuild/rebuild.py rebuild-proven --apply       # recrée les octets prouvés
-python3 Tools/rebuild/tests/test_rebuild.py
+py -3.13 Tools/rebuild/rebuild.py preflight                    # environnement piné
+py -3.13 Tools/rebuild/tests/test_rebuild.py
+# En WSL/Linux, voir Docs/generated-rebuild.md pour rebuild-proven --apply.
 ```
 
 ## 15. Tests et vérifications
@@ -373,8 +386,8 @@ La conception complète est la [Partie II de ce README](#partie-ii-conception-co
 |---|---|---|
 | Démarrage, services, scènes, événements durables | `ValVert.Core` — `Runtime/Core/` | **existe, prouvé** |
 | Entrées et modes de contrôle | `Core.InputRouter` + `Settings/Input/` | partiel |
-| Joueur, états, déplacements, caméras, interactions | `ValVert.Player` — `Runtime/Player/` | à construire (`SimpleFPS` provisoire) |
-| Mode développeur (vol libre, téléportation, overlay) | `ValVert.Developer` (`VALVERT_DEV`) | à construire |
+| Joueur, états, déplacements, caméras, interactions | `ValVert.Runtime` — `Runtime/Characters/Player/` | vrai joueur à construire ; `SimpleFPS` reste un explorateur provisoire éditeur/dev |
+| Mode développeur | `AppModeManager` + `SimpleFPS` | partiel : F1 active l'exploration, F2 le vol noclip ; téléportation/overlay non implémentés, contrôleur absent de Release |
 | Téléphone, messages, appels, dialogues | `ValVert.Narrative` — `Runtime/Narrative/` | à construire |
 | Relations, mémoire, circulation de l'information | `ValVert.Narrative` | à construire |
 | Habitants, routines, navigation, foule | `ValVert.AI` — `Runtime/AI/` | à construire |
@@ -439,7 +452,7 @@ Décisions ouvertes (époque du jeu, caméras, ECS, localisation, plateforme, sa
 
 ## Partie II : conception complète de la couche jeu
 
-> **Statut de cette partie** : conception et plan de production de la couche « jeu » (simulation narrative posée sur la reconstitution 3D de 2010). Elle est reprise **intégralement** (crédits en fin de document) et adaptée au projet unifié. Ce qu'elle décrit est **à construire** tant que [`Docs/design/correspondance.md`](Docs/design/correspondance.md) ne dit pas autrement. Quand elle contredit les faits vérifiés du dépôt (Unity `6000.3.27f2` et non « 6.6 », monde de 2010, crédits OSM/IGN, 100 % gratuit, arborescence réelle de la partie I et d'`ARCHITECTURE.md`), **les faits du dépôt priment**. Les numéros de section (§1 à §78) et les tomes ci-dessous sont ceux cités par `ARCHITECTURE.md` et `Docs/design/correspondance.md`.
+> **Statut de cette partie** : conception et plan de production de la couche « jeu » (simulation narrative posée sur la reconstitution 3D de 2010). Elle est reprise **intégralement** (crédits en fin de document) et adaptée au projet unifié. Ce qu'elle décrit est **à construire** tant que [`Docs/design/correspondance.md`](Docs/design/correspondance.md) ne dit pas autrement. Quand elle contredit les faits vérifiés du dépôt (Unity `6000.6.7f1`, monde de 2010, crédits OSM/IGN, 100 % gratuit, arborescence réelle de la partie I et d'`ARCHITECTURE.md`), **les faits du dépôt priment**. Les numéros de section (§1 à §78) et les tomes ci-dessous sont ceux cités par `ARCHITECTURE.md` et `Docs/design/correspondance.md`.
 
 ### VAL VERT
 #### Manuel maître consolidé de conception, d'architecture et de production
@@ -1557,7 +1570,7 @@ Chaque version doit être identifiée par numéro de build, commit Git, version 
 #### 66. Phase 1 — Projet Unity propre
 
 1. Installer Unity 6.6 LTS et l'IDE.
-2. Créer le projet Universal 3D `ValVert` (fait : Unity 6000.3.27f2, URP).
+2. Créer le projet Universal 3D `ValVert` (fait : Unity 6000.6.7f1, URP).
 3. Résoudre les packages et verrouiller le manifeste.
 4. Créer le dépôt Git et vérifier `.gitignore`/LFS.
 5. Créer les assemblies initiales.

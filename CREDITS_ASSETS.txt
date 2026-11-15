@@ -40,8 +40,12 @@ Map data:
 - IGN (Institut national de l'information geographique et forestiere): elevation data used for the terrain heightmap.
   https://geoservices.ign.fr  License: Licence Ouverte / Open Licence Etalab 2.0.
 
-Code: ValVertSetup.cs, ValVertDress.cs and SimpleFPS.cs were written for this project. No paid or Asset Store assets are used.
-Engine: Unity 6 (6000.3.27f2) with URP, used under the Unity Editor Software Terms.
+Code: ValVertSetup.cs, ValVertDress.cs and SimpleFPS.cs were written for this project. No paid assets are used. These free, locally imported Asset Store packs are used under their standard EULAs and are not redistributed (see README §13):
+- Ultimate Nature Starter — Innerverse Interactive.
+- European Forests – Realistic Trees — MysticForge.
+- Grass Flowers Pack Free (Asset Store 138810) — Objective Environment.
+- Yughues Free Ground Materials — Yughues.
+Engine: Unity 6 (6000.6.7f1) with URP, used under the Unity Editor Software Terms.
 
 --- v3 piranha / stores additions (2026-11-01) ---
 - Store, school, and bus-stop footprints and positions: OpenStreetMap contributors, ODbL.

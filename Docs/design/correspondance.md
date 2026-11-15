@@ -8,8 +8,8 @@ Voir `ARCHITECTURE.md` pour la destination de chaque système. Le manuel de conc
 
 | Le manuel dit | Réalité vérifiée dans ce dépôt |
 |---|---|
-| « Unity 6.6 LTS, branche 6000.3.x » (contradictoire en soi) | **Unity `6000.3.27f2`**. Le manifeste de paquets et `ProjectSettings` du dépôt font foi. |
-| Paquets de référence : Cinemachine 3.1.7, Entities 1.5.0, Input System 1.20.1… | Seuls **Input System 1.20.1**, **AI Navigation 2.0.16** et uGUI (menu) sont utilisés. Les autres arrivent avec leur première fonctionnalité, en version vérifiée compatible 6000.3. |
+| « Unity 6.6 LTS, branche 6000.3.x » (contradictoire en soi) | **Unity `6000.6.7f1`**. Le manifeste de paquets et `ProjectSettings` du dépôt font foi. |
+| Paquets de référence : Cinemachine 3.1.7, Entities 1.5.0, Input System 1.20.1… | Input System **1.20.1**, AI Navigation **2.0.16**, URP **17.6.0**, Test Framework **1.8.0**, Timeline **6.6.0** et uGUI **2.6.0** sont actuellement résolus par le manifeste migré. Les systèmes de conception encore absents n'impliquent pas d'ajouter leurs paquets. |
 | Seynod contemporain | Monde reconstitué **vers 2010** (OSM, IGN ortho 2006-2010). L'époque du jeu est une décision ouverte (ARCHITECTURE.md §14, O1). |
 | Cartes d'entrée `Player`, `UI`, `Developer`, `Cinematic` (§20) | L'asset `Assets/Settings/Input/ValVertControls.inputactions` et `InputRouter` utilisent `Gameplay`, `UI`, `Developer`, `CutScene`. Ces noms font foi. |
 | Racine dédiée à la couche jeu prévue au tome XIV (arborescence cible du manuel) | Arborescence plate directement sous `Assets/` (`Runtime`, `Editor`, `Tests`, `Settings`, `World`…, voir ARCHITECTURE.md §3). |

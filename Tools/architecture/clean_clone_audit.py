@@ -143,24 +143,34 @@ def classify(path, g, ctx) -> str:
         return "tracked-lfs"
     return "unclassified"
 
+def path_for_guid(g: str, g2p: dict, full_g2p: dict, pinned_paths: dict) -> str | None:
+    """A missing generated asset has no .meta to index; its pinned GUID still names it."""
+    return g2p.get(g) or full_g2p.get(g) or pinned_paths.get(g)
+
+def incomplete_count(classes: dict[str, list]) -> int:
+    """Missing assets that are not the explicitly frozen car-material exceptions."""
+    return sum(len(items) for kind, items in classes.items() if kind != "frozen-exception")
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--tree", "--clean", dest="tree", type=Path, required=True)
     ap.add_argument("--full", type=Path, help="complete local project used only to NAME unresolved GUIDs")
     ap.add_argument("--json", type=Path)
     ap.add_argument("--strict", action="store_true")
+    ap.add_argument("--require-restored", action="store_true", help="fail unless only the documented frozen exceptions remain missing")
     ap.add_argument("--list", type=int, default=5)
     ap.add_argument("--tracked-list", type=Path, help="file with `git ls-files` of the intended commit (classifies tracked-lfs)")
     a = ap.parse_args()
     tree = a.tree.resolve()
     g2p, present = index(tree)
     full_g2p = index(a.full.resolve())[0] if a.full else {}
-    universe = set(g2p) | set(full_g2p)
+    pins = load_json(ROOT / "Assets/Settings/Architecture/generated_guid_pins.json", {"assets": {}})["assets"]
+    pinned_paths = {guid: path for path, guid in pins.items()}
+    universe = set(g2p) | set(full_g2p) | set(pinned_paths)
     seen, missing = closure(tree, g2p, present, universe)
 
     rebuild = load_json(ROOT / "Tools/rebuild/manifest.json", {"targets": {}})["targets"]
     rebuild_python = {o["path"] for t in rebuild.values() if t.get("status") == "proven" for o in t.get("outputs", [])}
-    pins = load_json(ROOT / "Assets/Settings/Architecture/generated_guid_pins.json", {"assets": {}})["assets"]
     vendor = load_json(ROOT / "Tools/rebuild/vendor_manifest.json", {"globs": []})["globs"]
     exp = load_json(HERE / "clean_clone_expected.json", {"frozenExceptions": {}})
     attrs = (ROOT / ".gitattributes").read_text().splitlines() if (ROOT / ".gitattributes").is_file() else []
@@ -171,7 +181,7 @@ def main() -> int:
 
     classes: dict[str, list] = collections.defaultdict(list)
     for g, refs in sorted(missing.items()):
-        path = g2p.get(g) or full_g2p.get(g)
+        path = path_for_guid(g, g2p, full_g2p, pinned_paths)
         classes[classify(path, g, ctx)].append({"guid": g, "path": path, "referrers": sorted(refs)[:3]})
     print(f"tree={tree}\nreferenced_and_present={len(seen)} missing_guids={len(missing)}")
     order = ["rebuild-python", "rebuild-unity", "vendor", "package", "frozen-exception", "tracked-lfs", "unresolved", "unclassified"]
@@ -186,10 +196,11 @@ def main() -> int:
         print(f"  {len(items):5d}  {c}")
         for f, n in fam.most_common(a.list): print(f"           {n:5d}  {f}")
     defects = sum(len(classes.get(c, [])) for c in ("tracked-lfs", "unresolved", "unclassified"))
+    incomplete = incomplete_count(classes)
     if a.json:
         a.json.write_text(json.dumps({"missing": classes, "present": len(seen)}, indent=1))
-    if defects or (a.strict and missing):
-        print(f"AUDIT_FAIL defects={defects} missing={len(missing)}"); return 2
+    if defects or (a.strict and missing) or (a.require_restored and incomplete):
+        print(f"AUDIT_FAIL defects={defects} missing={len(missing)} incomplete={incomplete}"); return 2
     print(f"AUDIT_OK missing_but_recoverable={len(missing)}")
     return 0
 

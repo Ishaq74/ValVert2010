@@ -51,6 +51,32 @@ class Synthetic(unittest.TestCase):
         self.assertEqual(c(None, g(9), ctx), "frozen-exception"); self.assertEqual(c(None, g(1), ctx), "unresolved")
         self.assertEqual(c("Assets/c.asset", g(1), ctx), "tracked-lfs"); self.assertEqual(c("Assets/zzz", g(1), ctx), "unclassified")
 
+    def test_missing_pinned_asset_can_be_classified_without_its_meta(self):
+        pins = {g(10): "Assets/Generated/grass_0.asset"}
+        self.assertEqual(A.path_for_guid(g(10), {}, {}, pins), "Assets/Generated/grass_0.asset")
+        ctx = dict(expected_dangling=set(), vendor_globs=[], rebuild_python=set(),
+                   pins={"Assets/Generated/grass_0.asset"}, lfs_globs=[], tracked_paths=set())
+        self.assertEqual(A.classify(A.path_for_guid(g(10), {}, {}, pins), g(10), ctx), "rebuild-unity")
+
+    def test_require_restored_counts_recoverable_assets_but_allows_frozen_exceptions(self):
+        self.assertEqual(A.incomplete_count({"frozen-exception": [{"guid": g(9)}]}), 0)
+        self.assertEqual(A.incomplete_count({"frozen-exception": [{"guid": g(9)}],
+                                             "rebuild-unity": [{"guid": g(10)}]}), 1)
+
+    def test_binary_reference_to_missing_pinned_guid_is_not_lost(self):
+        with tempfile.TemporaryDirectory() as t:
+            td = Path(t)
+            scene = td / "Assets/Scenes/ValVert.unity"
+            scene.parent.mkdir(parents=True)
+            meta(td, "Assets/terrain.asset", g(12))
+            scene.write_text(f"%YAML 1.1\n  m_Terrain: {{fileID: 1, guid: {g(12)}, type: 2}}\n")
+            terrain = td / "Assets/terrain.asset"
+            terrain.write_bytes(b"\x00" * 40 + A.swapped(g(11)) + b"\x00" * 40)
+            g2p, present = A.index(td, packages=False)
+            _, missing = A.closure(td, g2p, present, set(g2p) | {g(11)})
+            self.assertIn(g(11), missing)
+            self.assertIn("Assets/terrain.asset", missing[g(11)])
+
 class RealRepo(unittest.TestCase):
     def test_pins_wellformed_and_unique(self):
         d = P.load(); self.assertEqual(P.validate(d), [])
@@ -81,6 +107,9 @@ class RealRepo(unittest.TestCase):
             self.assertTrue(pk["marker"].startswith("Assets/"))
             self.assertTrue(pk["marker"].startswith("Assets/ThirdParty/"), "step 6: every vendor package lives under Assets/ThirdParty/")
             if pk.get("remap"): self.assertTrue(pk["remap"][1].startswith("Assets/ThirdParty/"))
+            for alt in pk.get("alternatives", []):
+                self.assertRegex(alt["sha256"], r"^[0-9a-f]{64}$")
+                self.assertTrue(alt["file"].endswith(".unitypackage"))
         ex = json.loads((ROOT / "Tools/architecture/clean_clone_expected.json").read_text())["frozenExceptions"]
         self.assertTrue(ex and all(re.fullmatch(r"[0-9a-f]{32}", k) for k in ex))
 

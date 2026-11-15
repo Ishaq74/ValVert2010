@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Focused automated tests for the rebuild pipeline (pins + baselines + atomic apply)."""
 from __future__ import annotations
-import json, os, shutil, subprocess, sys, tempfile, unittest
+import io, json, os, shutil, subprocess, sys, tarfile, tempfile, unittest
 from pathlib import Path
 from unittest import mock
 
@@ -10,10 +10,66 @@ REBUILD = ROOT / "Tools" / "rebuild" / "rebuild.py"
 sys.path.insert(0, str(ROOT / "Tools" / "rebuild"))
 from lib import (  # noqa: E402
     load_manifest, load_baselines, preflight_target, sha256_file,
-    environment_errors, validate_against_baselines, current_environment,
+    environment_errors, validate_against_baselines, current_environment, dejavu_font_path, resolve_input,
 )
+from restore_world import extract_remap, required_world_inputs, vendor_package_candidates  # noqa: E402
 
 class RebuildTests(unittest.TestCase):
+    def test_font_path_override_is_shared_by_preflight_and_producer(self):
+        with tempfile.TemporaryDirectory(prefix="vv-font-") as td:
+            font = Path(td) / "DejaVuSans-Bold.ttf"
+            font.write_bytes(b"test-font")
+            with mock.patch.dict(os.environ, {"VALVERT_DEJAVU_BOLD_FONT": str(font)}):
+                self.assertEqual(dejavu_font_path(), font)
+                self.assertEqual(resolve_input({"kind": "system_font", "path": "/unused"}), font)
+
+    def test_extract_remap_decodes_utf8_pathnames(self):
+        """Asset Store pathnames with Unicode must survive extraction on Windows too."""
+        with tempfile.TemporaryDirectory(prefix="vv-unitypackage-") as td:
+            tmp = Path(td)
+            package = tmp / "unicode.unitypackage"
+            guid = "0123456789abcdef0123456789abcdef"
+            pathname = "Assets/InnerverseInteractive/Ultimate Nature – Starter/leaf.png"
+            entries = {
+                "pathname": pathname.encode("utf-8"),
+                "asset": b"asset-bytes",
+                "asset.meta": f"fileFormatVersion: 2\nguid: {guid}\n".encode("ascii"),
+            }
+            with tarfile.open(package, "w") as tf:
+                for suffix, payload in entries.items():
+                    info = tarfile.TarInfo(f"{guid}/{suffix}")
+                    info.size = len(payload)
+                    tf.addfile(info, io.BytesIO(payload))
+
+            project = tmp / "project"
+            extract_remap(
+                package,
+                ("Assets/InnerverseInteractive", "Assets/ThirdParty/InnerverseInteractive"),
+                project,
+            )
+            asset = project / "Assets/ThirdParty/InnerverseInteractive/Ultimate Nature – Starter/leaf.png"
+            self.assertEqual(asset.read_bytes(), b"asset-bytes")
+            self.assertIn(f"guid: {guid}", Path(str(asset) + ".meta").read_text())
+
+    def test_restore_accepts_only_pinned_full_package_alternatives(self):
+        with tempfile.TemporaryDirectory(prefix="vv-packages-") as td:
+            folder = Path(td)
+            pk = {"id": "UNS", "file": "filtered.unitypackage", "sha256": "filtered-sha",
+                  "alternatives": [{"file": "full.unitypackage", "sha256": "full-sha"}]}
+            choices = vendor_package_candidates(pk, folder)
+            self.assertEqual(choices, [(folder / "filtered.unitypackage", "filtered-sha"),
+                                       (folder / "full.unitypackage", "full-sha")])
+            grass = folder / "grass.unitypackage"
+            self.assertEqual(vendor_package_candidates({"id": "GRASS", "sha256": "pinned"}, folder, grass),
+                             [(grass, "pinned")])
+
+    def test_restore_checks_external_clean_inputs(self):
+        with tempfile.TemporaryDirectory(prefix="vv-work-") as td:
+            missing = required_world_inputs(Path(td))
+            self.assertEqual([p.name for p in missing], [
+                "veg_excl.png", "canopy_orig.png", "veg_meadow.png", "woods_meshes.json", "label_v3.raw"
+            ])
+
     def test_manifest_targets(self):
         m = load_manifest()
         self.assertIn("sign_danger", m["targets"])
@@ -116,6 +172,7 @@ class RebuildTests(unittest.TestCase):
         finally:
             shutil.rmtree(staging, ignore_errors=True)
 
+    @unittest.skipIf(os.name == "nt", "byte baselines were produced on Linux; use WSL/Linux for byte verification")
     def test_verify_sign_against_baselines(self):
         staging = Path(tempfile.mkdtemp(prefix="vv-ver-sign-"))
         try:

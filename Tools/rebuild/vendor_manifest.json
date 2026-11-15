@@ -1,10 +1,11 @@
 {
  "schema": 1,
- "note": "Asset Store content (EULA): never committed. Packages are verified by SHA256 before import; GUIDs come from the packages themselves, so references stay valid. 'globs' = repo paths that are vendor content or vendor-derived (ignored). Packages are EXTRACTED (not Unity -importPackage) so that oversized, unused items can be excluded: UNS_HDRI.hdr (262 MB) makes Unity batchmode import exceed 16 GB RAM and get OOM-killed (observed); no scene/prefab references it. Since step 6 every vendor package is remapped under Assets/ThirdParty/<vendor>/ at extraction (GUIDs unchanged).",
+ "note": "Asset Store content (EULA): never committed. Packages are verified by SHA256 before extraction; GUIDs come from the packages themselves, so references stay valid. 'globs' = repo paths that are vendor content or vendor-derived (ignored). Packages are EXTRACTED (not Unity -importPackage) so that oversized, unused items can be excluded: UNS_HDRI.hdr (262 MB) makes Unity batchmode import exceed 16 GB RAM and get OOM-killed (observed); no scene/prefab references it. Since step 6 every vendor package is remapped under Assets/ThirdParty/<vendor>/ at extraction (GUIDs unchanged). Full Asset Store archives are accepted only when their SHA256 is listed below.",
  "globs": [
-  "Assets/ThirdParty/InnerverseInteractive/*",
-  "Assets/ThirdParty/RealisticTrees/*",
-  "Assets/ThirdParty/ALP_Assets/*",
+   "Assets/ThirdParty/InnerverseInteractive/*",
+   "Assets/ThirdParty/RealisticTrees/*",
+   "Assets/ThirdParty/YughuesFreeGroundMaterials/*",
+   "Assets/ThirdParty/ALP_Assets/*",
   "Assets/Generated/snowtrees/*",
   "Assets/Generated/snow/shell_*"
  ],
@@ -14,6 +15,12 @@
    "name": "Ultimate Nature Starter (Innerverse Interactive), filtered export",
    "file": "UNS_filtered_noManifest.unitypackage",
    "sha256": "777dd5f9a3863bb423d384008e1b6d8b3bacb61352414d4f7b4a4d662d06f186",
+   "alternatives": [
+    {
+     "file": "Ultimate Nature Starter.unitypackage",
+     "sha256": "251fff35b4569b6a8e2f91e3cce0fcd6bcab9cdbf6423079565d8d65b91fb79e"
+    }
+   ],
    "method": "extract-remap",
    "marker": "Assets/ThirdParty/InnerverseInteractive",
    "exclude": [
@@ -29,6 +36,12 @@
    "name": "European Forests - Realistic Trees (MysticForge), filtered export",
    "file": "EF_filtered.unitypackage",
    "sha256": "702afa4ce34a91bdb2b3ffc960f0f4b27e8b87038cca944f95d8226c5d4f5e5c",
+   "alternatives": [
+    {
+     "file": "European Forests - Realistic Trees.unitypackage",
+     "sha256": "a5e770f0b457ee39f1ffab4c35a2c269495f643dcc44596dcd8f4387cefdccce"
+    }
+   ],
    "method": "extract-remap",
    "marker": "Assets/ThirdParty/RealisticTrees",
    "exclude": [
@@ -65,6 +78,21 @@
     "Assets/ThirdParty/ALP_Assets"
    ],
    "marker": "Assets/ThirdParty/ALP_Assets/GrassFlowersFREE"
+  },
+  {
+   "id": "YUGHUES",
+   "name": "Yughues Free Ground Materials (local Asset Store pack)",
+   "file": "Yughues Free Ground Materials.unitypackage",
+   "sha256": "64e6ecc19b51266ca9da157ef090699c6dd3d4b6677033fe213ca75bb5dabbe5",
+   "method": "extract-remap",
+   "marker": "Assets/ThirdParty/YughuesFreeGroundMaterials/Materials/M_YFGM_SoilGravel01.mat",
+   "exclude": [
+    "*.unitypackage"
+   ],
+   "remap": [
+    "Assets/YughuesFreeGroundMaterials",
+    "Assets/ThirdParty/YughuesFreeGroundMaterials"
+   ]
   }
  ],
  "sanitizeRoots": [

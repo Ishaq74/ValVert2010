@@ -2,8 +2,9 @@
 from __future__ import annotations
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
+from lib import dejavu_font_path
 
-FONT = Path("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
+FONT = dejavu_font_path()
 
 def build(out_dir: Path) -> list[Path]:
     if not FONT.is_file():

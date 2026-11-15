@@ -1,6 +1,6 @@
 # Pipeline de reconstruction des données générées
 
-Date : 2026-11-09 (Europe/Paris). Milestone architecture après PR #12 ; pin+baselines après PR #13.
+Date : 2026-11-15 (Europe/Paris). Milestone architecture après PR #12 ; pin+baselines après PR #13.
 
 ## Environnement reproductible (obligatoire pour byte-équivalence)
 
@@ -23,14 +23,39 @@ python3 -m pip install -r Tools/rebuild/requirements.txt
 #   (/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf)
 ```
 
+#### Windows / WSL
+
+Le fichier installé peut apparaître dans Windows sous le nom **DejaVu Sans Gras** ; son nom sur disque doit être `DejaVuSans-Bold.ttf`. Le pipeline accepte `VALVERT_DEJAVU_BOLD_FONT` pour le désigner et vérifie toujours le SHA256 ci-dessus.
+
+**Important :** Python 3.13, NumPy 2.5.4, Pillow 13.0.0 et la bonne police ne suffisent pas sous Windows natif : l'encodage PNG produit des octets différents des baselines Linux, donc `rebuild-proven --apply` refuse sans toucher aux sorties. Ne contournez pas ce refus. Utilisez Linux/WSL pour cette étape. Dans WSL Ubuntu, un venv Python 3.12 avec les versions NumPy/Pillow ci-dessus a aussi été testé : malgré `--allow-unpinned-env`, l'application n'a lieu que si les **sept sorties** passent leurs SHA/digests de référence.
+
+Exemple WSL depuis la racine du dépôt. Sous Ubuntu 24.04, créer une fois l'environnement isolé :
+
+```bash
+sudo apt update
+sudo apt install python3.12-venv
+python3 -m venv /tmp/vv-rebuild
+/tmp/vv-rebuild/bin/pip install -r Tools/rebuild/requirements.txt
+```
+
+Puis lancer la reconstruction. Dans cet exemple, la police vérifiée est accessible depuis WSL via le disque Windows `C:` :
+
+```bash
+VALVERT_DEJAVU_BOLD_FONT=/mnt/c/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf \
+  /tmp/vv-rebuild/bin/python Tools/rebuild/rebuild.py rebuild-proven --apply \
+  --allow-unpinned-env --staging /tmp/vv-rebuild-staging
+```
+
+`VALVERT_DEJAVU_BOLD_FONT` peut pointer vers n'importe quel emplacement, mais le fichier doit avoir le checksum piné. Sous Windows natif, l'auto-détection essaie aussi le dossier Fonts utilisateur/système.
+
 `preflight` / `rebuild` / `verify` / `rebuild-proven` **échouent** si Python majeur.mineur, numpy, Pillow ou le checksum de la police diffèrent.
-Override documenté **unsafe** (jamais utilisé par le chemin standard `rebuild-proven`) :
+Override d'environnement documenté **unsafe** (ne désactive jamais la validation contre les baselines) :
 
 ```bash
 python3 Tools/rebuild/rebuild.py preflight --allow-unpinned-env
 ```
 
-Cet override désactive les contrôles d’environnement ; les claims de byte-équivalence croisée machine/host ne sont alors **pas** autorisés.
+Cet override désactive les contrôles de version, pas les SHA/digests des sorties. Le pipeline refuse toujours une écriture si une seule sortie diffère.
 
 ## Baselines attendues (anti-tautologie)
 
@@ -52,8 +77,8 @@ python3 Tools/rebuild/rebuild.py determinism --target parking
 python3 Tools/rebuild/rebuild.py verify --target sign_danger
 python3 Tools/rebuild/rebuild.py verify --target asphalt_ww
 python3 Tools/rebuild/rebuild.py verify --target parking
-python3 Tools/rebuild/rebuild.py rebuild --target sign_danger --staging /workspace/valvert/rebuild-staging
-python3 Tools/rebuild/rebuild.py rebuild-proven --apply   # valide baselines puis écrit les 7 sorties proven
+python3 Tools/rebuild/rebuild.py rebuild --target sign_danger --staging /tmp/vv-rebuild-staging
+python3 Tools/rebuild/rebuild.py rebuild-proven --apply --staging /tmp/vv-rebuild-staging  # valide baselines puis écrit les 7 sorties proven
 python3 Tools/rebuild/tests/test_rebuild.py
 ```
 

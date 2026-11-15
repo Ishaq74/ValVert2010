@@ -2,7 +2,7 @@
 
 > **Statut** : architecture validée par le propriétaire le 15/11/2026 (« refonte intégrale »), **réalisée** (PR #21 à #44) : l'arborescence décrite ici est l'arborescence réelle. Ce document décrit le projet unifié — reconstitution 3D du Val Vert de Seynod vers 2010 **et** couche « jeu » posée dessus — et ce qui reste à construire. Les statuts « existe / à construire » sont mis à jour à chaque PR.
 >
-> Date : 15 novembre 2026 (Europe/Paris). Moteur : Unity `6000.3.27f2`, URP. Conception de la couche jeu : partie II du `README.md` (statut section par section : `Docs/design/correspondance.md`).
+> Date : 15 novembre 2026 (Europe/Paris). Moteur : Unity `6000.6.7f1`, URP. Conception de la couche jeu : partie II du `README.md` (statut section par section : `Docs/design/correspondance.md`).
 
 ## Sommaire
 

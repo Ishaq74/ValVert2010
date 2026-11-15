@@ -7,8 +7,8 @@ TerrainLayer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: stony_dirt_path
-  m_DiffuseTexture: {fileID: 2800000, guid: 3a881354ad61425088743d805c1b08e4, type: 3}
-  m_NormalMapTexture: {fileID: 2800000, guid: dbcc50610527bb4eeb373eb587b23138, type: 3}
+  m_DiffuseTexture: {fileID: 2800000, guid: 1237c43b955e9114b9584e6c031d4f7c, type: 3}
+  m_NormalMapTexture: {fileID: 2800000, guid: ec73f91e9407c3c4a941519a019c780b, type: 3}
   m_MaskMapTexture: {fileID: 2800000, guid: 62c5d378dd81a82a382e1f0318374bb7, type: 3}
   m_TileSize: {x: 2.5, y: 2.5}
   m_TileOffset: {x: 0, y: 0}
