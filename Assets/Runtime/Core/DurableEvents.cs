@@ -60,7 +60,7 @@ namespace ValVertII.Core
         { Envelope = envelope; Started = started; }
     }
 
-    /// <summary>A world session started (published by <see cref="PersistentRoot.EnterWorldAsync"/>).</summary>
+    /// <summary>A world session started (published by <see cref="PersistentRoot.EnterSessionAsync"/>).</summary>
     public readonly struct WorldStartedEvent
     {
         public readonly string StartingSectorId;
