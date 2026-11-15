@@ -2,7 +2,7 @@
 
 Date : 15 novembre 2026 (Europe/Paris). Légende (règle de vérité du manuel, §78) :
 **Spécifié** (décrit seulement) → **Implémenté** (code/assets dans le projet) → **Intégré** (branché dans une scène réelle) → **Testé** → **Validé**.
-Voir `ARCHITECTURE.md` pour la destination de chaque système. Le manuel est dans `manuel-de-conception.md`.
+Voir `ARCHITECTURE.md` pour la destination de chaque système. Le manuel de conception est la partie II du `README.md`.
 
 ## Corrections factuelles du manuel (le dépôt fait foi)
 

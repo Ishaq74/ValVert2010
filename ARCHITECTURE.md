@@ -2,7 +2,7 @@
 
 > **Statut** : architecture validée par le propriétaire le 15/11/2026 (« refonte intégrale »), **réalisée** (PR #21 à #44) : l'arborescence décrite ici est l'arborescence réelle. Ce document décrit le projet unifié — reconstitution 3D du Val Vert de Seynod vers 2010 **et** couche « jeu » posée dessus — et ce qui reste à construire. Les statuts « existe / à construire » sont mis à jour à chaque PR.
 >
-> Date : 15 novembre 2026 (Europe/Paris). Moteur : Unity `6000.3.27f2`, URP. Conception de la couche jeu : `Docs/design/manuel-de-conception.md` (statut section par section : `Docs/design/correspondance.md`).
+> Date : 15 novembre 2026 (Europe/Paris). Moteur : Unity `6000.3.27f2`, URP. Conception de la couche jeu : partie II du `README.md` (statut section par section : `Docs/design/correspondance.md`).
 
 ## Sommaire
 
@@ -91,7 +91,7 @@ ValVert2010/
 ├── .gitignore, .gitattributes, .vscode/
 ├── Captures/                                               rendus de revue
 ├── Docs/                                                   architecture-*.md, clean-clone.md, generated-rebuild.md, …
-│   └── design/                                             manuel-de-conception.md, correspondance.md
+│   └── design/                                             correspondance.md
 ├── Tools/{architecture,rebuild,vegetation,generators}/     outils Python hors Unity
 ├── Packages/, ProjectSettings/
 └── Assets/
@@ -139,7 +139,7 @@ ValVert2010/
 | `Assets/World/**`, `Assets/Generated/**` | `Assets/ValVert/**` (2 117 déplacements) | PR #27 |
 | `Assets/ThirdParty/{InnerverseInteractive,RealisticTrees,ALP_Assets,ValVertGrass}/` | `Assets/InnerverseInteractive/`, `Assets/Realistic Tree/`, `Assets/ThirdParty/**` | PR #28 |
 | `Assets/Scenes/{Bootstrap,Menus,SeynodRoot}/`, `Runtime/Core/`, `Settings/Input/` | noyau applicatif de la couche jeu, intégré à l'étape 4 | PR #26 |
-| `Docs/design/` | manuel de conception de la couche jeu | PR #21, renommé à l'unification |
+| partie II du `README.md`, `Docs/design/correspondance.md` | manuel de conception de la couche jeu (intégré au README) et son statut | PR #21, renommé à l'unification, intégré au README |
 | `Assets/Cars/**` | inchangé (gelé) | — |
 | supprimés (non référencés, prouvé) | `TutorialInfo`, `Readme.asset`, `SampleScene`, `.gitkeep`, 9 assemblies vides | PR #24, #37 |
 
