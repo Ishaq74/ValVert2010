@@ -200,6 +200,10 @@ public class ValVertClock : MonoBehaviour
         RenderSettings.fogColor = Color.Lerp(new Color(.03f, .035f, .045f), Color.Lerp(new Color(.72f, .72f, .70f), new Color(.62f, .63f, .64f), cloudCover), Daylight01);
         RenderSettings.fog = true; RenderSettings.fogMode = FogMode.ExponentialSquared;
         RenderSettings.fogDensity = 0.0008f + 0.004f * cloudCover * precip + 0.045f * fogAmount;   // light haze .. valley fog (~100 m visibility)
+        // The sky materials are tracked project assets: only the Play Mode runtime copies are animated (Edit Mode keeps the authored sky,
+        // so opening a scene in a tool or batch run never rewrites sky.mat).
+        if (Application.isPlaying)
+        {
         if (blendSkybox)
         {
             if (RenderSettings.skybox != blendSkybox) RenderSettings.skybox = blendSkybox;
@@ -222,6 +226,7 @@ public class ValVertClock : MonoBehaviour
             float skyE = Mathf.Lerp(0.03f + 0.05f * MoonIllumination * Mathf.Clamp01(MoonAltitudeDeg / 15f) * (1f - cloudCover), Mathf.Lerp(1f, 0.55f, cloudCover * precip + 0.3f * cloudCover), sky);
             RenderSettings.skybox.SetFloat("_Exposure", baseSkyExposure * skyE);
             if (RenderSettings.skybox.HasProperty("_Tint")) { if (!tintCached) { baseTint = RenderSettings.skybox.GetColor("_Tint"); tintCached = true; } RenderSettings.skybox.SetColor("_Tint", Color.Lerp(new Color(.30f, .38f, .62f), Color.Lerp(baseTint, new Color(.5f, .5f, .5f), cloudCover * 0.8f), sky)); }
+        }
         }
         Changed?.Invoke();
     }
