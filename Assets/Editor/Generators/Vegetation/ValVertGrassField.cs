@@ -11,7 +11,7 @@ using System.IO;
 
 public static class ValVertGrassField
 {
-    const string GEN = "Assets/ValVert/Gen/";
+    const string GEN = "Assets/Generated/";
     public const string ConfigPath = "Assets/Settings/World/Vegetation/grass_field_config.json";
     public const string ExpectedPackId = "138810";
     public const string ExpectedSchema = "2";

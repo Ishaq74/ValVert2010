@@ -51,7 +51,7 @@ class GrassConfigTests(unittest.TestCase):
         self.assertTrue(any("cards" in e for e in PF.check(c, True)))
         c = cfg(); c["cardHeightPark"] = [0.5, 0.2]
         self.assertTrue(any("cardHeightPark" in e for e in PF.check(c, True)))
-        c = cfg(); c["materialFolder"] = "Assets/ValVert/Mats"
+        c = cfg(); c["materialFolder"] = "Assets/World/Materials"
         self.assertTrue(any("materialFolder" in e for e in PF.check(c, True)))
         c = cfg(); c["pack"]["assetStoreId"] = "1"
         self.assertTrue(any("assetStoreId" in e for e in PF.check(c, True)))

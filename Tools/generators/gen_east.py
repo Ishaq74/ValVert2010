@@ -12,7 +12,7 @@ class Path:
         if ins or radius==0: return ins
         a=p; b=np.roll(p,-1,0); d=b-a; t=np.clip(((x-a[:,0])*d[:,0]+(z-a[:,1])*d[:,1])/((d**2).sum(1)+1e-9),0,1)
         return bool(np.min(np.hypot(a[:,0]+t*d[:,0]-x,a[:,1]+t*d[:,1]-z))<abs(radius))
-OUT='/workspace/valvert/clean/'; GEN='/workspace/ValVertGame/Assets/ValVert/Gen/'
+OUT='/workspace/valvert/clean/'; GEN='/workspace/ValVertGame/Assets/Generated/'
 LON0,LAT0=6.107796675787339,45.88915585177747
 def W(n): return ((n['lon']-LON0)*77484.85,(n['lat']-LAT0)*111132.9)
 ALT=lambda a:0.99273679*a-446.608

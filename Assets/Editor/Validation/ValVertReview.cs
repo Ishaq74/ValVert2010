@@ -11,8 +11,8 @@ public static class ValVertReview {
         Debug.Log($"[VV] PROBE weather snowMats={w.snowMats.Count} layers={w.snowLayers.Count} treeVar={w.treeVariants.Count}");
         foreach(var st in w.snowMats){ int nn=0; if(st.steps!=null) foreach(var t in st.steps) if(t) nn++;
           Debug.Log($"[VV] PROBE mat {st.mat?.name} factor={st.factor} stepsNonNull={nn}/{st.steps?.Length}"); }
-        var plaster=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/plaster.mat");
-        var metal=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/metal_grey.mat")??plaster;
+        var plaster=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/plaster.mat");
+        var metal=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/metal_grey.mat")??plaster;
         int bf=0; foreach(var r in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None)){
           if(!r) continue; if(r.gameObject.name.ToLower().Contains("bollard")){ r.sharedMaterial=metal; bf++; }
           else { var ms=r.sharedMaterials; bool ch=false; for(int i=0;i<ms.Length;i++){ var m=ms[i]; if(m==null||m.shader==null||m.shader.name.Contains("InternalError")){ ms[i]=plaster; ch=true; } } if(ch) r.sharedMaterials=ms; }
@@ -79,8 +79,8 @@ public static class ValVertReview {
         ValVertWoods.HealFoliage(); ValVertWoods.HealTreePrototypes();
         // Hard-assert snow albedo on Aldi lot meshes (sharedMaterial path can miss instance mats)
         if(winter){
-          var snowTex=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/ValVert/Gen/snow/asphalt_ww_diff_s4.jpg");
-          var grassSnow=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/ValVert/Gen/snow/fg02_diff_s4.jpg");
+          var snowTex=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Generated/snow/asphalt_ww_diff_s4.jpg");
+          var grassSnow=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Generated/snow/fg02_diff_s4.jpg");
           foreach(var r in Object.FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None)){
             if(!r||!r.sharedMaterial) continue; var p=r.transform.position;
             if(p.x<465||p.x>522||p.z<38||p.z>86) continue;
@@ -103,8 +103,8 @@ public static class ValVertReview {
           }
         } else {
           // Restore lot + car materials after a prior winter shot in this process
-          var asp=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/ValVert/Ground/asphalt_ww_diff.jpg");
-          var grass=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/ValVert/Ground/leafy_grass_diff.jpg");
+          var asp=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/World/Ground/asphalt_ww_diff.jpg");
+          var grass=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/World/Ground/leafy_grass_diff.jpg");
           foreach(var r in Object.FindObjectsByType<MeshRenderer>(FindObjectsSortMode.None)){
             if(!r||!r.sharedMaterial) continue; var pp=r.transform.position;
             if(pp.x<465||pp.x>522||pp.z<38||pp.z>86) continue;
@@ -163,12 +163,12 @@ public static class ValVertReview {
             Debug.LogWarning("[VV] REVIEW: few treeVariants — branch snow shells may be missing");
         var sa=GameObject.Find("V3_StairApproach"); if(sa) Object.DestroyImmediate(sa);
         if(ValVertWoods.MATS==null) ValVertWoods.MATS=new System.Collections.Generic.Dictionary<string,Material>();
-        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/rock.mat");
+        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat");
         if(rock!=null) ValVertWoods.MATS["rock"]=rock;
         ValVertWoods.StairApproach();
-        var plaster=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/plaster.mat");
-        var metal=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/metal_grey.mat")
-            ?? AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/bollard_m.mat")
+        var plaster=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/plaster.mat");
+        var metal=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/metal_grey.mat")
+            ?? AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/bollard_m.mat")
             ?? plaster;
         int magFix=0, bollardFix=0;
         foreach(var r in Object.FindObjectsByType<Renderer>(FindObjectsSortMode.None)){
@@ -257,7 +257,7 @@ public static class ValVertReview {
         ValVertWeatherWire.Wire(go); w=go.GetComponent<ValVertWeather>();
         var sa=GameObject.Find("V3_StairApproach"); if(sa) Object.DestroyImmediate(sa);
         if(ValVertWoods.MATS==null) ValVertWoods.MATS=new System.Collections.Generic.Dictionary<string,Material>();
-        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/rock.mat");
+        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat");
         if(rock!=null){ ValVertWoods.EnsureUrp(rock); ValVertWoods.MATS["rock"]=rock; }
         ValVertWoods.StairApproach();
         int more=ValVertWoods.FixBrokenMaterials(); int heal=ValVertWoods.HealFoliage(); int proto=ValVertWoods.HealTreePrototypes(); ValVertWoods.WarmFoliageShaders();

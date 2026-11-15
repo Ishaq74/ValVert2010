@@ -1,7 +1,7 @@
 # self-made facade atlas (CC0 grey_plaster base from Poly Haven, tinted) : 6 tones x 8 element rows, cell=256px = 3.0m x 2.8m
 from PIL import Image, ImageDraw, ImageFilter
 import numpy as np, random
-G='/workspace/ValVertGame/Assets/ValVert/Gen/'
+G='/workspace/ValVertGame/Assets/Generated/'
 C=256; TONES=[(234,224,198),(222,202,165),(208,207,201),(230,204,188),(236,226,190),(240,238,232)]
 SHUT=[(110,72,44),(70,96,72),(150,150,145),(120,60,50),(90,110,130),(230,230,225)]
 pl=np.asarray(Image.open(G+'grey_plaster_diff_1k.jpg').convert('L').resize((C,C)),np.float32)/255.

@@ -63,9 +63,9 @@ Manifeste machine : `Tools/rebuild/manifest.json`.
 
 | Cible | Sorties | Preuve |
 |---|---|---|
-| `sign_danger` | `Assets/ValVert/Gen/sign_danger.png` | 2 runs + baseline bytes pré-PR13 |
-| `asphalt_ww` | `Assets/ValVert/Ground/asphalt_ww_{diff,nor,ms}.*` | idem, seed 11 |
-| `parking` | `Assets/ValVert/Gen/parking.png` (+ `_nor.jpg`, `_ms.png`) | 2 runs ; albedo `pixels_rgb` + sha fichier ; nor/ms octets |
+| `sign_danger` | `Assets/Generated/sign_danger.png` | 2 runs + baseline bytes pré-PR13 |
+| `asphalt_ww` | `Assets/World/Ground/asphalt_ww_{diff,nor,ms}.*` | idem, seed 11 |
+| `parking` | `Assets/Generated/parking.png` (+ `_nor.jpg`, `_ms.png`) | 2 runs ; albedo `pixels_rgb` + sha fichier ; nor/ms octets |
 
 Les fichiers `.meta` restent **suivis** (GUID stables). Après clone : setup piné → `preflight` → `rebuild-proven --apply`.
 
@@ -86,7 +86,7 @@ Ne jamais régénérer/écraser les `.meta` des sorties. Le producteur n’écri
 ## Entrées locales requises
 
 - Police système pinée (voir Setup).
-- `facade_atlas` : `Assets/ValVert/Gen/grey_plaster_diff_1k.jpg` (source suivie).
+- `facade_atlas` : `Assets/Generated/grey_plaster_diff_1k.jpg` (source suivie).
 - Paquets Asset Store locaux : non requis pour les cibles proven.
 
 ## Emplacement architectural

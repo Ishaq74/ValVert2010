@@ -39,7 +39,7 @@ public static class ValVertRampCompare {
         var rp=GameObject.Find("V3_Ramp9to13"); if(rp) Object.DestroyImmediate(rp);
         var rr=GameObject.Find("V3_RearPark91113"); if(rr) Object.DestroyImmediate(rr);
         if(ValVertWoods.MATS==null) ValVertWoods.MATS=new System.Collections.Generic.Dictionary<string,Material>();
-        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/rock.mat");
+        var rock=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat");
         if(rock!=null) ValVertWoods.MATS["rock"]=rock;
         ValVertWoods.StairApproach(); // LogStairsDress + Ramp9to13 + RearPark
         cam=new GameObject("rampcmp_cam").AddComponent<Camera>();

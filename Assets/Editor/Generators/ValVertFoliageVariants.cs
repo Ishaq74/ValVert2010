@@ -15,7 +15,7 @@ public static class ValVertFoliageVariants {
         add(bark, new string[0]);
         add(lit, new[]{"_ALPHATEST_ON"});
         add(lit, new[]{"_ALPHATEST_ON","_NORMALMAP"});
-        AssetDatabase.CreateAsset(svc, "Assets/ValVert/FoliageVariants.shadervariants");
+        AssetDatabase.CreateAsset(svc, "Assets/World/Post/FoliageVariants.shadervariants");
         AssetDatabase.SaveAssets();
         int tex=ValVertWoods.ForceLeafTextureAlpha();
         int n=ValVertWoods.RestoreEfLeavesUrp();

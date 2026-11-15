@@ -22,6 +22,6 @@ _pal=[((20,60,140),(255,255,255)),((180,25,30),(255,255,255)),((250,250,248),(30
 for n,i in SROW.items():
     bg,fg=_pal[hash(n)%5 if False else sum(map(ord,n))%5]; y=i*_RH; w=min(2040,int(_d.textlength(n,font=_f))+30)
     _d.rectangle((0,y,w,y+_RH-1),fill=bg); _d.text((15,y+_RH//2),n,fill=fg,font=_f,anchor='lm'); SASP[n]=(w/2048,w/_RH)
-_im.save('/workspace/ValVertGame/Assets/ValVert/Gen/sign_names.png')
+_im.save('/workspace/ValVertGame/Assets/Generated/sign_names.png')
 CLAD={wid:['cladding','clad_white','clad_grey','clad_beige'][sum(map(ord,nm))%4] for wid,nm in NAMEDW.items()}
 print('NAMES atlas',len(_all),'ways',len(NAMEDW),'nodes',len(NAMEDN),'skipped post-2010?',len(SKIPPED_NEW))

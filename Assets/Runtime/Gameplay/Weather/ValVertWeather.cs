@@ -28,7 +28,7 @@ public class ValVertWeather : MonoBehaviour
     [NonSerialized] List<Renderer> shells = new List<Renderer>(); [NonSerialized] List<(LODGroup, LOD[])> lodBackup = new List<(LODGroup, LOD[])>(); [NonSerialized] float shellCover = -1f;
     public int ShellCount => shells.Count;
     [Serializable] public class TreeVariant { public GameObject orig, snow; }
-    public List<TreeVariant> treeVariants = new List<TreeVariant>();   // built by ValVertWeatherWire (prefab assets in Assets/ValVert/Gen/snowtrees, local-only)
+    public List<TreeVariant> treeVariants = new List<TreeVariant>();   // built by ValVertWeatherWire (prefab assets in Assets/Generated/snowtrees, local-only)
     [NonSerialized] List<(TerrainData, TreePrototype[], TreePrototype[])> treeSwap = new List<(TerrainData, TreePrototype[], TreePrototype[])>(); [NonSerialized] List<GameObject> variants = new List<GameObject>(); [NonSerialized] bool treesSnowy;
     public void BuildShells()
     {

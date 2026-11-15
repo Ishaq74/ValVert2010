@@ -1,6 +1,6 @@
 # pilot6: Yughues forest ground 02 (CC0) -> 2K; ambientCG LeafSet022 (CC0) -> laurel cluster card 1024 RGBA + normal
 import numpy as np; from PIL import Image; from scipy import ndimage
-O='/workspace/ValVertGame/Assets/ValVert/Veg/pilot6/'; import os; os.makedirs(O,exist_ok=True)
+O='/workspace/ValVertGame/Assets/World/Vegetation/pilot6/'; import os; os.makedirs(O,exist_ok=True)
 d=Image.open('fg/_diffuse.tga').convert('RGB').resize((2048,2048),Image.LANCZOS)
 ao=np.array(Image.open('fg/_occlusion.tga').convert('L').resize((2048,2048)),float)/255
 da=np.array(d,float)*(0.75+0.25*ao)[...,None]*1.35

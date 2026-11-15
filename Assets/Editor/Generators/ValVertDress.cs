@@ -1,6 +1,6 @@
 using UnityEngine; using UnityEditor; using UnityEngine.Rendering; using UnityEngine.Rendering.Universal; using System.IO; using System.Linq; using System.Collections.Generic;
 public static class ValVertDress {
-    const string SRC="/workspace/valvert/clean/"; const string G="Assets/ValVert/Ground/"; const string V="Assets/ValVert/Veg/"; const string T="Assets/ValVert/Veg/tex/";
+    const string SRC="/workspace/valvert/clean/"; const string G="Assets/World/Ground/"; const string V="Assets/World/Vegetation/"; const string T="Assets/World/Vegetation/tex/";
     static void L(string s){ Debug.Log("[VV] "+s); }
     public static Dictionary<string,int> Counts=new Dictionary<string,int>();
     public static Texture2D Mask(string f){ var t=new Texture2D(2,2); t.LoadImage(File.ReadAllBytes(SRC+f)); return t; }
@@ -14,20 +14,20 @@ public static class ValVertDress {
         if(ch) ti.SaveAndReimport(); var t=AssetDatabase.LoadAssetAtPath<Texture2D>(p); if(!t) L("MISSING TEX "+p); return t; }
     // Relocated own-authored prop materials (GUID-preserving moves). Keep tiny and explicit.
     static readonly System.Collections.Generic.Dictionary<string,string> MatRelocs = new System.Collections.Generic.Dictionary<string,string>{
-        {"door_alum_grey","Assets/Runtime/World/Props/Entrance/Materials/door_alum_grey.mat"},
-        {"door_glass","Assets/Runtime/World/Props/Entrance/Materials/door_glass.mat"},
-        {"handle_brushed","Assets/Runtime/World/Props/Entrance/Materials/handle_brushed.mat"},
-        {"shutter_grey","Assets/Runtime/World/Props/Entrance/Materials/shutter_grey.mat"},
-        {"interphone","Assets/Runtime/World/Props/Entrance/Materials/interphone.mat"},
-        {"globe_lamp","Assets/Runtime/World/Props/Entrance/Materials/globe_lamp.mat"},
-        {"plaque_7","Assets/Runtime/World/Props/Entrance/Materials/plaque_7.mat"},
-        {"plaque_9","Assets/Runtime/World/Props/Entrance/Materials/plaque_9.mat"},
-        {"plaque_11","Assets/Runtime/World/Props/Entrance/Materials/plaque_11.mat"},
-        {"plaque_13","Assets/Runtime/World/Props/Entrance/Materials/plaque_13.mat"},
-        {"plaque_14","Assets/Runtime/World/Props/Entrance/Materials/plaque_14.mat"},
+        {"door_alum_grey","Assets/World/Props/Entrance/Materials/door_alum_grey.mat"},
+        {"door_glass","Assets/World/Props/Entrance/Materials/door_glass.mat"},
+        {"handle_brushed","Assets/World/Props/Entrance/Materials/handle_brushed.mat"},
+        {"shutter_grey","Assets/World/Props/Entrance/Materials/shutter_grey.mat"},
+        {"interphone","Assets/World/Props/Entrance/Materials/interphone.mat"},
+        {"globe_lamp","Assets/World/Props/Entrance/Materials/globe_lamp.mat"},
+        {"plaque_7","Assets/World/Props/Entrance/Materials/plaque_7.mat"},
+        {"plaque_9","Assets/World/Props/Entrance/Materials/plaque_9.mat"},
+        {"plaque_11","Assets/World/Props/Entrance/Materials/plaque_11.mat"},
+        {"plaque_13","Assets/World/Props/Entrance/Materials/plaque_13.mat"},
+        {"plaque_14","Assets/World/Props/Entrance/Materials/plaque_14.mat"},
     };
     public static void RelocMat(string name,string path){ MatRelocs[name]=path; }
-    public static string MatPath(string name)=>MatRelocs.TryGetValue(name,out var p)?p:("Assets/ValVert/Mats/"+name+".mat");
+    public static string MatPath(string name)=>MatRelocs.TryGetValue(name,out var p)?p:("Assets/World/Materials/"+name+".mat");
     public static Material Mat(string name,Texture2D d,Texture2D n,bool cut,Color col,float smooth=0.1f){
         string path=MatPath(name);
         var lit=Shader.Find("Universal Render Pipeline/Lit");
@@ -45,8 +45,8 @@ public static class ValVertDress {
     static TerrainLayer TL(string n,float tile){
         var tl=new TerrainLayer(); tl.diffuseTexture=Tex(G+n+"_diff.jpg"); tl.normalMapTexture=Tex(G+n+"_nor.jpg",true); tl.maskMapTexture=Tex(G+n+"_mask.png",false,true);
         tl.tileSize=new Vector2(tile,tile); if(n=="leafy_grass") tl.diffuseRemapMax=new Vector4(0.8f,1.0f,0.65f,1); tl.normalScale=1; tl.metallic=0; tl.smoothness=0; tl.maskMapRemapMax=new Vector4(0,1,1,0.5f);
-        AssetDatabase.CreateAsset(tl,"Assets/ValVert/Ground/"+n+".terrainlayer"); return tl; }
-    static TerrainLayer TL2(string n,float tile){ var tl=new TerrainLayer(); tl.diffuseTexture=Tex(G+n+"_diff.jpg"); tl.normalMapTexture=Tex(G+n+"_nor.jpg",true); tl.tileSize=new Vector2(tile,tile); tl.smoothness=0.05f; tl.metallic=0; AssetDatabase.CreateAsset(tl,"Assets/ValVert/Ground/"+n+".terrainlayer"); return tl; }
+        AssetDatabase.CreateAsset(tl,"Assets/World/Ground/"+n+".terrainlayer"); return tl; }
+    static TerrainLayer TL2(string n,float tile){ var tl=new TerrainLayer(); tl.diffuseTexture=Tex(G+n+"_diff.jpg"); tl.normalMapTexture=Tex(G+n+"_nor.jpg",true); tl.tileSize=new Vector2(tile,tile); tl.smoothness=0.05f; tl.metallic=0; AssetDatabase.CreateAsset(tl,"Assets/World/Ground/"+n+".terrainlayer"); return tl; }
     public static void PaintPBR(TerrainData td){
         var aww=TL2("asphalt_ww",4f); td.terrainLayers=new[]{TL("leafy_grass",3f),TL("forest_leaves_02",3f),TL("stony_dirt_path",2.5f),aww,TL2("concrete_floor_02",2.5f),TL2("rock_wall_08",3f),TL2("asphalt_02",4f),TL2("river_small_rocks",1.5f)};
         int A=1024; td.alphamapResolution=A; var fm=Mask("canopy_orig.png"); var fm2=Mask("veg_forest.png"); var pm=Mask("paths_mask.png"); var rm=Mask("roads_mask.png");
@@ -70,7 +70,7 @@ public static class ValVertDress {
             Assign(inst,n=>n.Contains("leaves")?leaf:(n.Contains("branch")?br:bark));
             lods.Add(new LOD(th[i],inst.GetComponentsInChildren<Renderer>())); i++; }
         var lg=root.AddComponent<LODGroup>(); lg.SetLODs(lods.ToArray()); lg.RecalculateBounds();
-        float h=baseH(root); var pf=PrefabUtility.SaveAsPrefabAsset(root,"Assets/ValVert/Prefabs/"+root.name+".prefab"); Object.DestroyImmediate(root); L($"tree prefab {pf.name} baseH={h:F2}"); hts[pf.name]=h; return pf; }
+        float h=baseH(root); var pf=PrefabUtility.SaveAsPrefabAsset(root,"Assets/World/Prefabs/"+root.name+".prefab"); Object.DestroyImmediate(root); L($"tree prefab {pf.name} baseH={h:F2}"); hts[pf.name]=h; return pf; }
     static Dictionary<string,float> hts=new Dictionary<string,float>();
     // Ultimate Nature Starter (Innerverse Interactive; Asset Store EULA, git-ignored, imported locally by the user). Returns null if not imported.
     public const string UNSDIR="Assets/InnerverseInteractive/Ultimate Nature \u2013 Starter/Environment/";
@@ -83,14 +83,14 @@ public static class ValVertDress {
         var src=inst.GetComponentInChildren<LODGroup>(); LOD[] lods=src?src.GetLODs():new[]{new LOD(0.02f,inst.GetComponentsInChildren<Renderer>())}; if(src) Object.DestroyImmediate(src);
         if(lods.Length>0) lods[lods.Length-1].screenRelativeTransitionHeight=Mathf.Min(lods[lods.Length-1].screenRelativeTransitionHeight,0.008f);
         var lg=root.AddComponent<LODGroup>(); lg.SetLODs(lods); lg.RecalculateBounds();
-        float h=baseH(root); var pf=PrefabUtility.SaveAsPrefabAsset(root,"Assets/ValVert/Prefabs/"+name+".prefab"); Object.DestroyImmediate(root); hts[name]=h; L($"EF prefab {name} h={h:F2} lods={lods.Length}"); return pf; }
+        float h=baseH(root); var pf=PrefabUtility.SaveAsPrefabAsset(root,"Assets/World/Prefabs/"+name+".prefab"); Object.DestroyImmediate(root); hts[name]=h; L($"EF prefab {name} h={h:F2} lods={lods.Length}"); return pf; }
     static GameObject UNS(string rel,string name){ var a=AssetDatabase.LoadAssetAtPath<GameObject>(UNSDIR+rel+".prefab"); if(!a) return null;
         var root=new GameObject(name); var inst=(GameObject)PrefabUtility.InstantiatePrefab(a); PrefabUtility.UnpackPrefabInstance(inst,PrefabUnpackMode.Completely,InteractionMode.AutomatedAction); inst.transform.SetParent(root.transform,false);
         foreach(var r in inst.GetComponentsInChildren<Renderer>()) foreach(var m in r.sharedMaterials) if(m&&m.name=="UNS_Bush_Leaves"){ m.SetColor("_BaseColor",new Color(.27f,.37f,.15f)); EditorUtility.SetDirty(m); }   // tone the lime stylised tint down to Seynod hedge green
         var lg=root.AddComponent<LODGroup>(); lg.SetLODs(new[]{new LOD(0.02f,inst.GetComponentsInChildren<Renderer>())}); lg.RecalculateBounds();
-        float h=baseH(root); var pf=PrefabUtility.SaveAsPrefabAsset(root,"Assets/ValVert/Prefabs/"+name+".prefab"); Object.DestroyImmediate(root); hts[name]=h; L($"UNS prefab {name} h={h:F2}"); return pf; }
+        float h=baseH(root); var pf=PrefabUtility.SaveAsPrefabAsset(root,"Assets/World/Prefabs/"+name+".prefab"); Object.DestroyImmediate(root); hts[name]=h; L($"UNS prefab {name} h={h:F2}"); return pf; }
     static GameObject Simple(string fbx,Material m,string name){ var inst=(GameObject)Object.Instantiate(Fbx(V+fbx+".fbx")); inst.name=name; Assign(inst,n=>m);
-        float h=baseH(inst); var pf=PrefabUtility.SaveAsPrefabAsset(inst,"Assets/ValVert/Prefabs/"+name+".prefab"); Object.DestroyImmediate(inst); hts[name]=h; L($"prefab {name} h={h:F2}"); return pf; }
+        float h=baseH(inst); var pf=PrefabUtility.SaveAsPrefabAsset(inst,"Assets/World/Prefabs/"+name+".prefab"); Object.DestroyImmediate(inst); hts[name]=h; L($"prefab {name} h={h:F2}"); return pf; }
 
     // ---- vendor-derived prefab specs (single source for Vegetation() and RegenerateVendorPrefabs()) ----
     static readonly string[] SeasonVariants={"autumnA","autumnB","green"};
@@ -99,10 +99,10 @@ public static class ValVertDress {
     static string SpruceRel(int i)=>"Trees/Fir/Prefabs/UNS_Spruce_0"+(i%2==0?"1":"2");
     static string EfExtraName(string p)=>"ef_"+p.Split('/')[1].Replace(" ","_").ToLower();
 
-    /// <summary>Re-creates ONLY the vendor-derived tree/bush prefabs (Assets/ValVert/Prefabs/{ef,uns}_*; git-ignored, built from the
+    /// <summary>Re-creates ONLY the vendor-derived tree/bush prefabs (Assets/World/Prefabs/{ef,uns}_*; git-ignored, built from the
     /// Asset Store packages) exactly as Vegetation() does, without touching terrain/scene. Returns the number of prefabs written.</summary>
     public static int RegenerateVendorPrefabs(){
-        Directory.CreateDirectory("Assets/ValVert/Prefabs"); AssetDatabase.Refresh(); int n=0; int si=0;
+        Directory.CreateDirectory("Assets/World/Prefabs"); AssetDatabase.Refresh(); int n=0; int si=0;
         foreach(var v in SeasonVariants){ if(EF(EfSlot[si],"ef_slot_"+v)) n++; if(UNS(SpruceRel(si),"uns_spruce_"+v)) n++; si++; }
         if(UNS("Vegetation/Bushes/Prefabs/UNS_Bush","uns_bush_a")) n++;
         if(UNS("Vegetation/Bushes/Prefabs/UNS_Bush","uns_bush_c")) n++;
@@ -110,7 +110,7 @@ public static class ValVertDress {
         AssetDatabase.SaveAssets(); return n; }
 
     public static void Vegetation(Terrain terr){
-        Directory.CreateDirectory("Assets/ValVert/Mats"); Directory.CreateDirectory("Assets/ValVert/Prefabs"); AssetDatabase.Refresh();
+        Directory.CreateDirectory("Assets/World/Materials"); Directory.CreateDirectory("Assets/World/Prefabs"); AssetDatabase.Refresh();
         var td=terr.terrainData;
         var tsBark=Mat("tree_small_02_trunk",Tex(T+"tree_small_02_diff_1k.jpg"),Tex(T+"tree_small_02_nor_gl_1k.jpg",true),false,Color.white);
         var tsBr=Mat("tree_small_02_branch",Tex(T+"tree_small_02_branch_diff_1k.jpg"),Tex(T+"tree_small_02_branch_nor_gl_1k.jpg",true),true,Color.white);
@@ -121,7 +121,7 @@ public static class ValVertDress {
         var shA=Mat("shrub_02_autumnA",Tex(T+"shrub_02_leaves_autumnA.png"),null,true,Color.white); var shG=Mat("shrub_02_green",Tex(T+"shrub_02_leaves_green.png"),null,true,Color.white);
         var fern=Mat("fern_02",Tex(T+"fern_02_leaves_green.png"),null,true,new Color(.85f,.8f,.6f));
         var grass=Mat("grass_medium_01",Tex(T+"grass_medium_01_leaves_green.png"),null,true,new Color(.85f,.82f,.65f));
-        var small=new List<GameObject>{ UNS("Vegetation/Bushes/Prefabs/UNS_Bush","uns_bush_a") ?? Simple("shrub_02__a",shA,"shrub_a_autumn"), UNS("Vegetation/Bushes/Prefabs/UNS_Bush","uns_bush_c") ?? Simple("shrub_02__c",shG,"shrub_c_green"), Simple("fern_02__b",fern,"fern_b"), Simple("fern_02__c",fern,"fern_c"), Simple("laurel_cc0",Mat("laurel_leaves_acg",Tex("Assets/ValVert/Veg/pilot6/laurel_acg_leaves.png"),Tex("Assets/ValVert/Veg/pilot6/laurel_acg_nor.png",true),true,Color.white,0.55f),"laurel_cc0") };
+        var small=new List<GameObject>{ UNS("Vegetation/Bushes/Prefabs/UNS_Bush","uns_bush_a") ?? Simple("shrub_02__a",shA,"shrub_a_autumn"), UNS("Vegetation/Bushes/Prefabs/UNS_Bush","uns_bush_c") ?? Simple("shrub_02__c",shG,"shrub_c_green"), Simple("fern_02__b",fern,"fern_b"), Simple("fern_02__c",fern,"fern_c"), Simple("laurel_cc0",Mat("laurel_leaves_acg",Tex("Assets/World/Vegetation/pilot6/laurel_acg_leaves.png"),Tex("Assets/World/Vegetation/pilot6/laurel_acg_nor.png",true),true,Color.white,0.55f),"laurel_cc0") };
         var protos=trees.Concat(small).ToList();
         // extra European Forests broadleaf variants (appended so existing indices stay valid); broadleaf slots are remapped among them
         var efExtra=EfExtra.Select(p=>EF(p,EfExtraName(p))).Where(p=>p).ToList();
@@ -200,8 +200,8 @@ public static class ValVertDress {
         var prefs=new GameObject[names.Length];
         int ok=0;
         for(int i=0;i<names.Length;i++){
-            prefs[i]=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Runtime/World/Vegetation/Prefabs/"+names[i]+".prefab");
-            if(!prefs[i]) prefs[i]=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ValVert/Prefabs/"+names[i]+".prefab");
+            prefs[i]=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/World/Vegetation/Prefabs/"+names[i]+".prefab");
+            if(!prefs[i]) prefs[i]=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/World/Prefabs/"+names[i]+".prefab");
             if(prefs[i]) ok++;
         }
         foreach(var t in Terrain.activeTerrains){
@@ -223,7 +223,7 @@ public static class ValVertDress {
     }
     static void World(Mesh src,Matrix4x4 m,out Vector3[] v,out int[] t){ v=src.vertices.Select(p=>m.MultiplyPoint3x4(p)).ToArray(); t=src.triangles; }
     public static void Surfaces(GameObject root){
-        Directory.CreateDirectory("Assets/ValVert/Mats"); AssetDatabase.Refresh();
+        Directory.CreateDirectory("Assets/World/Materials"); AssetDatabase.Refresh();
         var plaster=Mat("plaster",Tex(G+"white_plaster_rough_01_bright.jpg"),Tex(G+"white_plaster_rough_01_nor.jpg",true),false,Color.white,0.05f);
         var roof=Mat("roof",Tex(G+"grey_roof_tiles_diff.jpg"),Tex(G+"grey_roof_tiles_nor.jpg",true),false,new Color(.62f,.42f,.36f),0.15f);
         var dirt=Mat("path_dirt",Tex(G+"stony_dirt_path_diff.jpg"),Tex(G+"stony_dirt_path_nor.jpg",true),false,Color.white,0.05f);
@@ -236,20 +236,20 @@ public static class ValVertDress {
                     int bi=nv.Count; foreach(var p in new[]{a,b,c}){ nv.Add(inv.MultiplyPoint3x4(p)); Vector2 u= isRoof? new Vector2(p.x,p.z)/2.5f : (Mathf.Abs(nn.x)>Mathf.Abs(nn.z)? new Vector2(p.z,p.y):new Vector2(p.x,p.y))/2.5f; uv.Add(u);} 
                     (isRoof?roofs:walls).AddRange(new[]{bi,bi+1,bi+2}); }
                 var me=new Mesh{indexFormat=IndexFormat.UInt32}; me.SetVertices(nv); me.SetUVs(0,uv); me.subMeshCount=2; me.SetTriangles(walls,0); me.SetTriangles(roofs,1); me.RecalculateNormals(); me.RecalculateTangents(); me.RecalculateBounds();
-                AssetDatabase.CreateAsset(me,"Assets/ValVert/Buildings_split.asset"); mf.sharedMesh=me; mr.sharedMaterials=new[]{plaster,roof}; var mc=mf.GetComponent<MeshCollider>(); if(mc) mc.sharedMesh=me;
+                AssetDatabase.CreateAsset(me,"Assets/World/Meshes/Buildings_split.asset"); mf.sharedMesh=me; mr.sharedMaterials=new[]{plaster,roof}; var mc=mf.GetComponent<MeshCollider>(); if(mc) mc.sharedMesh=me;
                 Counts["_building_wall_tris"]=walls.Count/3; Counts["_building_roof_tris"]=roofs.Count/3; L($"flips={flips} buildings split walls={walls.Count/3} roofs={roofs.Count/3}"); }
             else if(n=="Paths"||n=="Roads"){ var me=Object.Instantiate(mf.sharedMesh); var w=me.vertices.Select(p=>mf.transform.TransformPoint(p)).ToArray(); me.uv=w.Select(p=>new Vector2(p.x,p.z)/(n=="Paths"?2.5f:3f)).ToArray(); me.RecalculateTangents();
-                AssetDatabase.CreateAsset(me,"Assets/ValVert/"+n+"_uv.asset"); mf.sharedMesh=me; mr.sharedMaterials=Enumerable.Repeat(n=="Paths"?dirt:asph,mr.sharedMaterials.Length).ToArray(); }
+                AssetDatabase.CreateAsset(me,"Assets/World/Meshes/"+n+"_uv.asset"); mf.sharedMesh=me; mr.sharedMaterials=Enumerable.Repeat(n=="Paths"?dirt:asph,mr.sharedMaterials.Length).ToArray(); }
             else if(n=="Water"){ mr.sharedMaterials=Enumerable.Repeat(water,mr.sharedMaterials.Length).ToArray(); }
         }
     }
     public static Material OvercastSky; public static List<ReflectionProbe> Probes=new List<ReflectionProbe>();
     public static void SkyPost(){ RenderSettings.ambientIntensity=1.25f; RenderSettings.reflectionIntensity=0.8f;
-        string hp="Assets/Runtime/World/Sky/kloofendal_48d_partly_cloudy_puresky.hdr"; if(!File.Exists(hp)) hp=Directory.GetFiles("Assets/Runtime/World/Sky","*.hdr")[0];
+        string hp="Assets/World/Sky/kloofendal_48d_partly_cloudy_puresky.hdr"; if(!File.Exists(hp)) hp=Directory.GetFiles("Assets/World/Sky","*.hdr")[0];
         var ti=(TextureImporter)AssetImporter.GetAtPath(hp); ti.textureShape=TextureImporterShape.Texture2D; ti.mipmapEnabled=false; ti.wrapModeU=TextureWrapMode.Repeat; ti.SaveAndReimport();
         var sky=new Material(Shader.Find("Skybox/Panoramic")); sky.SetTexture("_MainTex",AssetDatabase.LoadAssetAtPath<Texture2D>(hp)); sky.SetColor("_Tint",new Color(.62f,.63f,.64f)); sky.SetFloat("_Exposure",0.9f); sky.SetFloat("_Rotation",40);
         AssetDatabase.CreateAsset(sky,ValVertPaths.SkyMaterials+"sky.mat"); RenderSettings.skybox=sky;
-        var prof=ScriptableObject.CreateInstance<VolumeProfile>(); AssetDatabase.CreateAsset(prof,"Assets/ValVert/PostProfile.asset");
+        var prof=ScriptableObject.CreateInstance<VolumeProfile>(); AssetDatabase.CreateAsset(prof,"Assets/World/Post/PostProfile.asset");
         var b=prof.Add<Bloom>(true); b.intensity.Override(0.18f); b.threshold.Override(1.1f); b.scatter.Override(0.6f);
         var ca=prof.Add<ColorAdjustments>(true); ca.contrast.Override(10f); ca.saturation.Override(-12f); ca.colorFilter.Override(new Color(.97f,1f,1f)); ca.postExposure.Override(0.35f);
         var vg=prof.Add<Vignette>(true); vg.intensity.Override(0.22f); vg.smoothness.Override(0.45f);
@@ -257,7 +257,7 @@ public static class ValVertDress {
         foreach(var c in prof.components) AssetDatabase.AddObjectToAsset(c,prof);
         var go=new GameObject("PostVolume"); var vol=go.AddComponent<Volume>(); vol.isGlobal=true; vol.sharedProfile=prof;
         var urp=GraphicsSettings.currentRenderPipeline as UniversalRenderPipelineAsset; if(urp){ urp.shadowDistance=180; urp.supportsHDR=true; EditorUtility.SetDirty(urp);} 
-        { var ohp="Assets/Runtime/World/Sky/kloofendal_overcast_puresky_2k.hdr"; var oti=(TextureImporter)AssetImporter.GetAtPath(ohp); oti.textureShape=TextureImporterShape.Texture2D; oti.mipmapEnabled=false; oti.wrapModeU=TextureWrapMode.Repeat; oti.SaveAndReimport();
+        { var ohp="Assets/World/Sky/kloofendal_overcast_puresky_2k.hdr"; var oti=(TextureImporter)AssetImporter.GetAtPath(ohp); oti.textureShape=TextureImporterShape.Texture2D; oti.mipmapEnabled=false; oti.wrapModeU=TextureWrapMode.Repeat; oti.SaveAndReimport();
           OvercastSky=new Material(Shader.Find("Skybox/Panoramic")); OvercastSky.SetTexture("_MainTex",AssetDatabase.LoadAssetAtPath<Texture2D>(ohp)); OvercastSky.SetColor("_Tint",new Color(.5f,.5f,.5f)); OvercastSky.SetFloat("_Exposure",1.0f); AssetDatabase.CreateAsset(OvercastSky,ValVertPaths.SkyMaterials+"sky_overcast.mat"); }
         foreach(var pp in new[]{new Vector3(0,40,0),new Vector3(368,20,130),new Vector3(340,15,215),new Vector3(380,25,100)}){ var rg=new GameObject("ReflProbe"); rg.transform.position=pp; var rp=rg.AddComponent<ReflectionProbe>(); rp.mode=UnityEngine.Rendering.ReflectionProbeMode.Realtime; rp.refreshMode=UnityEngine.Rendering.ReflectionProbeRefreshMode.ViaScripting; rp.size=pp.x==0?new Vector3(1100,300,720):new Vector3(90,60,90); rp.importance=pp.x==0?0:1; rp.resolution=256; Probes.Add(rp); }
         L("sky + post set");

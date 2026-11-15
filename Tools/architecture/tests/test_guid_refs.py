@@ -24,7 +24,7 @@ class GuidRefTests(unittest.TestCase):
         sky = [m for m in json.loads(MAN.read_text())["moves"] if m["system"] == "World/Sky"]
         names = {Path(m["to"]).name for m in sky}
         self.assertTrue({"VVSkyBlend.shader", "sky.mat", "sky_blend.mat", "sky_overcast.mat"} <= names)
-        for m in sky: self.assertTrue(m["to"].startswith("Assets/Runtime/World/Sky/"))
+        for m in sky: self.assertTrue(m["to"].startswith("Assets/World/Sky/"))
 
     def test_tampered_guid_is_caught(self):
         d = json.loads(MAN.read_text()); d["moves"][-1]["guid"] = "0" * 32

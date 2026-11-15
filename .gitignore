@@ -52,31 +52,31 @@ crashlytics-build.properties
 *.p12
 *.keystore
 # Herbe générée (1536 chunks, ~406 Mo) : régénérée par ValVertWoods.Grass()
-/Assets/ValVert/Gen/grass_*.asset
-/Assets/ValVert/Gen/grass_*.asset.meta
+/Assets/Generated/grass_*.asset
+/Assets/Generated/grass_*.asset.meta
 # Gros maillages de la ville (m_Bld_kerb/white_trim/facade/metal, m_OuterRing) : SUIVIS via Git LFS depuis le stage clean-clone
 # (ValVertSetup.Build n'est pas rejouable de façon prouvée ; la scène les référence par GUID). Voir Docs/clean-clone.md.
 
 # Unity Asset Store vendor content (Ultimate Nature Starter, Standard Unity Asset Store EULA) - never commit raw files
 Assets/InnerverseInteractive/
 Assets/InnerverseInteractive.meta
-Assets/ValVert/Prefabs/uns_*
+Assets/World/Prefabs/uns_*
 # European Forests - Realistic Trees (MysticForge, Asset Store EULA) - local only
 Assets/Realistic Tree/
 Assets/Realistic Tree.meta
-Assets/ValVert/Prefabs/ef_*
-Assets/ValVert/Gen/snowtrees/
-Assets/ValVert/Gen/snow/shell_UNS_Bush_Leaves.png*
-Assets/ValVert/Gen/snow/shell_UNS_Spruce_Tree_Branch.png*
+Assets/World/Prefabs/ef_*
+Assets/Generated/snowtrees/
+Assets/Generated/snow/shell_UNS_Bush_Leaves.png*
+Assets/Generated/snow/shell_UNS_Spruce_Tree_Branch.png*
 
 # --- Proven rebuildable generated binaries (metas stay tracked); restore via Tools/rebuild ---
-/Assets/ValVert/Gen/sign_danger.png
-/Assets/ValVert/Gen/parking.png
-/Assets/ValVert/Gen/parking_nor.jpg
-/Assets/ValVert/Gen/parking_ms.png
-/Assets/ValVert/Ground/asphalt_ww_diff.jpg
-/Assets/ValVert/Ground/asphalt_ww_nor.jpg
-/Assets/ValVert/Ground/asphalt_ww_ms.png
+/Assets/Generated/sign_danger.png
+/Assets/Generated/parking.png
+/Assets/Generated/parking_nor.jpg
+/Assets/Generated/parking_ms.png
+/Assets/World/Ground/asphalt_ww_diff.jpg
+/Assets/World/Ground/asphalt_ww_nor.jpg
+/Assets/World/Ground/asphalt_ww_ms.png
 
 __pycache__/
 *.pyc

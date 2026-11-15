@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1",
-  "updated": "2026-11-09",
+  "updated": "2026-11-15",
   "notes": "Machine-verifiable GUID-preserving moves. Paths are repo-relative. Verify with Tools/architecture/verify_migration.py",
   "ownership": {
     "owned": "Original Val Vert content we maintain",
@@ -11,7 +11,7 @@
   "moves": [
     {
       "from": "Assets/ValVert/Sky/kloofendal_48d_partly_cloudy_puresky.hdr",
-      "to": "Assets/Runtime/World/Sky/kloofendal_48d_partly_cloudy_puresky.hdr",
+      "to": "Assets/World/Sky/kloofendal_48d_partly_cloudy_puresky.hdr",
       "kind": "owned",
       "system": "World/Sky",
       "preserveMetaGuid": true,
@@ -19,7 +19,7 @@
     },
     {
       "from": "Assets/ValVert/Sky/kloofendal_overcast_puresky_2k.hdr",
-      "to": "Assets/Runtime/World/Sky/kloofendal_overcast_puresky_2k.hdr",
+      "to": "Assets/World/Sky/kloofendal_overcast_puresky_2k.hdr",
       "kind": "owned",
       "system": "World/Sky",
       "preserveMetaGuid": true,
@@ -27,7 +27,7 @@
     },
     {
       "from": "Assets/ValVert/Prefabs/fern_b.prefab",
-      "to": "Assets/Runtime/World/Vegetation/Prefabs/fern_b.prefab",
+      "to": "Assets/World/Vegetation/Prefabs/fern_b.prefab",
       "kind": "owned",
       "system": "World/Vegetation",
       "preserveMetaGuid": true,
@@ -35,7 +35,7 @@
     },
     {
       "from": "Assets/ValVert/Prefabs/fern_c.prefab",
-      "to": "Assets/Runtime/World/Vegetation/Prefabs/fern_c.prefab",
+      "to": "Assets/World/Vegetation/Prefabs/fern_c.prefab",
       "kind": "owned",
       "system": "World/Vegetation",
       "preserveMetaGuid": true,
@@ -43,7 +43,7 @@
     },
     {
       "from": "Assets/ValVert/Prefabs/laurel_cc0.prefab",
-      "to": "Assets/Runtime/World/Vegetation/Prefabs/laurel_cc0.prefab",
+      "to": "Assets/World/Vegetation/Prefabs/laurel_cc0.prefab",
       "kind": "owned",
       "system": "World/Vegetation",
       "preserveMetaGuid": true,
@@ -51,7 +51,7 @@
     },
     {
       "from": "Assets/ValVert/Prefabs/shrub_mix_green.prefab",
-      "to": "Assets/Runtime/World/Vegetation/Prefabs/shrub_mix_green.prefab",
+      "to": "Assets/World/Vegetation/Prefabs/shrub_mix_green.prefab",
       "kind": "owned",
       "system": "World/Vegetation",
       "preserveMetaGuid": true,
@@ -68,7 +68,7 @@
     },
     {
       "from": "Assets/ValVert/Shaders/VVSkyBlend.shader",
-      "to": "Assets/Runtime/World/Sky/Shaders/VVSkyBlend.shader",
+      "to": "Assets/World/Sky/Shaders/VVSkyBlend.shader",
       "kind": "shader",
       "system": "World/Sky",
       "preserveMetaGuid": true,
@@ -77,7 +77,7 @@
     },
     {
       "from": "Assets/ValVert/Mats/sky.mat",
-      "to": "Assets/Runtime/World/Sky/Materials/sky.mat",
+      "to": "Assets/World/Sky/Materials/sky.mat",
       "kind": "material",
       "system": "World/Sky",
       "preserveMetaGuid": true,
@@ -86,7 +86,7 @@
     },
     {
       "from": "Assets/ValVert/Mats/sky_blend.mat",
-      "to": "Assets/Runtime/World/Sky/Materials/sky_blend.mat",
+      "to": "Assets/World/Sky/Materials/sky_blend.mat",
       "kind": "material",
       "system": "World/Sky",
       "preserveMetaGuid": true,
@@ -95,7 +95,7 @@
     },
     {
       "from": "Assets/ValVert/Mats/sky_overcast.mat",
-      "to": "Assets/Runtime/World/Sky/Materials/sky_overcast.mat",
+      "to": "Assets/World/Sky/Materials/sky_overcast.mat",
       "kind": "material",
       "system": "World/Sky",
       "preserveMetaGuid": true,
@@ -112,14 +112,91 @@
     "Assets/Runtime/ValVert.Runtime.asmdef"
   ],
   "notMovedYet": [
-    "Assets/ValVert/Mats (shared cross-system materials — migrate by exclusive ownership audit)",
-    "Assets/ValVert/Ground / Gen derived textures (rebuild pipeline owns proven subset)",
-    "Assets/ValVert/Veg grass_medium_* (present, unused in scene field grass)",
-    "Assets/Cars (frozen)",
-    "demtiles / m_Bld (derived)"
+    "Assets/World/Materials : matériaux partagés entre systèmes (à répartir par propriétaire exclusif)",
+    "Assets/World/Ground et Assets/Generated : textures dérivées (le pipeline de reconstruction possède le sous-ensemble prouvé)",
+    "Assets/World/Vegetation : grass_medium_* présents, inutilisés par l'herbe de champ de la scène",
+    "Assets/Cars (gelé)",
+    "demtiles / m_Bld (dérivés)"
   ],
   "grassPack138810": {
     "status": "integrated_private_thirdparty",
     "integration": "ValVertGrassField pack_cutout (grass01/grass02 cards); homemade grass_blades.png + .mat removed (no remaining GUID refs)"
-  }
+  },
+  "prefixMoves": [
+    {
+      "step": "3 aplatir _Project",
+      "from": "Assets/_Project/Runtime",
+      "to": "Assets/Runtime"
+    },
+    {
+      "step": "3 aplatir _Project",
+      "from": "Assets/_Project/Editor",
+      "to": "Assets/Editor"
+    },
+    {
+      "step": "3 aplatir _Project",
+      "from": "Assets/_Project/Tests",
+      "to": "Assets/Tests"
+    },
+    {
+      "step": "3 aplatir _Project",
+      "from": "Assets/_Project/Settings",
+      "to": "Assets/Settings"
+    },
+    {
+      "step": "3 aplatir _Project",
+      "from": "Assets/_Project/Generated",
+      "to": "Assets/Generated"
+    },
+    {
+      "step": "5 dissoudre ValVert",
+      "from": "Assets/ValVert/Gen",
+      "to": "Assets/Generated"
+    },
+    {
+      "step": "5 dissoudre ValVert",
+      "from": "Assets/ValVert/Mats",
+      "to": "Assets/World/Materials"
+    },
+    {
+      "step": "5 dissoudre ValVert",
+      "from": "Assets/ValVert/Ground",
+      "to": "Assets/World/Ground"
+    },
+    {
+      "step": "5 dissoudre ValVert",
+      "from": "Assets/ValVert/Veg",
+      "to": "Assets/World/Vegetation"
+    },
+    {
+      "step": "5 dissoudre ValVert",
+      "from": "Assets/ValVert/Prefabs",
+      "to": "Assets/World/Prefabs"
+    },
+    {
+      "step": "5 dissoudre ValVert",
+      "from": "Assets/ValVert/demfix_*",
+      "to": "Assets/World/Meshes"
+    },
+    {
+      "step": "5 dissoudre ValVert",
+      "from": "Assets/ValVert/ValVertTerrain*",
+      "to": "Assets/World/Terrain"
+    },
+    {
+      "step": "5 dissoudre ValVert",
+      "from": "Assets/Runtime/World/Sky",
+      "to": "Assets/World/Sky"
+    },
+    {
+      "step": "5 dissoudre ValVert",
+      "from": "Assets/Runtime/World/Props/Entrance",
+      "to": "Assets/World/Props/Entrance"
+    },
+    {
+      "step": "5 dissoudre ValVert",
+      "from": "Assets/Runtime/World/Vegetation",
+      "to": "Assets/World/Vegetation"
+    }
+  ]
 }
