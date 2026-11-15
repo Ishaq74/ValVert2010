@@ -31,5 +31,5 @@ Unity 6 URP recreation of Seynod “Val Vert” (2010). Free assets only; OSM/IG
 
 ## Aller plus loin
 - Architecture totale et plan de migration : `ARCHITECTURE.md` (à la racine).
-- Manuel de la couche « jeu » (Val Vert II) et son statut : `Docs/ValVertII/`.
+- Conception de la couche « jeu » et son statut réel : `Docs/design/` (`manuel-de-conception.md`, `correspondance.md`).
 - Où mettre un nouveau fichier : voir la règle dans `README.md` (section « Architecture »).

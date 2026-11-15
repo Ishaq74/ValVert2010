@@ -1,246 +1,439 @@
-# Val Vert 2010 — Seynod
+# Val Vert — Seynod, 2010
 
-Reconstitution en 3D du quartier du **Val Vert / Vovray à Seynod (Annecy)** tel qu'il était vers **2010**, faite avec **Unity 6000.3.27f2 (URP)**.
-Les bâtiments, les rues et les chemins viennent d'OpenStreetMap. Le relief, la hauteur des bâtiments et les couleurs des toits viennent de l'IGN (ortho 2006-2010).
+Reconstitution 3D du quartier du **Val Vert / Vovray à Seynod (Annecy)** tel qu'il était vers **2010**, et **jeu de simulation narrative en monde ouvert** posé dessus. Projet **Unity 6000.3.27f2 (URP)**, 100 % gratuit, données **OpenStreetMap** et **IGN** citées.
 
-Le dépôt porte **deux couches** qui s'emboîtent :
+> Règle de vérité : **spécifié ≠ implémenté ≠ validé**. Ce qui est écrit « à construire » n'existe pas encore ; un dossier vide ou un script non testé n'est pas un système terminé. Les affirmations de ce document sont vérifiées par les tests et outils cités.
 
-| Couche | Rôle | État |
-|---|---|---|
-| **Monde 2010** (*Val Vert 2010*) | La reconstitution 3D : terrain, routes, bâtiments, bois, végétation, environnement dynamique (jour/nuit, saisons, météo). | **Existe et fonctionne** (scène `Assets/Scenes/ValVert.unity`). |
-| **Jeu** (*Val Vert II*) | Une simulation narrative en monde ouvert posée sur ce monde : joueur, caméras, téléphone, dialogues, habitants, sauvegarde. Spécifiée par le **manuel maître** (`Docs/ValVertII/manuel-maitre.md`, issu de https://github.com/Ishaq74/ValVertII). | **Spécifiée** ; un noyau applicatif est repris, le reste est **à construire**. |
+## Sommaire
 
-Tout ce qui est écrit comme « à construire » n'existe pas encore : un dossier vide ou un script non testé n'est pas un système terminé.
+1. [Vision](#1-vision)
+2. [Fonctionnalités et état réel](#2-fonctionnalités-et-état-réel)
+3. [Commandes](#3-commandes)
+4. [Démarrage rapide](#4-démarrage-rapide)
+5. [Arborescence](#5-arborescence)
+6. [Scènes et chaîne de démarrage](#6-scènes-et-chaîne-de-démarrage)
+7. [Menu principal](#7-menu-principal)
+8. [Systèmes du runtime](#8-systèmes-du-runtime)
+9. [Sauvegarde](#9-sauvegarde)
+10. [Réglages](#10-réglages)
+11. [Monde 2010 et sources de données](#11-monde-2010-et-sources-de-données)
+12. [Environnement dynamique](#12-environnement-dynamique)
+13. [Végétation et paquets tiers](#13-végétation-et-paquets-tiers)
+14. [Cloner et restaurer le monde complet](#14-cloner-et-restaurer-le-monde-complet)
+15. [Tests et vérifications](#15-tests-et-vérifications)
+16. [Outils](#16-outils)
+17. [Assemblies et règles de dépendance](#17-assemblies-et-règles-de-dépendance)
+18. [Règles de contribution](#18-règles-de-contribution)
+19. [Systèmes de jeu : conception et statut](#19-systèmes-de-jeu--conception-et-statut)
+20. [Feuille de route](#20-feuille-de-route)
+21. [Historique des PR](#21-historique-des-pr)
+22. [Index des documents](#22-index-des-documents)
+23. [Crédits et licences](#23-crédits-et-licences)
 
-## Vision du jeu (Val Vert II)
+---
 
-*Résumé du manuel maître ; le texte complet est dans `Docs/ValVertII/manuel-maitre.md`.*
+## 1. Vision
 
-Val Vert II est une **simulation narrative en monde ouvert** à Seynod : on vit une situation humaine dans un environnement qui continue d'exister quand on regarde ailleurs. Pas de combat, de score, d'expérience ni de jauge de réputation visible.
+Val Vert est une **simulation narrative en monde ouvert** à Seynod : on y vit une situation humaine dans un environnement qui continue d'exister quand on regarde ailleurs. Pas de combat, de score, d'expérience ni de jauge de réputation visible.
 
-**Cinq piliers** : lieu crédible · présence humaine · liberté quotidienne · narration systémique (les choix modifient des états du monde, pas une note morale) · continuité (temps, personnages et objets cohérents après chargement et sauvegarde).
+**Cinq piliers non négociables**
 
-**Personnages jouables** : Karim (17 ans, début de l'histoire autour du bois du Val Vert), la professeure, le père. Trois parcours, un monde, une horloge et des événements partagés ; un événement ne passe d'un parcours à l'autre que par un moyen crédible (observation, conversation, appel, message, rumeur).
+1. **Un lieu crédible** : Seynod reconstruit à partir de données réelles (relief et orthophotos IGN, bâtiments et voirie OSM), vérifié contre des photos.
+2. **Une présence humaine** : des habitants qui ont des horaires, des routines et une mémoire limitée.
+3. **Une liberté quotidienne** : marcher, regarder, s'asseoir, téléphoner, parler, ne rien faire.
+4. **Une narration systémique** : les choix modifient des états du monde (relations, connaissances, objets), pas une note morale.
+5. **Une continuité** : temps, personnages et objets restent cohérents après chargement et sauvegarde.
 
-**Principes techniques** : le joueur marche d'abord (vélo, transports, véhicules = extensions ultérieures) ; vue subjective de référence, troisième personne optionnelle, caméras narratives ; téléphone diégétique ; dialogues pilotés par les données ; relations et mémoire où la vérité du monde est séparée de la connaissance de chaque habitant ; habitants simulés à trois niveaux (proche / intermédiaire / lointain) ; ECS seulement si une mesure le justifie ; sauvegarde par données versionnées et identifiants stables ; mode développeur absent de la version Release.
+**Personnages jouables** : **Karim** (17 ans, l'histoire commence autour du bois du Val Vert), **la professeure** et **le père**. Trois parcours, un seul monde, une seule horloge, des événements partagés. Un événement ne passe d'un parcours à l'autre que par un moyen crédible : observation, conversation, appel, message, rumeur.
 
-**Ordre de réalisation** : une tranche verticale d'abord (Karim dans une petite portion du bois, un banc, l'appel de sa mère, un choix, une réaction différée, sauvegarde et rechargement, un habitant qui ne sait que ce qu'il a pu apprendre), puis extension mesurée.
+**Principes techniques**
 
-> Où le manuel et les faits vérifiés de ce dépôt divergent, **les faits de ce dépôt priment** : Unity `6000.3.27f2` (et non « 6.6 »), monde de **2010**, crédits OSM/IGN, 100 % gratuit. Le détail des corrections est dans `Docs/ValVertII/correspondance.md`.
+- le joueur marche d'abord (vélo, transports et véhicules sont des extensions ultérieures) ;
+- vue subjective de référence, troisième personne optionnelle, caméras narratives ;
+- téléphone diégétique ; dialogues pilotés par les données ;
+- relations et mémoire où la **vérité du monde** est séparée de la **connaissance de chaque habitant** ;
+- habitants simulés à trois niveaux (proche, intermédiaire, lointain) ;
+- ECS seulement si une mesure le justifie ;
+- sauvegarde par données versionnées et identifiants stables ;
+- mode développeur absent de la version Release.
 
-## Ouvrir le projet
-1. Installer **Unity Hub** et l'éditeur **Unity 6000.3.27f2**.
-2. Télécharger ce dépôt : bouton *Code > Download ZIP*, ou `git lfs install && git clone https://github.com/polbotweb/ValVert2010`. Git LFS est nécessaire pour les gros fichiers.
-3. Unity Hub > **Add** > choisir le dossier du projet.
-4. Ouvrir la scène **Assets/Scenes/ValVert.unity**.
+**Ce que le jeu n'est pas** : un jeu d'action, un simulateur de vie à jauges, un monde persistant en ligne, une copie d'un autre jeu. Le périmètre de production est volontairement mesuré : une **tranche verticale** d'abord (Karim dans une petite portion du bois, un banc, l'appel de sa mère, un choix, une réaction différée, sauvegarde et rechargement, un habitant qui ne sait que ce qu'il a pu apprendre), puis extension.
 
-> Note sur les fichiers lourds (état vérifié après la PR #20, voir `Docs/clean-clone.md`) :
-> - les gros maillages de la ville (`Assets/Generated/m_Bld_kerb`, `m_Bld_white_trim`, `m_Bld_facade`, `m_Bld_metal`, `m_OuterRing` en `.asset`, de 20 à 153 Mo) et les `demfix_*` référencés par la scène sont **suivis en Git LFS** (`git lfs pull` est donc indispensable). Ils ne sont pas reconstruits par `ValVertSetup.Build()`, dont le rejeu complet n'est pas prouvé. *(Avant la PR #20, ils étaient exclus du dépôt et régénérés par `ValVertSetup.Build()` ; ce n'est plus vrai.)*
-> - l'herbe générée (`Assets/Generated/grass_*.asset`, environ 400 Mo, 762 chunks) n'est pas dans le dépôt : elle est recréée par `ValVertGeneratedAssets.RegenerateAll` (pilotée par `Tools/rebuild/restore_world.py`), à partir du **pack Asset Store 138810 « Grass Flowers Pack Free »** (la texture et le matériau d'herbe « maison » ont été supprimés). Sans elle, la scène s'ouvre quand même, mais sans les touffes d'herbe.
-> - un clone vierge se restaure avec `python3 Tools/rebuild/restore_world.py` (voir « Données générées » plus bas et `Docs/clean-clone.md`).
+> Le texte complet de la conception est dans [`Docs/design/manuel-de-conception.md`](Docs/design/manuel-de-conception.md). Quand la conception et les faits vérifiés de ce dépôt divergent, **les faits du dépôt priment** : Unity `6000.3.27f2`, monde de **2010**, crédits OSM/IGN, 100 % gratuit (voir [`Docs/design/correspondance.md`](Docs/design/correspondance.md)).
 
-## État du projet (honnête)
+## 2. Fonctionnalités et état réel
 
 | Domaine | État |
 |---|---|
-| Monde 2010 : terrain IGN, routes/bâtiments/chemins OSM, bois | **Fonctionne** |
-| Environnement : horloge solaire, saisons, météo synthétique, lampadaires | **Fonctionne** |
-| Herbe du pack 138810 (762 chunks) | **Fonctionne** ; fleurs du pack : en pause |
-| Fondations runtime : `ValVertEventBus`, `ValVertServices`, `ValVertRuntimeBootstrap`, `ValVertWorldStreaming` | **Fonctionne : bus et registre uniques dans `ValVertII.Core`, 25 tests synthétiques + scène complète + chaîne de démarrage** |
-| Reconstruction / restauration d'un clone vierge (`Tools/rebuild`, `restore_world.py`) | **Fonctionne** (3 cibles prouvées + régénération prouvée de l'herbe) |
-| Noyau applicatif de Val Vert II (`PersistentRoot`, `SceneLoader`, `IdRegistry`…) | **Importé de ValVertII (contenu repris à l'identique ; l'historique git d'Ishaq n'est pas fusionné, voir PR #26) ; compile sous 6000.3 ; branché (SceneCatalog, registre et bus uniques, `DurableEventDeriver`) et prouvé par 13 tests EditMode, 5 tests Play Mode d'intégration et la chaîne `00_Bootstrap → menu → 02_SeynodRoot + ValVert.unity` (`BootChainTests`)** |
-| Joueur, caméras, téléphone, dialogues, relations, habitants, sauvegarde, intérieurs | **À construire** (`SimpleFPS` est un joueur provisoire) |
+| Monde 2010 : terrain IGN, routes, bâtiments et chemins OSM, bois | **Fonctionne** |
+| Environnement dynamique : horloge solaire, lune, saisons, météo synthétique, lampadaires | **Fonctionne** |
+| Végétation : herbe et fleurs du pack 138810 (762 chunks), arbres, neige sur les branches | **Fonctionne** |
+| Noyau applicatif : `PersistentRoot`, `SceneLoader`, `SceneCatalog`, `WorldSession`, `IdRegistry`, bus et registre uniques | **Fonctionne, branché, prouvé** |
+| Menu principal (français, souris, clavier, manette) : Nouvelle partie, Continuer, Options, Quitter | **Fonctionne** |
+| Sauvegarde (emplacement unique, écriture atomique) et réglages (volume, qualité, plein écran) | **Fonctionne** |
+| Chaîne de démarrage `00_Bootstrap → 01_MainMenu → 02_SeynodRoot + ValVert.unity` | **Fonctionne, prouvée** |
+| Restauration d'un clone vierge et audit (`restore_world.py`, `AUDIT_OK`) | **Fonctionne** |
+| Joueur provisoire (`SimpleFPS`) | **Fonctionne** (remplacé par le vrai joueur plus tard) |
+| Joueur réel, caméras, interactions, téléphone, dialogues, relations, mémoire, habitants, intérieurs | **À construire** |
 | Véhicules et parking Aldi | **Gelés** : aucune modification |
 
-## Ce qui a été fait (PR fusionnées)
+Mesures actuelles : EditMode **17/17**, Play Mode **45/45**, 0 erreur de compilation, 0 avertissement « Tree prefab missing », `AUDIT_OK` sur un clone vierge.
 
-| PR | Contenu |
+## 3. Commandes
+
+**Menu principal**
+
+| Action | Souris / clavier | Manette |
+|---|---|---|
+| Naviguer | souris, flèches haut/bas | croix ou stick gauche |
+| Valider | clic, Entrée | bouton Sud (A) |
+| Retour (Options → menu) | Échap | bouton Est (B) |
+| Régler le volume | flèches gauche/droite sur le curseur | croix gauche/droite |
+
+**Dans le monde (joueur provisoire `SimpleFPS`)**
+
+| Action | Touche |
 |---|---|
-| #1–#8 | Passes de réalisme (voitures maison, asphalte, parking, météo/saisons, neige), correspondance des photos du site (escalier, rampe 9→13, parc arrière), arbres et entrées partagées, caméras photo |
-| #9–#10 | Phase 1 d'architecture : audit mesuré et squelette de dossiers (`Docs/architecture-phase1.md`) |
-| #11 | Props, groupe 1 : entrée Val Vert (`vv_entrance`) migrée avec GUID conservés |
-| #12 | Réorganisation : systèmes runtime sous `Assets/_Project/Runtime` (aplati ensuite en `Assets/Runtime`, #25), outils Éditeur classés par rôle |
-| #13–#14 | Pipeline de reconstruction des données générées, binaires prouvés désuivis, environnement Python épinglé, empreintes attendues |
-| #15 | Fondations runtime (bus d'événements, services, bootstrap, activation de régions), co-location du ciel et de la végétation |
-| #16 | Correctifs de cycle de vie (bus et services sûrs pour chaque propriétaire, bootstrap unique, activation de régions fondée sur les bornes réelles) + **tests Play Mode** |
-| #17 | Herbe : cartes du **pack Asset Store 138810** (privé) à la place de la texture maison |
-| #18 | Ciel co-localisé avec outillage de preuve GUID/références |
-| #19 | `ValVertEnvironment` (horloge + saisons + bootstrap) **branché dans `ValVert.unity`** + test de la scène complète |
-| #20 | **Clone propre** : audit, épingles de GUID, `restore_world.py`, maillages ville en LFS, ré-attache des arbres du terrain |
-| #21 | `ARCHITECTURE.md`, README fusionné, manuel maître de Val Vert II (`Docs/ValVertII/`) |
-| #22–#23 | README à jour ; `ARCHITECTURE.md` en arborescence plate (sans `_Project`) |
-| #24 | Étape 2 : contenu obsolète (tutoriel Unity, `SampleScene`, `Readme.asset`) supprimé après preuve de non-référence |
-| #25 | Étape 3 : `Assets/_Project/*` aplati en `Assets/{Runtime,Editor,Tests,Settings,Generated}` (GUID conservés) |
-| #26 | Étape 4 : import de Val Vert II (noyau `ValVertII.*`, scènes `Bootstrap/Menus/SeynodRoot`, entrées, `.vscode`, règles git) |
-| #27 | Étape 5 : `Assets/ValVert` dissous en `Assets/World/*` et `Assets/Generated` (2 117 déplacements, GUID conservés) |
-| #28 | Étape 6 : contenus tiers sous `Assets/ThirdParty/*` (restauration par remappage) |
-| #29 | Étape 7 : `SceneCatalog`, adaptateur `PersistentRoot → ValVertServices`, pont d'événements durables, tests EditMode/Play Mode du noyau |
-| #30 | Docs alignées sur la refonte (étapes 0 à 7) |
-| #31 | Dette 1 : 40 avertissements « Tree prefab missing » → 0 (fileID racine des préfabs épinglés, terrain jamais modifié) |
-| #32 | Dette 2 : 15 GUID pendants → 6 internes au vendor supprimés (`sanitize_vendor.py`), 9 GUID voitures documentés comme exception gelée |
-| #33 | Dette 3 : noms `demfix_*` déterministes, 72 orphelins supprimés |
-| #34 | Dette 4 : `ValVertSetup.Build` rejoué sur clone neuf, mesuré (267 fichiers, scène +102 823 lignes) et verrouillé (`VV_ALLOW_GENESIS=1`) ; dossier de travail relocalisable (`VV_WORK`) |
-| #35 | Dette 5 : un seul bus (`ValVertEventBus`) et un seul registre (`ValVertServices`) dans `ValVertII.Core` ; `WorldEventBus`, `AppServicesAdapter`, assembly `ValVertII.Bridge` supprimés ; `DurableEventDeriver` |
-| #36 | Dette 6 : chaîne de démarrage réelle prouvée (`BootChainTests`), repli de chemin en dur supprimé, Build Settings basculés |
-| #37 | Dette 7 : 9 assemblies vides, placeholders vides et API obsolète supprimés |
-| #38 | Dette 8 : fleurs du pack `grassFlower01..10` + teinte saisonnière (atlas et chunks dérivés, ignorés) |
+| Avancer / reculer / côtés | `W` `S` `A` `D` (touches physiques ; `Z` `S` `Q` `D` sur un clavier AZERTY) |
+| Regarder | souris |
+| Courir | `Maj` gauche (8 m/s, marche 4 m/s) |
+| Sauter | `Espace` |
+| Forcer la météo (debug) | `F6` : Auto → Clair → Couvert → Bruine → Pluie → Brouillard → Neige |
 
-## Fondations runtime (réelles, testées)
+Les cartes d'actions du jeu (`Assets/Settings/Input/ValVertControls.inputactions`) définissent déjà quatre contextes : **Gameplay** (Move, Look, Interact, Pause), **UI** (Navigate, Submit, Cancel), **Developer** (ToggleDeveloper, Move), **CutScene** (Skip). Le menu utilise la carte UI ; le joueur réel adoptera Gameplay à sa construction.
 
-Détail : `Docs/architecture-runtime.md`.
-- `ValVertEventBus` : **bus unique** (`Assets/Runtime/Core/`), événements d'environnement et événements durables dérivés (`DurableEventDeriver`) (`ValVertTimeChanged`, `ValVertSeasonChanged`, `ValVertWeatherChanged`, `ValVertRegionActivationChanged`). Chaque abonné possède son abonnement ; la dernière valeur de chaque type est conservée (« collante ») et rejouable ; un abonné qui plante ne bloque pas les autres ; personne ne vide le bus globalement hors `ResetForDomain()` (domaine et tests).
-- `ValVertServices` : **registre unique** de services (scène et application : `PersistentRoot` y publie les siens) ; désenregistrement réservé au propriétaire ; instances détruites tolérées.
-- `ValVertRuntimeBootstrap` : un seul primaire à la fois (les autres restent inertes puis sont promus) ; retransmet horloge, saisons et météo sur le bus ; crée le streaming depuis `Settings/World/ValVertWorldConfig.asset`.
-- `ValVertWorldStreaming` : **activation de régions par distance** (pas de LOD, pas de chargement asynchrone) avec hystérésis et règles de sûreté (jamais de désactivation sous le joueur). Dans la scène réelle : 768 régions (762 chunks d'herbe, 4 enfants est, 2 terrains).
-- Dans `ValVert.unity` : un hôte `ValVertEnvironment` = `ValVertClock` + `ValVertSeasons` + `ValVertRuntimeBootstrap`.
-- **Tests** : 25 tests Play Mode synthétiques, 1 test de la scène complète, 7 de saison des champs, 5 d'intégration du noyau, 1 chaîne de démarrage (`Assets/Tests/PlayMode/`).
+## 4. Démarrage rapide
 
-## Herbe (pack Asset Store 138810)
+1. Installer **Unity Hub** et l'éditeur **Unity 6000.3.27f2** (module Linux/Windows/macOS selon la plateforme).
+2. Cloner avec Git LFS : `git lfs install && git clone https://github.com/polbotweb/ValVert2010 && cd ValVert2010 && git lfs pull`.
+3. Restaurer le monde complet (herbe générée, contenus tiers locaux) : voir [§14](#14-cloner-et-restaurer-le-monde-complet).
+4. Unity Hub → **Add** → dossier du projet → ouvrir.
+5. Jouer : ouvrir `Assets/Scenes/ValVert.unity` (le monde, jouable seul) **ou** `Assets/Scenes/Bootstrap/00_Bootstrap.unity` (chaîne complète avec menu), puis *Play*.
 
-Détail : `Docs/architecture-vegetation-grass.md`. Le générateur `ValVertGrassField` utilise les cartes originales `grass01` et `grass02` du pack **Grass Flowers Pack Free** (Objective Environment, v1.1, SHA256 `b2278e2c…50`) pour 762 chunks de 32 m. Texture et matériau d'herbe maison supprimés. Le pack est importé sous `Assets/ThirdParty/` (gitignoré) ; les cartes de fleurs `grassFlower01..10` ne sont **pas encore** utilisées (en pause). Contrôle : `python3 Tools/vegetation/preflight.py --package "<…/Grass Flowers Pack Free.unitypackage>"`.
+> Ne jamais ouvrir puis enregistrer `ValVert.unity` à la main : la scène est gelée, seuls des outils idempotents la modifient (voir [§18](#18-règles-de-contribution)).
 
-## Cloner et restaurer le monde complet
+## 5. Arborescence
 
-```bash
-git clone https://github.com/polbotweb/ValVert2010 && cd ValVert2010 && git lfs pull
-python3 -m pip install -r Tools/rebuild/requirements.txt          # Python 3.13, numpy 2.5.4, Pillow 13.0.0, police DejaVu
-python3 Tools/rebuild/restore_world.py --packages-dir <dossier des .unitypackage> \
-    --grass-pack "<…/Grass Flowers Pack Free.unitypackage>" --unity <chemin Unity 6000.3.27f2>
-```
-Sans les paquets Asset Store, le script s'arrête en indiquant le nom et le SHA256 attendus (pas de repli silencieux). Audit : `python3 Tools/architecture/clean_clone_audit.py --tree <checkout>` doit afficher `AUDIT_OK`. Détail : `Docs/clean-clone.md`, `Docs/generated-rebuild.md`.
-
-## Architecture
-
-Conception complète : **[`ARCHITECTURE.md`](ARCHITECTURE.md)**. Décision du propriétaire du 15/11/2026 : **pas d'enveloppe `_Project`, pas de couches dupliquées** (pas de `Scripts/` à côté de `Runtime/`, pas de dossier historique `ValVert/` à côté de l'arborescence neuve) ; on supprime le contenu obsolète prouvé non référencé (tutoriel Unity…), chaque chose a **un seul emplacement** directement sous `Assets/`, les contenus tiers restent séparés.
-
-**Arborescence actuelle (migration terminée, étapes 0 à 7)** : `Assets/Scenes/`, `Assets/Runtime/`, `Assets/Editor/`, `Assets/Tests/`, `Assets/Settings/` (`Architecture`, `World`, `Rendering` = profils URP), `Assets/World/` (ex-`Assets/ValVert`, dissous), `Assets/Generated/`, `Assets/ThirdParty/`, `Assets/Cars/` (gelé). Le contenu de tutoriel Unity est supprimé.
-
-**Arborescence cible (atteinte ; une PR par étape)** :
+Un seul emplacement par chose, directement sous `Assets/` ; pas d'enveloppe de projet, pas de couches dupliquées. Détail et justification : [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ```text
-Assets/
-├── Scenes/        ValVert.unity (jouable seule) + Bootstrap, Menus, SeynodRoot, Sectors, Interiors, Tests
-├── Runtime/       code qui tourne en jeu — un seul code racine ; assembly ValVert.Runtime (monde 2010 + environnement)
-│                  et sous-dossiers à assembly propre ValVertII.* (Core, Input, Player, Narrative, AI, Save, ECS, Developer, World)
-├── Editor/        outils Éditeur (Generators, Tools, Validation, Debug, ValVertII)
-├── Tests/         PlayMode, EditMode
-├── Settings/      sources et configurations (Architecture, World, Vegetation, Input, Rendering/URP)
-├── World/         contenu du monde (terrain, maillages, matériaux, textures, prefabs, végétation, props, ciel)
-├── Generated/     sorties dérivées reconstructibles (reconstruites par Tools/rebuild)
-├── ThirdParty/    contenus tiers et Asset Store (gitignorés, jamais commités)
-└── Cars/          gelé
+ValVert2010/
+├── README.md, ARCHITECTURE.md, CREDITS_ASSETS.txt
+├── .gitignore, .gitattributes, .vscode/
+├── Captures/                  rendus de revue
+├── Docs/                      architecture-*.md, clean-clone.md, generated-rebuild.md, …
+│   └── design/                manuel-de-conception.md, correspondance.md
+├── Tools/                     outils Python hors Unity
+│   ├── architecture/          vérificateurs de migration, de GUID, audit du clone propre
+│   ├── rebuild/               reconstruction et restauration des données générées
+│   ├── vegetation/            pré-contrôle du pack d'herbe
+│   └── generators/            générateurs OSM / IGN (maillages, textures, rues…)
+├── Packages/, ProjectSettings/
+└── Assets/
+    ├── Scenes/                ValVert.unity (jouable seule) · Bootstrap/ Menus/ SeynodRoot/
+    ├── Runtime/               code qui tourne en jeu ; assembly par défaut ValVert.Runtime
+    │   ├── Boot/              ValVertRuntimeBootstrap, Config/
+    │   ├── Core/              assembly ValVert.Core : noyau applicatif, bus, registre, menu, sauvegarde, réglages
+    │   ├── Gameplay/          DayNight, Season, Weather, QA
+    │   ├── Characters/        Player/ (SimpleFPS, provisoire)
+    │   └── World/             Props/Lighting, Streaming
+    ├── Editor/                Generators/ Tools/ Validation/ Debug/
+    ├── Tests/                 EditMode/ (ValVert.Tests.EditMode) · PlayMode/ (ValVert.Tests.PlayMode)
+    ├── Settings/              Architecture/ World/ Input/ Rendering/ Catalog/ (sources et configurations)
+    ├── World/                 contenu du monde : Terrain, Meshes, Materials, Textures, Prefabs, Vegetation, Post, Props, Sky
+    ├── Generated/             sorties dérivées reconstructibles (LFS ou régénérées)
+    ├── ThirdParty/            contenus tiers et Asset Store (gitignorés, jamais commités)
+    └── Cars/                  gelé
 ```
 
-Principes : le manuel (couche « jeu ») s'intègre dans cette arborescence sans second arbre ; `ValVert.unity` reste jouable seule ; un seul bus d'événements (`ValVertEventBus`, présentation **et** événements durables dérivés par `DurableEventDeriver`) et un seul registre de services (`ValVertServices`, alimenté par `PersistentRoot`) ; les GUID ne changent jamais (les déplacements se font avec leur `.meta`).
+**Où mettre un nouveau fichier**
 
-**Où mettre un nouveau fichier** (cible) : code qui tourne en jeu → `Assets/Runtime/` · outil qui utilise `UnityEditor` → `Assets/Editor/` · contenu du monde → `Assets/World/` · réglage ou config → `Assets/Settings/` · sortie reconstructible → `Assets/Generated/` + `Tools/rebuild/manifest.json` · contenu tiers → `Assets/ThirdParty/`.
-
-Chaque PR de migration est validée (compilation à 0 erreur, tests Play Mode, vérificateurs de GUID et de migration, scène qui s'ouvre) puis fusionnée normalement. Ce README est mis à jour à chaque PR.
-
-## Contenu
-- `Assets/` : code et organisation cible (Runtime + Editor + Art). Voir `Docs/architecture-map.md`.
-- `Assets/Scenes/ValVert.unity` : scène principale.
-- `Assets/World/` : contenu du monde (terrain, maillages, matériaux, sol, végétation, props, ciel, post-traitement) ; `Assets/Generated/` : sorties dérivées reconstructibles (ex-`Assets/ValVert`, dissous à l'étape 5).
-- `Assets/ThirdParty/` : contenus tiers git-ignorés (`InnerverseInteractive`, `RealisticTrees`, `ALP_Assets`, `ValVertGrass`).
-- `Assets/Settings/Catalog/SceneCatalog.asset` : table des scènes par identifiant logique (`MENU_MAIN`, `SECTOR_VALVERT_CORE`…).
-- `Assets/Editor/{Generators,Tools,Validation,Debug}/` : outils Unity classés par rôle.
-- `Tools/generators/` : scripts Python hors Unity (OSM, IGN).
-- `Captures/` : derniers rendus (racine du dépôt).
-- `Docs/` : architecture, manifests de migration. Point d'entrée « 10 minutes » : `Docs/architecture-newcomer.md`.
-- `ARCHITECTURE.md` : architecture totale (Val Vert 2010 × Val Vert II).
-- `Docs/ValVertII/` : manuel maître de Val Vert II (`manuel-maitre.md`) et sa correspondance avec le projet réel (`correspondance.md`).
-- `Assets/Runtime/Core/` (assembly `ValVertII.Core`, 13 fichiers d'Ishaq74), `Assets/Tests/EditMode/` (`ValVertII.Tests.EditMode`), `Assets/Settings/Input/` (cartes d'entrée du manuel) et les scènes squelettes `Assets/Scenes/{Bootstrap,Menus,SeynodRoot}/` : le noyau de Val Vert II repris de https://github.com/Ishaq74/ValVertII (compilé sous Unity 6000.3, branché et prouvé : voir la chaîne de démarrage ; les assemblies `ValVertII.{Input,Player,Narrative,AI,Save,ECS,World,Developer,Editor}`, vides et sans référence, ont été supprimées : chacune se recrée avec son premier code).
-- `Tools/architecture/`, `Tools/rebuild/`, `Tools/vegetation/` : vérificateurs de migration et de GUID, reconstruction des données générées, pré-contrôle du pack d'herbe.
-- `CREDITS_ASSETS.txt` : crédits détaillés.
-
-## Crédits et licences
-- © les contributeurs d'**OpenStreetMap**, données sous licence **ODbL 1.0** (https://www.openstreetmap.org/copyright).
-- **IGN** (relief RGE ALTI, MNS/MNH, BD ORTHO 2006-2010), sous **Licence Ouverte / Etalab 2.0**.
-- Textures et modèles **Poly Haven**, en **CC0**.
-- La liste complète est dans `CREDITS_ASSETS.txt`.
-- Herbe : pack Asset Store **138810 « Grass Flowers Pack Free »** (Objective Environment, EULA Asset Store) — local, **jamais commité**.
-- Manuel maître et noyau applicatif de Val Vert II : © **Ishaq74**, dépôt https://github.com/Ishaq74/ValVertII (contenu repris à l'identique ; son historique git n'est pas fusionné, car un objet LFS de son dépôt est introuvable).
-
-**Règles du projet** : tout est **100 % gratuit** ; OSM et IGN sont toujours cités ; aucun binaire d'Asset Store, aucune photo ni dérivé de ces assets n'est publié dans le dépôt ; pas de force-push ni de reset ; fusions normales.
-
-## Où trouver le code (chemins actuels, mis à jour à chaque PR de migration)
-
-| Système | Emplacement |
+| Nature | Emplacement |
 |---|---|
-| Horloge / jour-nuit | `Assets/Runtime/Gameplay/DayNight/ValVertClock.cs` |
-| Saisons | `Assets/Runtime/Gameplay/Season/ValVertSeasons.cs` |
-| Météo | `Assets/Runtime/Gameplay/Weather/ValVertWeather.cs` |
-| Lampadaires | `Assets/Runtime/World/Props/Lighting/ValVertStreetLights.cs` |
-| Joueur FPS | `Assets/Runtime/Characters/Player/SimpleFPS.cs` |
-| Smoke test player | `Assets/Runtime/Gameplay/QA/ValVertSmoke.cs` |
-| Générateurs scène | `Assets/Editor/Generators/` (`ValVertSetup`, `ValVertWoods`, `ValVertDress`, …) |
-| Outils | `Assets/Editor/Tools/` |
-| Validation / review | `Assets/Editor/Validation/` |
-| Entrée Val Vert (props) | `Assets/World/Props/Entrance/` |
+| Code qui tourne en jeu | `Assets/Runtime/<Domaine>/` (`Core` pour les services applicatifs) |
+| Code qui utilise `UnityEditor` | `Assets/Editor/` (`Generators/`, `Validation/`, `Tools/`) |
+| Contenu du monde (maillage, matériau, texture, prefab) | `Assets/World/<système>/` |
+| Réglage ou configuration source | `Assets/Settings/<Domaine>/` |
+| Sortie reconstructible | `Assets/Generated/` + déclaration dans `Tools/rebuild/manifest.json` |
+| Contenu tiers ou de store | `Assets/ThirdParty/<fournisseur>/` (gitignoré) |
 
-Les noms de classes et les GUID `.meta` sont inchangés : la scène et `-executeMethod NomClasse.Methode` continuent de fonctionner.
+## 6. Scènes et chaîne de démarrage
 
-## Environnement dynamique (runtime)
-`ValVertEnvironment` (scène) porte : **ValVertClock** (date/heure 2010, position solaire NOAA pour Seynod, heure CET/CEST, lune — phase et position calculées, lumière ambiante/brouillard/ciel), **ValVertSeasons** (phénologie continue : débourrement, été, couleurs d'automne progressives par essence, chute des feuilles, litière au sol, humidité), **ValVertWeather** (météo **synthétique** reproductible, tirée au sort par date selon un climat typique du bassin annécien — ce ne sont PAS des observations historiques : ciel clair/couvert/bruine/pluie/brouillard/neige, transitions douces, accumulation/fonte de neige, sol mouillé ; touche F6 = forcer un état) et **ValVertStreetLights** (349 lampadaires allumés au crépuscule).
-La neige se dépose sur les faces tournées vers le ciel (branches, sapins, buissons) via des « coques » générées dans l'éditeur (`ValVertWeatherWire`), en plus des textures de neige au sol/toits/routes (gadoue).
+```text
+[Build]  00_Bootstrap ──▶ 01_MainMenu ──▶ 02_SeynodRoot ──additif──▶ ValVert.unity   (secteur SECTOR_VALVERT_CORE)
+                                                        └─additif─▶ secteurs et intérieurs futurs
+[Autonome, conservé]   ValVert.unity seule (tests, captures, test fumée, mode « visite »)
+```
 
-## Paquets Asset Store (locaux, non redistribués)
-Deux paquets gratuits de l'Asset Store (EULA standard) sont utilisés localement et **git-ignorés** : *Ultimate Nature – Starter* (Innerverse Interactive) et *European Forests – Realistic Trees* (MysticForge), ainsi que leurs dérivés (`Assets/World/Prefabs/uns_*`, `ef_*`, `Assets/Generated/snowtrees/`, masques de neige issus des feuilles UNS).
-Pour les retrouver : les ajouter à votre compte Unity, les importer via Package Manager (sans `Packages/manifest.json`, `Demo`, `Settings`, HDRP), puis lancer `Tools/rebuild/restore_world.py`.
-**Sans eux**, `ValVertSetup.Build` retombe sur les arbres/buissons CC0 Poly Haven (`tree_small_02`, `fir_tree_01`, `shrub_02`) — rendu moins riche mais complet (repli présent dans le code, non re-testé sur un clone vierge).
+| Scène | Chemin | Rôle |
+|---|---|---|
+| `00_Bootstrap` | `Assets/Scenes/Bootstrap/` | `PersistentRoot` (services applicatifs) et `SceneCatalog`. Aucun contenu de monde. Indice 0 des Build Settings. |
+| `01_MainMenu` | `Assets/Scenes/Menus/` | Menu principal (`MainMenuController`, uGUI construit en code). |
+| `02_SeynodRoot` | `Assets/Scenes/SeynodRoot/` | **Conteneur pur de session** : ni caméra, ni lumière, ni écouteur audio. |
+| `ValVert.unity` | `Assets/Scenes/` | Le monde 2010 ; premier **secteur**. Jouable seule, pour toujours. Elle ne sait rien de `PersistentRoot`. |
 
-## Données générées (rebuild)
+- **`SceneCatalog`** (`Assets/Settings/Catalog/SceneCatalog.asset`) associe un identifiant logique à une scène : `BOOTSTRAP`, `MENU_MAIN`, `SESSION_ROOT`, `SECTOR_VALVERT_CORE`. Plus aucun chemin en dur.
+- `PersistentRoot` ne s'initialise **que** dans `00_Bootstrap` : ouvrir `ValVert.unity` seule ne crée aucun service applicatif et ne change aucun comportement.
+- `ValVertPlayer.BuildLinux` construit explicitement la scène de monde ; la chaîne complète est prouvée par `BootChainTests` (un écouteur, une caméra, sauvegarde écrite, reprise).
+
+## 7. Menu principal
+
+`MainMenuController` construit le menu en uGUI (aucun asset payant, aucune police externe), en **français**, navigable à la souris, au clavier et à la manette via le module UI de l'Input System. Le focus est restauré s'il est perdu ; les boutons désactivés sont ignorés par la navigation.
+
+| Entrée | Comportement |
+|---|---|
+| **Nouvelle partie** | `PersistentRoot.EnterSessionAsync()` : charge `SESSION_ROOT`, puis le secteur en additif, démarre `WorldSession`, écrit la sauvegarde, publie `WorldStartedEvent` |
+| **Continuer** | active seulement si une sauvegarde valide existe ; reprend la session (même identifiant, même heure de début) dans le secteur sauvegardé |
+| **Options** | volume général, qualité graphique (« Économique » / « Élevée »…), plein écran ; enregistrés immédiatement ; Échap ou bouton Est = retour |
+| **Quitter** | `Application.Quit()` (arrête le Play Mode dans l'éditeur) |
+
+Tests : `MainMenuTests` (français, focus, navigation clavier et manette, options persistées) et `BootChainTests`.
+
+## 8. Systèmes du runtime
+
+Détail : [`Docs/architecture-runtime.md`](Docs/architecture-runtime.md).
+
+- **`ValVertEventBus`** : **bus unique**, statique. Chaque abonné possède son abonnement ; la dernière valeur de chaque type est conservée (« collante ») et rejouée aux abonnés tardifs ; un abonné qui plante ne bloque pas les autres ; personne ne vide le bus hors `ResetForDomain()`. Il porte les événements de présentation (heure, saison, météo, activation de région) et les **événements durables** enveloppés (identifiant, version, secteur, origine, clé d'idempotence).
+- **`DurableEventDeriver`** : dérive les faits narratifs (franchissement d'une heure, changement de saison, début de pluie) sur le bus unique, seulement quand `PersistentRoot` est présent.
+- **`ValVertServices`** : **registre unique** de services (scène et application) ; désenregistrement réservé au propriétaire ; instances détruites tolérées. `PersistentRoot` y publie `AppLogger`, `SceneLoader`, `WorldSession`, `IdRegistry`, `AppModeManager`, `DiagnosticsService`, `SceneCatalog`, `SaveService`, `GameSettings`.
+- **`PersistentRoot`** : propriétaire du cycle de vie des services (initialisation dans un ordre déterministe, arrêt en ordre inverse).
+- **`SceneLoader` / `WorldSession`** : chargement additif par identifiant logique ; session de jeu (identifiant, secteur, heure de début).
+- **`IdRegistry` / `StableId`** : identifiants stables (`CHAR_KARIM`, `PLACE_VALVERT_BENCH_001`, `SECTOR_VALVERT_CORE`…), seule clé de persistance.
+- **`InputRouter` / `AppModeManager`** : propriétaire unique des cartes d'actions et des modes de contrôle.
+- **`ProjectValidator`** : point d'entrée de la validation au chargement.
+- **`ValVertRuntimeBootstrap`** : un seul primaire à la fois ; retransmet horloge, saisons et météo sur le bus ; crée le streaming depuis `Assets/Settings/World/ValVertWorldConfig.asset`.
+- **`ValVertWorldStreaming`** : activation de régions par distance, avec hystérésis, sans jamais désactiver sous le joueur. La scène réelle compte 768 régions (762 chunks d'herbe, 4 enfants est, 2 terrains).
+
+Règles de vie : on s'abonne dans `OnEnable` et on se désabonne dans `OnDisable` ; une **commande** demande, un **événement** annonce ; l'interface n'écrit jamais l'état de relation directement ; tout événement durable a une clé d'idempotence.
+
+## 9. Sauvegarde
+
+`SaveService` écrit `valvert_save.json` dans `Application.persistentDataPath` : JSON versionné, **écriture atomique** (fichier temporaire puis remplacement). Un fichier corrompu, vide ou d'une version plus récente est ignoré (pas de « Continuer »). Contenu actuel : version, identifiant de session, secteur, date de début, date de sauvegarde. Les sauvegardes ne contiennent jamais de références Unity, uniquement des identifiants stables.
+
+**À construire** (conception : tome « Sauvegarde et persistance ») : schéma complet (horloge, personnages, relations, mémoire, téléphone, inventaire, objets du monde, secteurs), sauvegarde de secours, somme de contrôle, migrations de versions, journal d'événements.
+
+## 10. Réglages
+
+`GameSettings` gère le **volume général** (`AudioListener.volume`, borné 0 à 1), le **niveau de qualité** (`QualitySettings`, parmi les niveaux existants) et le **plein écran** (`Screen.fullScreen`). Valeurs stockées en `PlayerPrefs` (préfixe `valvert.`), appliquées à l'initialisation et à chaque changement. Tests EditMode : persistance et bornes.
+
+## 11. Monde 2010 et sources de données
+
+Le monde est une reconstitution **vérifiée pour 2010** (l'époque est une donnée de configuration, `ValVertWorldConfig`, pas une constante).
+
+| Donnée | Source | Licence |
+|---|---|---|
+| Bâtiments, routes, chemins, bois, parcs, adresses | **OpenStreetMap** (© les contributeurs d'OpenStreetMap) | ODbL 1.0 — https://www.openstreetmap.org/copyright |
+| Relief (modèle numérique de terrain) | **IGN**, RGE ALTI | Licence Ouverte / Etalab 2.0 |
+| Hauteur des bâtiments et de la végétation (MNS / MNH) | **IGN** | Licence Ouverte / Etalab 2.0 |
+| Couleurs des toits et des sols, vérification visuelle | **IGN**, BD ORTHO (ortho 2006-2010) | Licence Ouverte / Etalab 2.0 |
+| Textures et modèles de remplacement | **Poly Haven** | CC0 1.0 |
+
+**Chaîne de génération** : OSM / IGN → `Tools/generators/*.py` (maillages, textures, rues, façades, panneaux, enseignes) → `Assets/Editor/Generators/*` → `Assets/World/**`, `Assets/Generated/**` et la scène. Les coordonnées sont converties de Lambert-93 / WGS84 en mètres locaux par les générateurs.
+
+**Fidélité et limites** : le monde est comparé à des photos du site (entrée du Val Vert, escalier, rampe du n° 9 au n° 13, parc arrière, parking) par les outils de `Assets/Editor/Validation/`. Les zones validées sont **gelées** : toute correction passe d'abord par une revue. Les véhicules et le parking Aldi sont gelés.
+
+`ValVertSetup.Build` (genèse historique du monde, destructive) est **verrouillé** derrière `VV_ALLOW_GENESIS=1` et réservé à un clone jetable : un rejeu complet a été mesuré (267 fichiers, scène +102 823 lignes) mais n'est pas la voie de restauration supportée. La voie supportée est `restore_world.py` ([§14](#14-cloner-et-restaurer-le-monde-complet)).
+
+## 12. Environnement dynamique
+
+L'hôte `ValVertEnvironment` de la scène porte `ValVertClock`, `ValVertSeasons` et `ValVertRuntimeBootstrap`.
+
+- **`ValVertClock`** : date et heure 2010, position solaire (algorithme NOAA) pour Seynod, heure CET/CEST, lune (phase et position calculées), lumière ambiante, brouillard, ciel. En Play Mode, l'horloge pilote des **copies d'exécution** des matériaux de ciel ; en Edit Mode elle n'écrit pas dans `sky.mat` (ouvrir la scène dans un outil ou en batch ne modifie aucun fichier suivi ; test `SkyIsolationTests`).
+- **`ValVertSeasons`** : phénologie continue (débourrement, été, couleurs d'automne progressives par essence, chute des feuilles, litière au sol, humidité), teinte saisonnière des fleurs et des champs (`ValVertFieldSeasonal`).
+- **`ValVertWeather`** : météo **synthétique** reproductible, tirée au sort par date selon un climat typique du bassin annécien (**pas** des observations historiques) : clair, couvert, bruine, pluie, brouillard, neige ; transitions douces, accumulation et fonte de la neige, sol mouillé. `F6` force un état.
+- **`ValVertStreetLights`** : 349 lampadaires allumés au crépuscule.
+- **Neige** : textures de neige au sol, toits et routes (gadoue), et « coques » de neige sur les faces tournées vers le ciel des branches, sapins et buissons (générées dans l'éditeur par `ValVertWeatherWire`).
+
+## 13. Végétation et paquets tiers
+
+**Herbe et fleurs** (détail : [`Docs/architecture-vegetation-grass.md`](Docs/architecture-vegetation-grass.md)) : `ValVertGrassField` et `ValVertFlowerField` utilisent les cartes originales du pack Asset Store **138810 « Grass Flowers Pack Free »** (Objective Environment, v1.1) pour 762 chunks de 32 m ; les fleurs `grassFlower01..10` sont empaquetées dans un atlas dérivé, teinté par saison. Contrôle du pack : `python3 Tools/vegetation/preflight.py --package "<…/Grass Flowers Pack Free.unitypackage>"`.
+
+**Paquets Asset Store gratuits utilisés localement** (EULA standard, **gitignorés, jamais commités**, ainsi que leurs dérivés) :
+
+| Paquet | Fournisseur | Destination locale |
+|---|---|---|
+| Ultimate Nature – Starter | Innerverse Interactive | `Assets/ThirdParty/InnerverseInteractive/` |
+| European Forests – Realistic Trees | MysticForge | `Assets/ThirdParty/RealisticTrees/` |
+| Grass Flowers Pack Free (138810) | Objective Environment | `Assets/ThirdParty/ValVertGrass/` |
+
+Dérivés ignorés : `Assets/World/Prefabs/uns_*` et `ef_*`, `Assets/Generated/snowtrees/`, masques de neige issus des feuilles UNS, herbe et fleurs générées. Les paquets sont vérifiés par **SHA256** (`Tools/rebuild/vendor_manifest.json`) avant extraction, avec remappage sous `ThirdParty/` et GUID inchangés. Sans eux, la scène s'ouvre quand même (sans herbe ni arbres du pack) ; `ValVertSetup.Build` retombe sur les arbres CC0 Poly Haven.
+
+## 14. Cloner et restaurer le monde complet
 
 ```bash
-python3 Tools/rebuild/rebuild.py preflight
-python3 Tools/rebuild/rebuild.py rebuild-proven --apply
+git lfs install
+git clone https://github.com/polbotweb/ValVert2010 && cd ValVert2010 && git lfs pull
+python3 -m pip install -r Tools/rebuild/requirements.txt      # Python 3.13, numpy 2.5.4, Pillow 13.0.0, police DejaVu
+python3 Tools/rebuild/restore_world.py \
+    --packages-dir <dossier des .unitypackage privés> \
+    --grass-pack "<…/Grass Flowers Pack Free.unitypackage>" \
+    --unity <chemin de l'éditeur Unity 6000.3.27f2>
+python3 Tools/architecture/clean_clone_audit.py --tree .      # doit afficher AUDIT_OK
+```
+
+- **Git LFS est indispensable** : les gros maillages de la ville (`m_Bld_*`, `m_OuterRing`, `demfix_*`) et les terrains sont suivis en LFS.
+- **Paquets privés** : `UNS_filtered_noManifest.unitypackage`, `EF_filtered.unitypackage` et les prefabs URP supplémentaires d'European Forests, à placer dans `--packages-dir` (non redistribués ; à récupérer depuis votre compte Unity).
+- Sans les paquets, le script **s'arrête** en indiquant le nom et le SHA256 attendus : jamais de repli silencieux.
+- `restore_world.py` rejoue les cibles Python prouvées, extrait les paquets, régénère l'herbe, les fleurs et les préfabs (GUID épinglés dans `Assets/Settings/Architecture/generated_guid_pins.json`, fileID racine des arbres dans `terrain_tree_pins.json`), puis audite.
+- Résultat attendu : `AUDIT_OK`, avec **9 GUID de matériaux de voitures** documentés comme exception gelée (introuvables dans tout checkout, `Assets/Cars` étant gelé).
+
+Détails : [`Docs/clean-clone.md`](Docs/clean-clone.md), [`Docs/generated-rebuild.md`](Docs/generated-rebuild.md).
+
+```bash
+python3 Tools/rebuild/rebuild.py preflight                    # état des cibles reconstructibles
+python3 Tools/rebuild/rebuild.py rebuild-proven --apply       # recrée les octets prouvés
 python3 Tools/rebuild/tests/test_rebuild.py
 ```
 
-Détails : `Docs/generated-rebuild.md`, manifeste `Tools/rebuild/manifest.json`.
+## 15. Tests et vérifications
 
-## Construire / tester
-- Régénérer le monde (supporté) : `python3 Tools/rebuild/restore_world.py …` (voir `Docs/clean-clone.md`). `ValVertSetup.Build` (genesis historique, destructif) est verrouillé : `VV_ALLOW_GENESIS=1`, clone jetable uniquement.
-- Test environnement : `-executeMethod ValVertEnvWire.Test` (attend `[VV] ENVTEST DONE`)
-- Rendus POV saisons/météo : `-executeMethod ValVertPOV.Run`
-- Jeu Linux autonome : `-executeMethod ValVertPlayer.BuildLinux` ; test fumée : `./ValVert2010.x86_64 -vvsmoke -vvout <dossier>` (parcours scripté, FPS, captures, puis quitte).
+| Niveau | Où | Contenu | Résultat |
+|---|---|---|---|
+| EditMode | `Assets/Tests/EditMode/` (`ValVert.Tests.EditMode`) | bus (ordre, collant, désinscription), `DurableEventDeriver`, session, registre d'ID, catalogue de scènes, `SaveService`, `GameSettings` | **17/17** |
+| Play Mode | `Assets/Tests/PlayMode/` (`ValVert.Tests.PlayMode`) | bus, services, bootstrap, streaming, configuration, saison des champs, isolation du ciel, scène complète, intégration de `PersistentRoot`, menu, chaîne de démarrage | **45/45** |
+| Python | `Tools/*/tests/` | clone propre, références de GUID, fondations runtime, reconstruction, végétation | verts |
 
-## Tests et vérifications
-- Play Mode (39 tests : 25 synthétiques, 1 scène complète, 7 saison des champs, 5 intégration du noyau, 1 chaîne de démarrage) : `Unity -batchmode -nographics -projectPath . -runTests -testPlatform PlayMode -testResults out.xml`
-- EditMode (13 tests : noyau applicatif, catalogue de scènes, bus unique, dérivation d'événements durables) : même commande avec `-testPlatform EditMode`
-- Vérification de migration : `python3 Tools/architecture/verify_migration.py` ; références de GUID : `python3 Tools/architecture/verify_guid_refs.py`
-- Audit d'un clone propre : `python3 Tools/architecture/clean_clone_audit.py --tree <checkout>` ; restauration : `python3 Tools/rebuild/restore_world.py` (voir `Docs/clean-clone.md`)
-- À chaque étape de la refonte : compilation à 0 erreur, tests verts, vérificateurs verts, la scène `ValVert.unity` s'ouvre.
+```bash
+Unity -batchmode -nographics -projectPath . -runTests -testPlatform EditMode -testResults edit.xml
+Unity -batchmode -nographics -projectPath . -runTests -testPlatform PlayMode -testResults play.xml
+python3 Tools/architecture/verify_migration.py
+python3 Tools/architecture/verify_guid_refs.py
+python3 Tools/architecture/clean_clone_audit.py --tree .
+```
 
-## Systèmes du manuel et leur emplacement
+**Contrôles avant toute fusion** : compilation à 0 erreur ; tests EditMode et Play Mode verts ; vérificateurs verts ; `ValVert.unity` s'ouvre sans référence cassée ; `git status` propre après les tests (aucune réécriture de fichier suivi par Unity). Un seul lancement d'Unity à la fois sur un même projet.
 
-| Système du manuel | Assembly / dossier cible | Statut |
+## 16. Outils
+
+**Outils Éditeur** (appelés en batch par `-executeMethod NomClasse.Methode`, noms inchangés)
+
+| Outil | Rôle |
+|---|---|
+| `ValVertSetup.Build` | genèse historique du monde — **verrouillée** (`VV_ALLOW_GENESIS=1`, clone jetable) |
+| `ValVertGeneratedAssets.RegenerateAll` | régénère herbe, fleurs et préfabs dérivés (piloté par `restore_world.py`) |
+| `ValVertGeneratedAssets.ReportTreesBatch` | rapport des prototypes d'arbres du terrain (doit rester à 0 cassé) |
+| `ValVertSceneWire`, `ValVertWeatherWire` | ajouts idempotents à la scène (environnement, neige) |
+| `ValVertEnvWire.Test` | test de l'environnement (attend `[VV] ENVTEST DONE`) |
+| `ValVertPOV.Run` | rendus point de vue saisons / météo |
+| `ValVertReview`, `ValVertPhotoCompare`, `ValVertSiteCompare`, `ValVertRampCompare` | revues et comparaisons aux photos du site |
+| `ValVertMigrationCheck`, `ValVertFoliageEvidence` | preuves de migration et de feuillage |
+| `ValVertPlayer.BuildLinux` | jeu Linux autonome ; test fumée : `./ValVert2010.x86_64 -vvsmoke -vvout <dossier>` (parcours scripté, FPS, captures, puis quitte) |
+
+**Outils Python** (hors Unity)
+
+| Dossier | Contenu |
+|---|---|
+| `Tools/architecture/` | `verify_migration.py`, `verify_guid_refs.py`, `guid_pins.py`, `tree_pins.py`, `prove_unreferenced.py`, `clean_clone_audit.py` |
+| `Tools/rebuild/` | `rebuild.py`, `restore_world.py`, `sanitize_vendor.py`, manifestes et empreintes attendues |
+| `Tools/vegetation/` | `preflight.py` (contrôle du pack d'herbe) |
+| `Tools/generators/` | générateurs OSM / IGN : bâtiments, rues, façades, panneaux, enseignes, textures, bois |
+
+`.vscode/` recommande l'extension Visual Studio Tools for Unity.
+
+## 17. Assemblies et règles de dépendance
+
+| Assembly | Dossier | Dépend de | Statut |
+|---|---|---|---|
+| `ValVert.Runtime` | `Assets/Runtime/` | `Unity.InputSystem`, `ValVert.Core` | existe |
+| `ValVert.Core` | `Assets/Runtime/Core/` | `Unity.InputSystem`, `UnityEngine.UI` | existe |
+| `ValVert.Tests.EditMode` | `Assets/Tests/EditMode/` | `ValVert.Core`, `ValVert.Runtime` | existe |
+| `ValVert.Tests.PlayMode` | `Assets/Tests/PlayMode/` | `ValVert.Runtime`, `ValVert.Core` | existe |
+| `ValVert.Input`, `Player`, `Narrative`, `AI`, `Save`, `ECS`, `World`, `Developer` | `Assets/Runtime/<Domaine>/` | voir [`ARCHITECTURE.md`](ARCHITECTURE.md) §5 | **créées avec leur premier code** |
+
+Règles : `Core` ne référence aucun module de jeu ni `ValVert.Runtime` ; `ValVert.Runtime` ne référence que `Core` ; `Narrative` ne dépend d'aucun `Animator` ni caméra ; `Save` ne dépend d'aucun type visuel ; aucune assembly Runtime ne référence `UnityEditor` (seule exception : « Quitter » arrête le Play Mode) ; le code développeur n'est compilé que sous `VALVERT_DEV`. Les scripts Éditeur existants restent dans l'assembly Éditeur par défaut : ils sont appelés par nom de classe.
+
+## 18. Règles de contribution
+
+1. **Rien ne se perd** : on ne supprime un fichier, une classe ou un document qu'avec une preuve de non-référence (GUID, YAML, JSON, `ProjectSettings`).
+2. **Rien de ce qui tourne ne casse** : `ValVert.unity` reste ouvrable et jouable seule ; tests verts à chaque PR.
+3. **GUID intacts** : déplacer ou renommer = `git mv` avec son `.meta`. Les épingles `generated_guid_pins.json` et `terrain_tree_pins.json` ne sont jamais réécrites à la main.
+4. **Noms de classes et méthodes d'entrée inchangés** (`-executeMethod`).
+5. **Pas de code inutilisé** : un système n'entre que câblé et testé ; une assembly se crée avec son premier code ; un paquet s'installe avec sa première fonctionnalité, en version compatible 6000.3.
+6. **100 % gratuit, sources citées** : OSM et IGN toujours crédités ; aucun asset payant.
+7. **Jamais dans le dépôt** : binaires d'Asset Store, photos, dérivés de ces contenus, sorties régénérables lourdes (herbe, fleurs).
+8. **Gelés** : `Assets/Cars/**`, le parking Aldi, les zones validées ; `ValVert.unity` n'est modifiée que par des outils idempotents.
+9. **Spécifié ≠ implémenté ≠ validé** : la documentation indique l'état réel.
+10. **Une PR par changement**, fusion **normale** (`gh pr merge --merge --delete-branch`), pas de force-push, pas de reset. Avant la fusion : compilation à 0 erreur, tests verts, vérificateurs verts, `git status` propre.
+11. Un générateur Éditeur ne lit jamais l'état de jeu ; le jeu ne lance jamais de générateur.
+12. Les textes affichés sont en français ; les identifiants de code en anglais ; commentaires brefs et utiles.
+
+## 19. Systèmes de jeu : conception et statut
+
+La conception complète est dans [`Docs/design/manuel-de-conception.md`](Docs/design/manuel-de-conception.md) (tomes : identité, cahier des charges, socle technique, données et événements, personnage et caméras, narration, relations et mémoire, navigation et monde ouvert, temps et météo, objets/audio/visuels/UI, sauvegarde, outils, tests et livraison, ordre de réalisation). Statut section par section : [`Docs/design/correspondance.md`](Docs/design/correspondance.md) ; branchement de chaque système sur le code existant : [`ARCHITECTURE.md`](ARCHITECTURE.md) §9.
+
+| Système | Assembly / dossier cible | Statut |
 |---|---|---|
-| Démarrage, services, scènes, événements durables | `ValVertII.Core` — `Assets/Runtime/Core/` | **branché et prouvé** (catalogue, registre et bus uniques, dérivation durable, chaîne de démarrage ; reste à bâtir les systèmes) |
-| Entrées et modes de contrôle | `ValVertII.Input` — `Assets/Runtime/Input/` + `Settings/Input/` | asmdef à créer avec le premier code |
-| Joueur, caméras, interactions | `ValVertII.Player` — `Assets/Runtime/Player/` | asmdef à créer avec le premier code |
-| Téléphone, dialogues, relations, mémoire | `ValVertII.Narrative` — `Assets/Runtime/Narrative/` | asmdef à créer avec le premier code |
-| Habitants, routines, navigation | `ValVertII.AI` — `Assets/Runtime/AI/` | asmdef à créer avec le premier code |
-| Secteurs, intérieurs, portes, sièges | `ValVertII.World` — `Assets/Runtime/World/Sectors/` (+ `Runtime/World/Streaming` existant) | asmdef à créer avec le premier code |
-| Sauvegarde | `ValVertII.Save` — `Assets/Runtime/Save/` | asmdef à créer avec le premier code |
-| Mode développeur | `ValVertII.Developer` — `Assets/Runtime/Developer/` (compilé seulement avec `VALVERT_DEV`) | asmdef à créer avec le premier code |
-| ECS | `ValVertII.ECS` — `Assets/Runtime/ECS/` | asmdef à créer avec le premier code |
-| Horloge, saisons, météo | `ValVert.Runtime` — `Runtime/Gameplay/` | **existe** |
-| Monde, génération, rendu, herbe | `Editor/Generators/`, `Assets/World/`, `Assets/Generated/`, `Tools/` | **existe** |
+| Démarrage, services, scènes, événements durables | `ValVert.Core` — `Runtime/Core/` | **existe, prouvé** |
+| Entrées et modes de contrôle | `Core.InputRouter` + `Settings/Input/` | partiel |
+| Joueur, états, déplacements, caméras, interactions | `ValVert.Player` — `Runtime/Player/` | à construire (`SimpleFPS` provisoire) |
+| Mode développeur (vol libre, téléportation, overlay) | `ValVert.Developer` (`VALVERT_DEV`) | à construire |
+| Téléphone, messages, appels, dialogues | `ValVert.Narrative` — `Runtime/Narrative/` | à construire |
+| Relations, mémoire, circulation de l'information | `ValVert.Narrative` | à construire |
+| Habitants, routines, navigation, foule | `ValVert.AI` — `Runtime/AI/` | à construire |
+| Secteurs, streaming, intérieurs, portes, sièges | `ValVert.World` + `Runtime/World/Streaming` | secteur 1 et activation de régions : existent ; le reste à construire |
+| Horloge, saisons, météo | `Runtime/Gameplay/` | **existe** |
+| Inventaire du quotidien | domaine `Inventory` | à construire |
+| Audio | `Runtime/World/Audio/` | partiel (volume général) |
+| Rendu URP, végétation | profils URP, générateurs | **existe** |
+| Interface, accessibilité, localisation | `Core` (menu) | partiel (menu en français) |
+| Sauvegarde complète | `ValVert.Save` | partiel (`SaveService`) |
+| Validation de contenu | `ProjectValidator`, `Editor/Validation/` | partiel |
+| ECS | `ValVert.ECS` | option, seulement si une mesure le justifie |
 
-Statut section par section : `Docs/ValVertII/correspondance.md`.
+## 20. Feuille de route
 
-## Feuille de route
+La restructuration du dépôt est **terminée** (étapes 0 à 7 et dettes 1 à 8, puis menu, sauvegarde, réglages et unification des noms). Prochaine étape, un système à la fois, chacun avec ses tests :
 
-**Migration d'architecture (`ARCHITECTURE.md` §12) : terminée, étapes 0 à 7 (PR #21 à #29).**
+1. **Tranche verticale** : joueur réel et caméras, un banc, l'appel de la mère de Karim, un choix, une réaction différée, sauvegarde et rechargement complets.
+2. Téléphone, dialogues pilotés par les données, relations et mémoire.
+3. Habitants, routines et navigation.
+4. Intérieurs, portes, secteurs additionnels (après mesure de la mémoire).
+5. Inventaire, audio, localisation, accessibilité.
+6. Paquets Unity requis par ces systèmes (caméras Cinemachine, etc.), ajoutés en version compatible 6000.3.
 
-Reste à faire (étape 8+, un système à la fois, chacun avec ses tests) : joueur, caméras et interactions ; téléphone, dialogues, relations et mémoire ; habitants et routines ; sauvegarde ; menu réel (le menu actuel n'a qu'un bouton « Nouvelle partie ») et secteurs supplémentaires chargés en additif ; paquets Unity du manuel (Cinemachine, etc.), ajoutés compatibles 6000.3.
+Décisions ouvertes (époque du jeu, caméras, ECS, localisation, plateforme, sauvegardes multiples) : [`ARCHITECTURE.md`](ARCHITECTURE.md) §14.
 
-## Index des documents
-- `ARCHITECTURE.md` — architecture totale et plan de migration
-- `Docs/architecture-newcomer.md` — orientation en 10 minutes
-- `Docs/architecture-map.md`, `architecture-phase1.md`, `architecture-runtime.md`, `architecture-vegetation-grass.md` — réorganisation, audit, fondations runtime, herbe
-- `Docs/generated-rebuild.md`, `Docs/clean-clone.md` — données générées, clone propre
-- `Docs/migration-props-entrance.md`, `Docs/props-inventory.md` — props
-- `Docs/ValVertII/manuel-maitre.md`, `Docs/ValVertII/correspondance.md` — manuel de Val Vert II et son statut
-- `CREDITS_ASSETS.txt` — crédits détaillés
+## 21. Historique des PR
+
+| PR | Contenu |
+|---|---|
+| #1–#8 | Passes de réalisme (voitures, asphalte, parking, météo, saisons, neige), correspondance aux photos du site, arbres et entrées, caméras photo |
+| #9–#14 | Audit d'architecture, premiers déplacements, pipeline de reconstruction des données générées |
+| #15–#16 | Fondations runtime (bus, services, bootstrap, activation de régions), correctifs de cycle de vie, tests Play Mode |
+| #17–#19 | Herbe du pack 138810, ciel co-localisé, `ValVertEnvironment` branché dans la scène |
+| #20 | Clone propre : audit, épingles de GUID, `restore_world.py`, maillages en LFS |
+| #21–#30 | Refonte : architecture plate, noyau applicatif, `World/` et `Generated/`, contenus tiers, `SceneCatalog`, tests du noyau |
+| #31–#38 | Dettes : arbres du terrain, GUID pendants, `demfix_*` déterministes, genèse verrouillée, bus et registre uniques, chaîne de démarrage, assemblies vides, fleurs |
+| #39 | README et architecture à jour |
+| #40 | Menu principal, `SaveService`, `GameSettings`, Continuer, Options |
+| #41 | Ciel : copies d'exécution en Play Mode |
+| #42 | Unification des noms : assemblies, espaces de noms et entrées en `ValVert.*` |
+| #43 | Ciel : l'Edit Mode n'écrit plus dans `sky.mat` |
+| #44 | Documentation unifiée (README, ARCHITECTURE, `Docs/design/`) |
+
+## 22. Index des documents
+
+| Document | Contenu |
+|---|---|
+| [`ARCHITECTURE.md`](ARCHITECTURE.md) | architecture totale, décisions, assemblies, branchement des systèmes |
+| [`Docs/architecture-newcomer.md`](Docs/architecture-newcomer.md) | orientation en 10 minutes |
+| [`Docs/architecture-map.md`](Docs/architecture-map.md) | carte des emplacements et des déplacements |
+| [`Docs/architecture-phase1.md`](Docs/architecture-phase1.md) | audit mesuré initial |
+| [`Docs/architecture-runtime.md`](Docs/architecture-runtime.md) | fondations runtime |
+| [`Docs/architecture-vegetation-grass.md`](Docs/architecture-vegetation-grass.md) | herbe et fleurs |
+| [`Docs/clean-clone.md`](Docs/clean-clone.md), [`Docs/generated-rebuild.md`](Docs/generated-rebuild.md) | clone propre, données générées |
+| [`Docs/migration-props-entrance.md`](Docs/migration-props-entrance.md), [`Docs/props-inventory.md`](Docs/props-inventory.md) | props |
+| [`Docs/design/manuel-de-conception.md`](Docs/design/manuel-de-conception.md) | conception complète de la couche jeu |
+| [`Docs/design/correspondance.md`](Docs/design/correspondance.md) | statut réel de chaque section de la conception |
+| [`CREDITS_ASSETS.txt`](CREDITS_ASSETS.txt) | crédits détaillés des assets |
+
+## 23. Crédits et licences
+
+- **OpenStreetMap** : © les contributeurs d'OpenStreetMap, ODbL 1.0 — https://www.openstreetmap.org/copyright
+- **IGN** : RGE ALTI, MNS/MNH, BD ORTHO (2006-2010), Licence Ouverte / Etalab 2.0.
+- **Poly Haven** : textures et modèles, CC0 1.0 — https://polyhaven.com/license
+- **Asset Store** (locaux, EULA standard, jamais redistribués) : *Ultimate Nature – Starter* (Innerverse Interactive), *European Forests – Realistic Trees* (MysticForge), *Grass Flowers Pack Free* 138810 (Objective Environment).
+- **Conception et noyau applicatif d'origine** : © **Ishaq74** — https://github.com/Ishaq74/ValVertII (contenu repris, adapté au projet unifié ; crédité en `Co-authored-by` dans l'historique).
+- Liste complète des assets : `CREDITS_ASSETS.txt`.
+
+Le code et les outils de ce dépôt sont publiés pour ce projet ; les contenus tiers conservent leurs licences respectives et ne sont pas inclus dans le dépôt.

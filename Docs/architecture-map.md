@@ -6,12 +6,12 @@ Mise à jour : 15 nov. 2026 (après la refonte, PR #21 à #35). Source de vérit
 
 | Zone | Chemin | Rôle |
 |---|---|---|
-| Noyau applicatif (`ValVertII.Core`) | `Runtime/Core/` | `PersistentRoot`, `SceneLoader`, `WorldSession`, `IdRegistry`, `SceneCatalog`, `MainMenuController`, **`ValVertEventBus`** (bus unique), **`ValVertServices`** (registre unique), `DurableEventDeriver` |
+| Noyau applicatif (`ValVert.Core`) | `Runtime/Core/` | `PersistentRoot`, `SceneLoader`, `WorldSession`, `IdRegistry`, `SceneCatalog`, `MainMenuController`, **`ValVertEventBus`** (bus unique), **`ValVertServices`** (registre unique), `DurableEventDeriver` |
 | Boot de scène | `Runtime/Boot/` | `ValVertRuntimeBootstrap`, `Config/ValVertWorldConfig` |
 | Jour / nuit, saisons, météo, QA | `Runtime/Gameplay/{DayNight,Season,Weather,QA}/` | horloge, phénologie, météo synthétique, smoke `-vvsmoke` |
 | Joueur | `Runtime/Characters/Player/` | `SimpleFPS` |
 | Monde | `Runtime/World/{Streaming,Props/Lighting}/` | activation de régions par distance, lampadaires |
-| Assembly | `Runtime/ValVert.Runtime.asmdef` (référence `ValVertII.Core`) | références : `Runtime` → `Core` |
+| Assembly | `Runtime/ValVert.Runtime.asmdef` (référence `ValVert.Core`) | références : `Runtime` → `Core` |
 
 Les scripts runtime n'utilisent pas `UnityEditor`. `ValVert.unity` reste jouable seule ; la chaîne complète est `00_Bootstrap` → `01_MainMenu` → `02_SeynodRoot` + `ValVert.unity` en additif (`SECTOR_VALVERT_CORE`), prouvée par `BootChainTests`.
 
