@@ -52,12 +52,8 @@ crashlytics-build.properties
 # Herbe générée (1536 chunks, ~406 Mo) : régénérée par ValVertWoods.Grass()
 /Assets/ValVert/Gen/grass_*.asset
 /Assets/ValVert/Gen/grass_*.asset.meta
-# Gros maillages générés (quota LFS) : régénérés par ValVertSetup.Build()
-/Assets/ValVert/Gen/m_Bld_kerb.asset
-/Assets/ValVert/Gen/m_Bld_white_trim.asset
-/Assets/ValVert/Gen/m_Bld_facade.asset
-/Assets/ValVert/Gen/m_Bld_metal.asset
-/Assets/ValVert/Gen/m_OuterRing.asset
+# Gros maillages de la ville (m_Bld_kerb/white_trim/facade/metal, m_OuterRing) : SUIVIS via Git LFS depuis le stage clean-clone
+# (ValVertSetup.Build n'est pas rejouable de façon prouvée ; la scène les référence par GUID). Voir Docs/clean-clone.md.
 
 # Unity Asset Store vendor content (Ultimate Nature Starter, Standard Unity Asset Store EULA) - never commit raw files
 Assets/InnerverseInteractive/

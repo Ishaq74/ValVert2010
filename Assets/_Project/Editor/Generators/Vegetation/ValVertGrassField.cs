@@ -271,6 +271,8 @@ public static class ValVertGrassField
     // ---- batch entry points (unity -batchmode -executeMethod ValVertGrassField.RebuildInScene) ----
     const string ScenePath = "Assets/Scenes/ValVert.unity";
 
+    public static Terrain MainTerrainForTools() => MainTerrain();
+
     static Terrain MainTerrain()
     {
         var go = GameObject.Find("ValVertTerrain");

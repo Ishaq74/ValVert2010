@@ -1,0 +1,35 @@
+{
+ "note": "GUIDs referenced by the committed scene that resolve in NO checkout (not even the author's full project): materials on the frozen cars (plateF/plateR number plates, bumper/paint). Cars/Aldi are frozen, so they are listed instead of fixed; they render with the default/missing material in every checkout, clean or not.",
+ "knownDangling": {
+  "0bda7529456f5c3bd8aa7dcb4e6de9bc": [
+   "plateF"
+  ],
+  "0fdca1b1ed58fc26bae28b415a57f7f9": [
+   "bumper",
+   "paint"
+  ],
+  "2e4f12a89a4752d71b427f6c395d4f22": [
+   "plateR"
+  ],
+  "4f9a70ae8a54483fd9e0b370bd0745b3": [
+   "plateR"
+  ],
+  "51861f37dd69f56cc8d695916e7bf6ee": [
+   "bumper",
+   "paint"
+  ],
+  "59bf750abc0d619f9bd2131c52b5985e": [
+   "plateR"
+  ],
+  "7c0963392ea169f5eac4c194abf9aa92": [
+   "plateF"
+  ],
+  "d511399c6c7682216842977d375b1669": [
+   "plateF"
+  ],
+  "da6301559f20ad6c88db96ed4380f907": [
+   "bumper",
+   "paint"
+  ]
+ }
+}
