@@ -45,8 +45,8 @@ Assets/Generated/m_Bld_white_trim.asset filter=lfs diff=lfs merge=lfs -text
 Assets/Generated/m_Bld_facade.asset filter=lfs diff=lfs merge=lfs -text
 Assets/Generated/m_Bld_metal.asset filter=lfs diff=lfs merge=lfs -text
 Assets/Generated/m_OuterRing.asset filter=lfs diff=lfs merge=lfs -text
-Assets/World/Meshes/demfix_Forest_-2332.asset filter=lfs diff=lfs merge=lfs -text
-Assets/World/Meshes/demfix_Parks_-2352.asset filter=lfs diff=lfs merge=lfs -text
-Assets/World/Meshes/demfix_Paths_-2362.asset filter=lfs diff=lfs merge=lfs -text
-Assets/World/Meshes/demfix_Roads_-2372.asset filter=lfs diff=lfs merge=lfs -text
-Assets/World/Meshes/demfix_Urban_-2392.asset filter=lfs diff=lfs merge=lfs -text
+Assets/World/Meshes/demfix_Forest.asset filter=lfs diff=lfs merge=lfs -text
+Assets/World/Meshes/demfix_Parks.asset filter=lfs diff=lfs merge=lfs -text
+Assets/World/Meshes/demfix_Paths.asset filter=lfs diff=lfs merge=lfs -text
+Assets/World/Meshes/demfix_Roads.asset filter=lfs diff=lfs merge=lfs -text
+Assets/World/Meshes/demfix_Urban.asset filter=lfs diff=lfs merge=lfs -text
