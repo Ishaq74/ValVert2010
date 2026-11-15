@@ -68,7 +68,7 @@
 | Domaine | État réel | Où (dans ValVertII) |
 |---|---|---|
 | Manuel maître (78 sections, 15 tomes) | **spécification**, aucune fonction « validée » (le manuel le dit lui-même) | `README.md` (1 420 lignes) |
-| Noyau applicatif « Phase 2 » | **code écrit, jamais prouvé dans notre projet** : `PersistentRoot` (racine de composition, `DontDestroyOnLoad`), `SceneLoader` (états `Unloaded/Loading/Loaded/Unloading/Failed`, déduplication des chargements), `WorldEventBus` (instance, typé), `IdRegistry` + `StableId`, `WorldSession`, `AppLogger`, `DiagnosticsService`, `InputRouter` + `AppModeManager` + `AppInputMode`, `ProjectValidator`, `IAppService` | `Assets/_Project/Scripts/Core/` (13 fichiers, ~1 175 lignes, assembly `ValVertII.Core`) |
+| Noyau applicatif « Phase 2 » | **état à l'arrivée (code écrit, non prouvé) ; depuis, prouvé ici (PR #29, #35, #36) et `WorldEventBus` fusionné dans `ValVertEventBus`** : `PersistentRoot` (racine de composition, `DontDestroyOnLoad`), `SceneLoader` (états `Unloaded/Loading/Loaded/Unloading/Failed`, déduplication des chargements), `WorldEventBus` (instance, typé), `IdRegistry` + `StableId`, `WorldSession`, `AppLogger`, `DiagnosticsService`, `InputRouter` + `AppModeManager` + `AppInputMode`, `ProjectValidator`, `IAppService` | `Assets/_Project/Scripts/Core/` (13 fichiers, ~1 175 lignes, assembly `ValVertII.Core`) |
 | Assemblies vides | `AI`, `Developer`, `ECS`, `Save`, `Tests` (asmdef sans script) ; `Input`, `Narrative`, `Player`, `World` (asmdef, aucun script) | `Assets/_Project/Scripts/*/` |
 | Scènes | 3 squelettes : `00_Bootstrap`, `01_MainMenu`, `02_SeynodRoot` (la Bootstrap porte `PersistentRoot`) | `Assets/_Project/Scenes/{Bootstrap,Menus,SeynodRoot}/` |
 | Entrées | `ValVertII_InputActions.inputactions` (cartes `Gameplay`, `UI`, `Developer`, `Cutscene` attendues par `InputRouter`) | `Assets/_Project/Settings/Input/` |
@@ -240,7 +240,7 @@ Règle : **on ajoute, on met à jour les chemins déplacés, on ne retire aucune
 Règles imposées (celles du manuel §15.5, testées par un test d'architecture à l'étape 2) :
 
 * `Core` ne référence aucun module de jeu **ni** `ValVert.Runtime`.
-* `ValVert.Runtime` ne référence que `Core` (pour le pont d'événements), jamais `Player`, `World`, `AI`, `Narrative`, `Save`.
+* `ValVert.Runtime` ne référence que `Core` (bus et registre uniques), jamais `Player`, `World`, `AI`, `Narrative`, `Save`.
 * `Narrative` ne dépend ni d'un `Animator` ni d'une caméra ; `Save` ne dépend d'aucun type visuel.
 * Aucun assembly Runtime ne référence `UnityEditor` ; aucun code `ValVertII.Developer` n'est compilé en Release.
 
@@ -287,7 +287,7 @@ Il est à la racine de `Assets/_Project/Editor/` chez lui. Le laisser là captur
 | Risque | Parade |
 |---|---|
 | `ValVertClock` est `[ExecuteAlways]` : ouvrir/enregistrer la scène dans l'éditeur « cuit » brouillard/ambiance/exposition du ciel dans la scène (déjà documenté dans `architecture-runtime.md`). | Ne jamais ouvrir/enregistrer `ValVert.unity` hors des outils prévus (`ValVertSceneWire`) ; en chargement additif depuis `SeynodRoot`, ne rien enregistrer. |
-| Deux `Main Camera`/deux écouteurs audio en additif. | Le pont désactive la caméra/l'écouteur par défaut de `ValVert.unity` quand la session en fournit un (étape 6). |
+| Deux `Main Camera`/deux écouteurs audio en additif. | Résolu autrement (PR #36) : `02_SeynodRoot` est un conteneur pur sans caméra, lumière ni écouteur ; `ValVert.unity` garde les siens (1 écouteur, 1 caméra prouvés par `BootChainTests`). |
 | `PersistentRoot` avec chemin d'asset en dur. | Passer par `SceneCatalog` (étape 3) avant tout chargement réel. |
 
 ---
@@ -406,9 +406,9 @@ Un générateur Éditeur ne **lit jamais** l'état de jeu (sauvegardes, narratio
 | Niveau | Où | Assembly | Contenu | Statut |
 |---|---|---|---|---|
 | EditMode (domaine pur) | `Tests/EditMode/` | `ValVertII.Tests.EditMode` | `IdRegistry` (doublons, ID vides), `ValVertEventBus` (ordre, collant, désinscription) et `DurableEventDeriver` (idempotence), `SceneLoader` (états, déduplication), `ProjectValidator`, sérialisation/migrations `Save`, dépendances d'assemblies (test d'architecture §5.2) | nouveau (étape 2) |
-| PlayMode synthétique | `Tests/PlayMode/` | `ValVert.Tests.PlayMode` | 25 tests existants : bus, services, bootstrap, streaming, config | **existe, vert à chaque étape (31/31 après l'étape 7 avec les nouveaux tests)** |
+| PlayMode synthétique | `Tests/PlayMode/` | `ValVert.Tests.PlayMode` | 25 tests existants : bus, services, bootstrap, streaming, config | **existe, vert à chaque étape (39/39 après les PR #31 à #38)** |
 | PlayMode scène réelle | idem | idem | `FullSceneSmokeTests` sur `Assets/Scenes/ValVert.unity` | **existe** |
-| PlayMode noyau applicatif | `Tests/PlayMode/` (nouvelle classe) | `ValVert.Tests.PlayMode` ou `ValVertII.Tests.PlayMode` | `00_Bootstrap → 02_SeynodRoot` : un seul `PersistentRoot`, services initialisés une fois, fermeture dans l'ordre inverse, pas de doublon avec `ValVertRuntimeBootstrap` | **fait (étape 7)** : 5 tests (publication des services, retrait à l'arrêt, résolution du menu, pont durable, mode autonome) ; le chargement réel `00_Bootstrap → 02_SeynodRoot` reste à prouver |
+| PlayMode noyau applicatif | `Tests/PlayMode/` (nouvelle classe) | `ValVert.Tests.PlayMode` ou `ValVertII.Tests.PlayMode` | `00_Bootstrap → 02_SeynodRoot` : un seul `PersistentRoot`, services initialisés une fois, fermeture dans l'ordre inverse, pas de doublon avec `ValVertRuntimeBootstrap` | **fait (étape 7)** : 5 tests (publication des services, retrait à l'arrêt, résolution du menu, pont durable, mode autonome) ; le chargement réel `00_Bootstrap → menu → 02_SeynodRoot + ValVert.unity` est prouvé par `BootChainTests` (PR #36) |
 | Python / chaîne | `Tools/*/tests/` | — | `test_clean_clone.py`, `test_guid_refs.py`, `test_runtime_foundations.py`, tests `rebuild` | **existe** |
 | Parcours / intégration | `Tests/Integration/` | — | tranche verticale (§9) ; sauvegarde → rechargement | plus tard |
 | Performance | `Tests/Performance/` (à créer) | — | budgets mesurés (manuel §61) ; le smoke existant mesure déjà un `Tick` de streaming ≈ 1,6 ms | plus tard |
@@ -437,7 +437,8 @@ Chaque étape = **une PR**, fusion normale, pas de force-push. Chaque PR est val
 | **5 — Dissoudre `Assets/ValVert`** (**faite** : #27) | `ValVert/` → `World/` et `Generated/` ; art co-localisé (props, ciel) → `World/` ; mise à jour de tous les chemins et de la restauration | **élevé** : GUID, ~2 100 fichiers, chemins en dur dans les générateurs et les épingles | vérificateurs verts ; scène identique ; clone vierge restauré | `git mv` inverse |
 | **6 — Contenus tiers sous `ThirdParty`** (**faite** : #28) | UNS, European Forests, pack 138810 et dérivés → `Assets/ThirdParty/…` (gitignorés, déplacés localement avec leurs `.meta`) ; mise à jour de `vendor_manifest`, `restore_world`, générateurs, `.gitignore` | moyen : fichiers non suivis, chaque worktree doit être restauré | `restore_world` + audit `AUDIT_OK` | déplacement inverse |
 | **7 — Brancher et prouver** (**faite** : #29) | `SceneCatalog`, adaptateur `PersistentRoot → ValVertServices`, pont d'événements, tests EditMode du noyau | moyen : cycles de vie | scène autonome inchangée ; tests EditMode/PlayMode verts | désactiver l'adaptateur |
-| **8+ — Systèmes de jeu** (à faire) | joueur, caméras, interactions, téléphone, dialogues, relations, habitants, sauvegarde, secteurs additifs, session `02_SeynodRoot` | selon le système | critères du manuel §78 | par système |
+| **Dette 1 à 8** (**faite** : #31 à #38) | arbres de terrain (fileID épinglés), GUID pendants (6 supprimés, 9 gelés documentés), `demfix_*` déterministes, `ValVertSetup.Build` mesuré et verrouillé, bus et registre uniques, chaîne de démarrage prouvée, assemblies vides supprimés, fleurs du pack | faible à moyen | preuves dans `Docs/clean-clone.md` ; 0 erreur de compilation, EditMode 13/13, PlayMode 39/39 |
+| **8+ — Systèmes de jeu** (à faire) | joueur, caméras, interactions, téléphone, dialogues, relations, habitants, sauvegarde, secteurs additionnels | selon le système | critères du manuel §78 | par système |
 
 **Note étape 4** : le dépôt ValVertII référence un objet LFS (`Assets/TutorialInfo/Icons/URP.png`) introuvable sur tout serveur ; son historique git ne peut donc pas être poussé. Le contenu est repris à l'identique (trailer `Co-authored-by`), l'historique d'origine reste consultable dans le dépôt d'Ishaq74.
 

@@ -46,9 +46,9 @@ Val Vert II est une **simulation narrative en monde ouvert** à Seynod : on vit 
 | Monde 2010 : terrain IGN, routes/bâtiments/chemins OSM, bois | **Fonctionne** |
 | Environnement : horloge solaire, saisons, météo synthétique, lampadaires | **Fonctionne** |
 | Herbe du pack 138810 (762 chunks) | **Fonctionne** ; fleurs du pack : en pause |
-| Fondations runtime : `ValVertEventBus`, `ValVertServices`, `ValVertRuntimeBootstrap`, `ValVertWorldStreaming` | **Fonctionne, 25 tests Play Mode + test de la scène complète** |
+| Fondations runtime : `ValVertEventBus`, `ValVertServices`, `ValVertRuntimeBootstrap`, `ValVertWorldStreaming` | **Fonctionne : bus et registre uniques dans `ValVertII.Core`, 25 tests synthétiques + scène complète + chaîne de démarrage** |
 | Reconstruction / restauration d'un clone vierge (`Tools/rebuild`, `restore_world.py`) | **Fonctionne** (3 cibles prouvées + régénération prouvée de l'herbe) |
-| Noyau applicatif de Val Vert II (`PersistentRoot`, `SceneLoader`, `IdRegistry`…) | **Importé de ValVertII (contenu repris à l'identique ; l'historique git d'Ishaq n'est pas fusionné, voir PR #26) ; compile sous 6000.3 ; branché (SceneCatalog, adaptateur, pont durable) et prouvé par 13 tests EditMode et 5 tests Play Mode d'intégration** |
+| Noyau applicatif de Val Vert II (`PersistentRoot`, `SceneLoader`, `IdRegistry`…) | **Importé de ValVertII (contenu repris à l'identique ; l'historique git d'Ishaq n'est pas fusionné, voir PR #26) ; compile sous 6000.3 ; branché (SceneCatalog, registre et bus uniques, `DurableEventDeriver`) et prouvé par 13 tests EditMode, 5 tests Play Mode d'intégration et la chaîne `00_Bootstrap → menu → 02_SeynodRoot + ValVert.unity` (`BootChainTests`)** |
 | Joueur, caméras, téléphone, dialogues, relations, habitants, sauvegarde, intérieurs | **À construire** (`SimpleFPS` est un joueur provisoire) |
 | Véhicules et parking Aldi | **Gelés** : aucune modification |
 
@@ -75,16 +75,25 @@ Val Vert II est une **simulation narrative en monde ouvert** à Seynod : on vit 
 | #27 | Étape 5 : `Assets/ValVert` dissous en `Assets/World/*` et `Assets/Generated` (2 117 déplacements, GUID conservés) |
 | #28 | Étape 6 : contenus tiers sous `Assets/ThirdParty/*` (restauration par remappage) |
 | #29 | Étape 7 : `SceneCatalog`, adaptateur `PersistentRoot → ValVertServices`, pont d'événements durables, tests EditMode/Play Mode du noyau |
+| #30 | Docs alignées sur la refonte (étapes 0 à 7) |
+| #31 | Dette 1 : 40 avertissements « Tree prefab missing » → 0 (fileID racine des préfabs épinglés, terrain jamais modifié) |
+| #32 | Dette 2 : 15 GUID pendants → 6 internes au vendor supprimés (`sanitize_vendor.py`), 9 GUID voitures documentés comme exception gelée |
+| #33 | Dette 3 : noms `demfix_*` déterministes, 72 orphelins supprimés |
+| #34 | Dette 4 : `ValVertSetup.Build` rejoué sur clone neuf, mesuré (267 fichiers, scène +102 823 lignes) et verrouillé (`VV_ALLOW_GENESIS=1`) ; dossier de travail relocalisable (`VV_WORK`) |
+| #35 | Dette 5 : un seul bus (`ValVertEventBus`) et un seul registre (`ValVertServices`) dans `ValVertII.Core` ; `WorldEventBus`, `AppServicesAdapter`, assembly `ValVertII.Bridge` supprimés ; `DurableEventDeriver` |
+| #36 | Dette 6 : chaîne de démarrage réelle prouvée (`BootChainTests`), repli de chemin en dur supprimé, Build Settings basculés |
+| #37 | Dette 7 : 9 assemblies vides, placeholders vides et API obsolète supprimés |
+| #38 | Dette 8 : fleurs du pack `grassFlower01..10` + teinte saisonnière (atlas et chunks dérivés, ignorés) |
 
 ## Fondations runtime (réelles, testées)
 
 Détail : `Docs/architecture-runtime.md`.
-- `ValVertEventBus` : bus statique d'événements d'environnement (`ValVertTimeChanged`, `ValVertSeasonChanged`, `ValVertWeatherChanged`, `ValVertRegionActivationChanged`). Chaque abonné possède son abonnement ; la dernière valeur de chaque type est conservée (« collante ») et rejouable ; un abonné qui plante ne bloque pas les autres ; personne ne vide le bus globalement hors `ResetForDomain()` (domaine et tests).
-- `ValVertServices` : localisateur de services de scène ; désenregistrement réservé au propriétaire ; instances détruites tolérées.
+- `ValVertEventBus` : **bus unique** (`Assets/Runtime/Core/`), événements d'environnement et événements durables dérivés (`DurableEventDeriver`) (`ValVertTimeChanged`, `ValVertSeasonChanged`, `ValVertWeatherChanged`, `ValVertRegionActivationChanged`). Chaque abonné possède son abonnement ; la dernière valeur de chaque type est conservée (« collante ») et rejouable ; un abonné qui plante ne bloque pas les autres ; personne ne vide le bus globalement hors `ResetForDomain()` (domaine et tests).
+- `ValVertServices` : **registre unique** de services (scène et application : `PersistentRoot` y publie les siens) ; désenregistrement réservé au propriétaire ; instances détruites tolérées.
 - `ValVertRuntimeBootstrap` : un seul primaire à la fois (les autres restent inertes puis sont promus) ; retransmet horloge, saisons et météo sur le bus ; crée le streaming depuis `Settings/World/ValVertWorldConfig.asset`.
 - `ValVertWorldStreaming` : **activation de régions par distance** (pas de LOD, pas de chargement asynchrone) avec hystérésis et règles de sûreté (jamais de désactivation sous le joueur). Dans la scène réelle : 768 régions (762 chunks d'herbe, 4 enfants est, 2 terrains).
 - Dans `ValVert.unity` : un hôte `ValVertEnvironment` = `ValVertClock` + `ValVertSeasons` + `ValVertRuntimeBootstrap`.
-- **Tests** : 25 tests Play Mode synthétiques + 1 test de la scène complète (`Assets/Tests/PlayMode/`).
+- **Tests** : 25 tests Play Mode synthétiques, 1 test de la scène complète, 7 de saison des champs, 5 d'intégration du noyau, 1 chaîne de démarrage (`Assets/Tests/PlayMode/`).
 
 ## Herbe (pack Asset Store 138810)
 
@@ -197,8 +206,8 @@ Détails : `Docs/generated-rebuild.md`, manifeste `Tools/rebuild/manifest.json`.
 - Jeu Linux autonome : `-executeMethod ValVertPlayer.BuildLinux` ; test fumée : `./ValVert2010.x86_64 -vvsmoke -vvout <dossier>` (parcours scripté, FPS, captures, puis quitte).
 
 ## Tests et vérifications
-- Play Mode (31 tests : 25 synthétiques, 1 scène complète, 5 intégration du noyau) : `Unity -batchmode -nographics -projectPath . -runTests -testPlatform PlayMode -testResults out.xml`
-- EditMode (13 tests : noyau applicatif, catalogue de scènes, pont durable) : même commande avec `-testPlatform EditMode`
+- Play Mode (39 tests : 25 synthétiques, 1 scène complète, 7 saison des champs, 5 intégration du noyau, 1 chaîne de démarrage) : `Unity -batchmode -nographics -projectPath . -runTests -testPlatform PlayMode -testResults out.xml`
+- EditMode (13 tests : noyau applicatif, catalogue de scènes, bus unique, dérivation d'événements durables) : même commande avec `-testPlatform EditMode`
 - Vérification de migration : `python3 Tools/architecture/verify_migration.py` ; références de GUID : `python3 Tools/architecture/verify_guid_refs.py`
 - Audit d'un clone propre : `python3 Tools/architecture/clean_clone_audit.py --tree <checkout>` ; restauration : `python3 Tools/rebuild/restore_world.py` (voir `Docs/clean-clone.md`)
 - À chaque étape de la refonte : compilation à 0 erreur, tests verts, vérificateurs verts, la scène `ValVert.unity` s'ouvre.
@@ -207,7 +216,7 @@ Détails : `Docs/generated-rebuild.md`, manifeste `Tools/rebuild/manifest.json`.
 
 | Système du manuel | Assembly / dossier cible | Statut |
 |---|---|---|
-| Démarrage, services, scènes, événements durables | `ValVertII.Core` — `Assets/Runtime/Core/` | **branché et prouvé** (catalogue, adaptateur, pont durable ; reste à bâtir les systèmes) |
+| Démarrage, services, scènes, événements durables | `ValVertII.Core` — `Assets/Runtime/Core/` | **branché et prouvé** (catalogue, registre et bus uniques, dérivation durable, chaîne de démarrage ; reste à bâtir les systèmes) |
 | Entrées et modes de contrôle | `ValVertII.Input` — `Assets/Runtime/Input/` + `Settings/Input/` | asmdef à créer avec le premier code |
 | Joueur, caméras, interactions | `ValVertII.Player` — `Assets/Runtime/Player/` | asmdef à créer avec le premier code |
 | Téléphone, dialogues, relations, mémoire | `ValVertII.Narrative` — `Assets/Runtime/Narrative/` | asmdef à créer avec le premier code |
@@ -225,7 +234,7 @@ Statut section par section : `Docs/ValVertII/correspondance.md`.
 
 **Migration d'architecture (`ARCHITECTURE.md` §12) : terminée, étapes 0 à 7 (PR #21 à #29).**
 
-Reste à faire (étape 8+, un système à la fois, chacun avec ses tests) : joueur, caméras et interactions ; téléphone, dialogues, relations et mémoire ; habitants et routines ; sauvegarde ; secteurs additifs et session de monde par `02_SeynodRoot` (avec bascule des Build Settings vers `00_Bootstrap`) ; fleurs du pack 138810 (en pause) ; paquets Unity du manuel (Cinemachine, etc.), ajoutés compatibles 6000.3.
+Reste à faire (étape 8+, un système à la fois, chacun avec ses tests) : joueur, caméras et interactions ; téléphone, dialogues, relations et mémoire ; habitants et routines ; sauvegarde ; menu réel (le menu actuel n'a qu'un bouton « Nouvelle partie ») et secteurs supplémentaires chargés en additif ; paquets Unity du manuel (Cinemachine, etc.), ajoutés compatibles 6000.3.
 
 ## Index des documents
 - `ARCHITECTURE.md` — architecture totale et plan de migration
