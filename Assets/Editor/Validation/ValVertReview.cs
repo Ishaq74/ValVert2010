@@ -34,7 +34,7 @@ public static class ValVertReview {
 
     static Camera cam; static ValVertClock clk; static ValVertSeasons sea; static ValVertStreetLights sl; static ValVertWeather w;
     static System.Collections.Generic.Dictionary<Material,Color> carColorCache=new System.Collections.Generic.Dictionary<Material,Color>();
-    const string D="/workspace/valvert/review/";
+    static readonly string D=ValVertPaths.Work+"review/";
     static bool PixelErrorGuard(Texture2D tx, string tag){
         var px=tx.GetPixels32(); int mag=0, cyan=0, wash=0; long sum=0;
         for(int i=0;i<px.Length;i++){ var c=px[i]; sum+=c.r+c.g+c.b;

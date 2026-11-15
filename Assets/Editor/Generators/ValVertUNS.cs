@@ -14,7 +14,7 @@ public static class ValVertUNS {
         var cam=new GameObject("c").AddComponent<Camera>(); cam.fieldOfView=60;
         var cp=new Vector3(368f,0,100f); cp.y=terr.SampleHeight(cp)+terr.transform.position.y+2f; cam.transform.position=cp; cam.transform.LookAt(new Vector3(368f,cp.y+1f,112f));
         var rt=new RenderTexture(1280,720,24); cam.targetTexture=rt; cam.Render(); RenderTexture.active=rt; var t=new Texture2D(1280,720,TextureFormat.RGB24,false); t.ReadPixels(new Rect(0,0,1280,720),0,0);
-        System.IO.Directory.CreateDirectory("/workspace/valvert/uns_eval"); System.IO.File.WriteAllBytes("/workspace/valvert/uns_eval/uns_lineup.png",t.EncodeToPNG()); RenderTexture.active=null;
+        System.IO.Directory.CreateDirectory(ValVertPaths.Work+"uns_eval"); System.IO.File.WriteAllBytes(ValVertPaths.Work+"uns_eval/uns_lineup.png",t.EncodeToPNG()); RenderTexture.active=null;
         Object.DestroyImmediate(cam.gameObject); Object.DestroyImmediate(root);
         ValVertEnvWire.Test();
     }

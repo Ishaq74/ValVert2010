@@ -322,7 +322,7 @@ public static class ValVertGrassField
             var prev = RenderTexture.active; RenderTexture.active = rt;
             var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false); tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0); tex.Apply();
             RenderTexture.active = prev;
-            File.WriteAllBytes("/workspace/sys_grass_proof_" + name + ".png", tex.EncodeToPNG()); Object.DestroyImmediate(tex);
+            File.WriteAllBytes(ValVertPaths.Work + "sys_grass_proof_" + name + ".png", tex.EncodeToPNG()); Object.DestroyImmediate(tex);
             L("shot " + name + " cam=" + pos);
         };
         float gy = terr.SampleHeight(focus) + terr.transform.position.y;

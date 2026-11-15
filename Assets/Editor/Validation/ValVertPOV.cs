@@ -3,7 +3,7 @@
 using UnityEngine; using UnityEditor; using System;
 public static class ValVertPOV {
     static Camera cam; static ValVertClock clk; static ValVertSeasons sea; static ValVertStreetLights sl; static ValVertWeather w;
-    const string D="/workspace/valvert/pov_seasons/";
+    static readonly string D=ValVertPaths.Work+"pov_seasons/";
     static void Place(Vector3 p,Vector3 dir){ Terrain terr=Terrain.activeTerrain; foreach(var tt in Terrain.activeTerrains){ var tp=tt.transform.position; var sz=tt.terrainData.size; if(p.x>=tp.x&&p.x<=tp.x+sz.x&&p.z>=tp.z&&p.z<=tp.z+sz.z){ terr=tt; break; } }
         p.y=terr.SampleHeight(p)+terr.transform.position.y+1.7f; cam.transform.position=p; cam.transform.rotation=Quaternion.LookRotation(dir); }
     static void Shot(string n,int mo,int d,float h){
@@ -51,7 +51,7 @@ public static class ValVertPOV {
         UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/ValVert.unity");
         var go=ValVertEnvWire.Wire(); clk=go.GetComponent<ValVertClock>(); sea=go.GetComponent<ValVertSeasons>(); sl=go.GetComponent<ValVertStreetLights>(); w=go.GetComponent<ValVertWeather>();
         cam=new GameObject("povcam").AddComponent<Camera>(); cam.fieldOfView=65; cam.nearClipPlane=0.05f; sl.viewer=cam.transform; w.viewer=cam.transform; w.BuildShells();
-        const string V="/workspace/valvert/verify/"; System.IO.Directory.CreateDirectory(V);
+        string V=ValVertPaths.Work+"verify/"; System.IO.Directory.CreateDirectory(V);
         System.Action<string,int,int,float> S=(n,mo,d,h)=>{ clk.Set(mo,d,h); w.Tick(); sea.Tick(); clk.Apply(); sl.Tick(); w.Prewarm(4f);
             var rt=new RenderTexture(1600,900,24); cam.targetTexture=rt; cam.Render(); RenderTexture.active=rt; var tx=new Texture2D(1600,900,TextureFormat.RGB24,false); tx.ReadPixels(new Rect(0,0,1600,900),0,0);
             System.IO.File.WriteAllBytes(V+n,tx.EncodeToPNG()); RenderTexture.active=null; cam.targetTexture=null; UnityEngine.Object.DestroyImmediate(rt); UnityEngine.Object.DestroyImmediate(tx); Debug.Log("[VV] VERIFY "+n); };

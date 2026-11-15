@@ -7,7 +7,7 @@ public static class ValVertAldiVerify {
         var sl=go.GetComponent<ValVertStreetLights>(); var w=go.GetComponent<ValVertWeather>();
         var cam=new GameObject("aldi_cam").AddComponent<Camera>(); cam.nearClipPlane=0.05f; cam.fieldOfView=65;
         sl.viewer=cam.transform; if(w) w.viewer=cam.transform;
-        string D="/workspace/valvert/verify/"; Directory.CreateDirectory(D);
+        string D=ValVertPaths.Work+"verify/"; Directory.CreateDirectory(D);
         System.Action<string> shot=(n)=>{
             var rt=new RenderTexture(1600,900,24); cam.targetTexture=rt; cam.Render();
             RenderTexture.active=rt; var tx=new Texture2D(1600,900,TextureFormat.RGB24,false);

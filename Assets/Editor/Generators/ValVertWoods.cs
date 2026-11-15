@@ -1,6 +1,6 @@
 using UnityEngine; using UnityEditor; using UnityEngine.Rendering; using System.IO; using System.Linq; using System.Collections.Generic;
 public static class ValVertWoods {
-    const string SRC="/workspace/valvert/clean/"; const string G="Assets/World/Ground/"; const string GEN="Assets/Generated/";
+    static readonly string SRC=ValVertPaths.Work+"clean/"; const string G="Assets/World/Ground/"; const string GEN="Assets/Generated/";
     [System.Serializable] public class MI{ public string name,mat; public float[] v; public int[] t; public float[] uv; }
     [System.Serializable] public class ML{ public MI[] items; public float[] trees; public float[] hide; public int[] hideLen; }
     static List<Vector2[]> hid;

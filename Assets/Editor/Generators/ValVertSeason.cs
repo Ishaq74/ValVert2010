@@ -116,7 +116,7 @@ public static class ValVertEnvWire {
         foreach(var d in new[]{(3,20),(6,21),(9,22),(12,21)}){ clk.Set(d.Item1,d.Item2,12.5f); Debug.Log($"[VV] ENVTEST noon {d.Item1:00}-{d.Item2:00} alt={clk.SunAltitudeDeg:F1} utc+{clk.UtcOffset()}"); }
         // 2) renders
         var cam=new GameObject("envcam").AddComponent<Camera>(); cam.fieldOfView=70; sl.viewer=cam.transform; var cams=Camera.allCameras;
-        string D="/workspace/valvert/env_runtime/"; System.IO.Directory.CreateDirectory(D);
+        string D=ValVertPaths.Work+"env_runtime/"; System.IO.Directory.CreateDirectory(D);
         var terr=Terrain.activeTerrain;
         void Shot(string n,Vector3 p,Vector3 look,float up){ foreach(var tt in Terrain.activeTerrains){ var tp=tt.transform.position; var sz=tt.terrainData.size; if(p.x>=tp.x&&p.x<=tp.x+sz.x&&p.z>=tp.z&&p.z<=tp.z+sz.z){ terr=tt; break; } } float gy=terr.SampleHeight(p)+terr.transform.position.y; cam.transform.position=new Vector3(p.x,gy+up,p.z); cam.transform.rotation=Quaternion.LookRotation(look); sl.Tick(); Debug.Log($"[VV] ENVSHOT {n} terr={terr.name} pos={cam.transform.position} rot={cam.transform.eulerAngles} parent={(cam.transform.parent?cam.transform.parent.name:"-")} ortho={cam.orthographic} n={Terrain.activeTerrains.Length}");
             var rt=new RenderTexture(1024,576,24); cam.targetTexture=rt; cam.Render(); RenderTexture.active=rt; var t=new Texture2D(1024,576,TextureFormat.RGB24,false); t.ReadPixels(new Rect(0,0,1024,576),0,0); t.Apply(); System.IO.File.WriteAllBytes(D+n,t.EncodeToPNG()); RenderTexture.active=null; cam.targetTexture=null; Object.DestroyImmediate(rt); Object.DestroyImmediate(t); }

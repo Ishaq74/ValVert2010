@@ -1,6 +1,6 @@
 using UnityEngine; using UnityEditor; using UnityEngine.Rendering; using UnityEngine.Rendering.Universal; using System.IO; using System.Linq; using System.Collections.Generic;
 public static class ValVertDress {
-    const string SRC="/workspace/valvert/clean/"; const string G="Assets/World/Ground/"; const string V="Assets/World/Vegetation/"; const string T="Assets/World/Vegetation/tex/";
+    static readonly string SRC=ValVertPaths.Work+"clean/"; const string G="Assets/World/Ground/"; const string V="Assets/World/Vegetation/"; const string T="Assets/World/Vegetation/tex/";
     static void L(string s){ Debug.Log("[VV] "+s); }
     public static Dictionary<string,int> Counts=new Dictionary<string,int>();
     public static Texture2D Mask(string f){ var t=new Texture2D(2,2); t.LoadImage(File.ReadAllBytes(SRC+f)); return t; }

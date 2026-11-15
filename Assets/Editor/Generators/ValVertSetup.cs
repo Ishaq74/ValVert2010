@@ -1,6 +1,6 @@
 using UnityEngine; using UnityEditor; using UnityEditor.SceneManagement; using System.IO; using System.Linq; using System.Collections.Generic;
 public static class ValVertSetup {
-    const string SRC="/workspace/valvert/clean/"; const string SHOTS="/workspace/valvert/unity_shots/";
+    static readonly string SRC=ValVertPaths.Work+"clean/"; static readonly string SHOTS=ValVertPaths.Work+"unity_shots/";
     const int R=2049;
     static void L(string s){ Debug.Log("[VV] "+s); }
     /// <summary>Deterministic output name (no instance ids): demfix_&lt;MeshFilter name&gt;, with _2, _3 … if two filters share a name.
