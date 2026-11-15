@@ -207,7 +207,7 @@ public static class ValVertWeatherWire {
         m.SetColor("_BaseColor",new Color(1.12f,1.13f,1.16f)); m.SetFloat("_AlphaClip",1); m.EnableKeyword("_ALPHATEST_ON"); m.SetFloat("_Cutoff",0.98f); m.SetFloat("_Cull",0); m.SetFloat("_Smoothness",0.18f); m.SetFloat("_Metallic",0);
         m.SetOverrideTag("RenderType","TransparentCutout"); m.renderQueue=2450; EditorUtility.SetDirty(m); return m; }
     static Material OvercastSky(){
-        string tp="Assets/ValVert/Gen/sky_overcast.png", mp="Assets/ValVert/Mats/sky_overcast.mat";
+        string tp="Assets/ValVert/Gen/sky_overcast.png", mp=ValVertPaths.SkyMaterials+"sky_overcast.mat";
         if(!System.IO.File.Exists(tp)){ int w=2048,h=1024; var px=new Color[w*h];
             for(int y=0;y<h;y++){ float el=(y/(float)h-0.5f)*Mathf.PI; for(int x=0;x<w;x++){ float u=x/(float)w; float n=Fbm(Mathf.Cos(u*2*Mathf.PI)*3f+3f+Mathf.Sin(el)*2f, Mathf.Sin(u*2*Mathf.PI)*3f+y*6f/h);
                 float top=Mathf.Clamp01(Mathf.Sin(el)); float v=el<0?0.55f:Mathf.Lerp(0.80f,0.66f,top)+(n-0.5f)*0.12f*(0.3f+top); px[y*w+x]=new Color(v,v*1.005f,v*1.02f,1); } }
@@ -272,8 +272,8 @@ public static class ValVertWeatherWire {
                 w.treeVariants.Add(new ValVertWeather.TreeVariant{orig=p.prefab,snow=sp}); } }
         // overcast sky deck for snowfall / rain / fog
         var clk=go.GetComponent<ValVertClock>(); if(clk){ clk.overcastSkybox=OvercastSky();
-            var bp="Assets/ValVert/Mats/sky_blend.mat"; var bm=AssetDatabase.LoadAssetAtPath<Material>(bp); var sh=Shader.Find("ValVert/SkyBlend");
-            if(sh){ if(!bm){ bm=new Material(sh); AssetDatabase.CreateAsset(bm,bp); } var day=AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/sky.mat");
+            var bp=ValVertPaths.SkyMaterials+"sky_blend.mat"; var bm=AssetDatabase.LoadAssetAtPath<Material>(bp); var sh=Shader.Find("ValVert/SkyBlend");
+            if(sh){ if(!bm){ bm=new Material(sh); AssetDatabase.CreateAsset(bm,bp); } var day=AssetDatabase.LoadAssetAtPath<Material>(ValVertPaths.SkyMaterials+"sky.mat");
                 bm.SetTexture("_TexA",day.GetTexture("_MainTex")); bm.SetTexture("_TexB",clk.overcastSkybox.GetTexture("_MainTex")); bm.SetFloat("_Rotation",day.GetFloat("_Rotation")); EditorUtility.SetDirty(bm); clk.blendSkybox=bm; clk.daySkybox=day; } }
         Debug.Log($"[VV] weather wired: snowMats {w.snowMats.Count} snowLayers {w.snowLayers.Count} shellSrcs {w.shellSrcs.Count} treeVariants {w.treeVariants.Count}");
     }
