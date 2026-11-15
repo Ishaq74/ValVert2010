@@ -23,7 +23,7 @@ class ArchitectureTests(unittest.TestCase):
 
     def test_streaming_not_lod_claim(self):
         t = (ROOT / "Assets/_Project/Runtime/World/Streaming/ValVertWorldStreaming.cs").read_text()
-        self.assertIn("NOT render-LOD", t)
+        self.assertIn("NOT: asynchronous asset streaming", t)
         self.assertIn("Register", t)
         self.assertIn("SetActive", t)
 

@@ -65,7 +65,8 @@
     "Assets/_Project/Runtime/Boot/ValVertServices.cs",
     "Assets/_Project/Runtime/Boot/ValVertRuntimeBootstrap.cs",
     "Assets/_Project/Runtime/World/Streaming/ValVertWorldStreaming.cs",
-    "Assets/_Project/Settings/World/ValVertWorldConfig.cs"
+    "Assets/_Project/Runtime/Boot/Config/ValVertWorldConfig.cs",
+    "Assets/_Project/Runtime/ValVert.Runtime.asmdef"
   ],
   "notMovedYet": [
     "Assets/ValVert/Mats (shared cross-system materials — migrate by exclusive ownership audit)",
