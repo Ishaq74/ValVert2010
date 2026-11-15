@@ -14,42 +14,48 @@
       "to": "Assets/_Project/Runtime/World/Sky/kloofendal_48d_partly_cloudy_puresky.hdr",
       "kind": "owned",
       "system": "World/Sky",
-      "preserveMetaGuid": true
+      "preserveMetaGuid": true,
+      "guid": "2a3cd31520a819c93aef336941a6dea7"
     },
     {
       "from": "Assets/ValVert/Sky/kloofendal_overcast_puresky_2k.hdr",
       "to": "Assets/_Project/Runtime/World/Sky/kloofendal_overcast_puresky_2k.hdr",
       "kind": "owned",
       "system": "World/Sky",
-      "preserveMetaGuid": true
+      "preserveMetaGuid": true,
+      "guid": "3b85df1b3c17fa731bb46fe2700e7998"
     },
     {
       "from": "Assets/ValVert/Prefabs/fern_b.prefab",
       "to": "Assets/_Project/Runtime/World/Vegetation/Prefabs/fern_b.prefab",
       "kind": "owned",
       "system": "World/Vegetation",
-      "preserveMetaGuid": true
+      "preserveMetaGuid": true,
+      "guid": "ed2a87a24b124cec29348e88d10a5c11"
     },
     {
       "from": "Assets/ValVert/Prefabs/fern_c.prefab",
       "to": "Assets/_Project/Runtime/World/Vegetation/Prefabs/fern_c.prefab",
       "kind": "owned",
       "system": "World/Vegetation",
-      "preserveMetaGuid": true
+      "preserveMetaGuid": true,
+      "guid": "5d8dfc2261cb5444fb61fadbb13a8ea8"
     },
     {
       "from": "Assets/ValVert/Prefabs/laurel_cc0.prefab",
       "to": "Assets/_Project/Runtime/World/Vegetation/Prefabs/laurel_cc0.prefab",
       "kind": "owned",
       "system": "World/Vegetation",
-      "preserveMetaGuid": true
+      "preserveMetaGuid": true,
+      "guid": "c102a907ef5d65e3d973453eeb3f4898"
     },
     {
       "from": "Assets/ValVert/Prefabs/shrub_mix_green.prefab",
       "to": "Assets/_Project/Runtime/World/Vegetation/Prefabs/shrub_mix_green.prefab",
       "kind": "owned",
       "system": "World/Vegetation",
-      "preserveMetaGuid": true
+      "preserveMetaGuid": true,
+      "guid": "bf1450325610a78bc9bb7ad4b2ce0f50"
     },
     {
       "from": "Assets/_Project/Generated/Vegetation/grass_field_config.json",
@@ -57,7 +63,44 @@
       "kind": "config",
       "system": "World/Vegetation",
       "preserveMetaGuid": true,
-      "note": "Config is SOURCE, not generated output"
+      "note": "Config is SOURCE, not generated output",
+      "guid": "3ce89537ce517a2a990ac1ef4c1b4f94"
+    },
+    {
+      "from": "Assets/ValVert/Shaders/VVSkyBlend.shader",
+      "to": "Assets/_Project/Runtime/World/Sky/Shaders/VVSkyBlend.shader",
+      "kind": "shader",
+      "system": "World/Sky",
+      "preserveMetaGuid": true,
+      "guid": "964c03c11c29979c3aec42fe5e041bb9",
+      "note": "Owned sky resource; editor tools reach it through ValVertPaths (Editor/Generators/ValVertPaths.cs)"
+    },
+    {
+      "from": "Assets/ValVert/Mats/sky.mat",
+      "to": "Assets/_Project/Runtime/World/Sky/Materials/sky.mat",
+      "kind": "material",
+      "system": "World/Sky",
+      "preserveMetaGuid": true,
+      "guid": "280f7fc4baf795a4b8bc8060331f4796",
+      "note": "Owned sky resource; editor tools reach it through ValVertPaths (Editor/Generators/ValVertPaths.cs)"
+    },
+    {
+      "from": "Assets/ValVert/Mats/sky_blend.mat",
+      "to": "Assets/_Project/Runtime/World/Sky/Materials/sky_blend.mat",
+      "kind": "material",
+      "system": "World/Sky",
+      "preserveMetaGuid": true,
+      "guid": "337224f0cbeb38b65adf71acc06e526e",
+      "note": "Owned sky resource; editor tools reach it through ValVertPaths (Editor/Generators/ValVertPaths.cs)"
+    },
+    {
+      "from": "Assets/ValVert/Mats/sky_overcast.mat",
+      "to": "Assets/_Project/Runtime/World/Sky/Materials/sky_overcast.mat",
+      "kind": "material",
+      "system": "World/Sky",
+      "preserveMetaGuid": true,
+      "guid": "67fd2cddb5506d90ab95c56d56903452",
+      "note": "Owned sky resource; editor tools reach it through ValVertPaths (Editor/Generators/ValVertPaths.cs)"
     }
   ],
   "runtimeFoundations": [

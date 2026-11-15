@@ -66,7 +66,7 @@ public static class ValVertSiteCompare {
         if(RenderSettings.sun){ RenderSettings.sun.intensity=0.55f; RenderSettings.sun.color=new Color(0.82f,0.84f,0.86f); }
         RenderSettings.reflectionIntensity=0.4f;
         // Prefer overcast skybox if present
-        var osky=UnityEditor.AssetDatabase.LoadAssetAtPath<Material>("Assets/ValVert/Mats/sky_overcast.mat");
+        var osky=UnityEditor.AssetDatabase.LoadAssetAtPath<Material>(ValVertPaths.SkyMaterials+"sky_overcast.mat");
         if(osky) RenderSettings.skybox=osky;
         int W=1280,H=720;
         var rt=new RenderTexture(W,H,24); cam.targetTexture=rt; cam.Render();

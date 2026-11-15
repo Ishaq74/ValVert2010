@@ -82,5 +82,8 @@ Grass / m_Bld / Setup.Build : non sandboxés dans ce milestone.
 Sky HDRIs → `Runtime/World/Sky/`. Tracked veg prefabs → `Runtime/World/Vegetation/Prefabs/`.
 Grass SOURCE config → `Settings/World/Vegetation/`. Ledger: `Settings/Architecture/migration_manifest.json`.
 
-Still under `Assets/ValVert/`: shared Mats, Ground, Gen, demtiles (owned/derived mix). Cars frozen.
+Sky system co-located (2026-11-15): `VVSkyBlend.shader` → `Runtime/World/Sky/Shaders/`; `sky.mat`, `sky_blend.mat`, `sky_overcast.mat` → `Runtime/World/Sky/Materials/` (GUID-preserving; editor tools use `ValVertPaths`).
+Evidence: `python3 Tools/architecture/verify_guid_refs.py --report` (manifest guid == meta guid, who references each guid, no stale old-path strings, moved YAML's outgoing refs resolve) and Unity-side `ValVertMigrationCheck.Run` (AssetDatabase GUIDs, `Shader.Find("ValVert/SkyBlend")`, the real scene's skybox still resolves to `sky.mat`).
+
+Still under `Assets/ValVert/`: shared Mats, Ground, Gen, demtiles, terrain layers/data (generated or mixed ownership — deliberately not moved: Setup regenerates them at fixed paths). Cars frozen.
 
