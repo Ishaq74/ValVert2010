@@ -31,6 +31,14 @@ class GuidRefTests(unittest.TestCase):
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f: json.dump(d, f)
         r = run(f.name); self.assertEqual(r.returncode, 2); self.assertIn("GUID CHANGED", r.stdout)
 
+    def test_removed_assets_have_no_dangling_refs_and_tamper_is_caught(self):
+        r = run(); self.assertIn("removals=5", r.stdout)
+        d = json.loads(MAN.read_text())
+        # point a "removed" guid at an asset that still exists -> must fail
+        d["removals"][0]["guids"]["x"] = d["moves"][0]["guid"]
+        with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f: json.dump(d, f)
+        r = run(f.name); self.assertEqual(r.returncode, 2); self.assertIn("removed asset still present", r.stdout)
+
     def test_stale_old_path_is_caught(self):
         d = json.loads(MAN.read_text()); d["moves"][-1]["from"] = "Assets/Editor/Generators/ValVertPaths.cs"  # exists -> "source still present"
         with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f: json.dump(d, f)

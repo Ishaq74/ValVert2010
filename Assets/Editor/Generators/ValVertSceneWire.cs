@@ -14,15 +14,25 @@ public static class ValVertSceneWire
     public const string HostName = "ValVertEnvironment";
     public const string ConfigPath = "Assets/Settings/World/ValVertWorldConfig.asset";
 
+    /// <summary>GameObject.Find ignores inactive objects; the host is inactive while editing.</summary>
+    public static GameObject FindHost()
+    {
+        foreach (var t in Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+            if (t.parent == null && t.name == HostName) return t.gameObject;
+        return null;
+    }
+
     public static GameObject Ensure()
     {
-        var go = GameObject.Find(HostName);
+        var go = FindHost();
         // A new host starts INACTIVE so ExecuteAlways OnEnable (ValVertClock.Apply) does not bake fog/ambient/sun/sky.mat
         // into the scene while wiring; WireIntoScene flips m_IsActive in the saved YAML (scoped diff, same runtime result).
-        if (!go) { go = new GameObject(HostName); go.SetActive(false); }
+        if (!go) go = new GameObject(HostName);
+        go.SetActive(false);   // always inactive while editing (also for an existing host); SaveScoped re-activates it in the YAML
         var clk = go.GetComponent<ValVertClock>(); bool freshClock = !clk;
         if (!clk) clk = go.AddComponent<ValVertClock>();
         if (!go.GetComponent<ValVertSeasons>()) go.AddComponent<ValVertSeasons>();
+        if (!go.GetComponent<ValVertFieldSeasonal>()) go.AddComponent<ValVertFieldSeasonal>();   // first bus consumer (grass/flower tint)
         if (freshClock) { clk.month = 10; clk.day = 20; clk.hour = 11f; clk.timeScale = 60f; }   // same default as ValVertEnvWire (reference photos)
         var cfg = AssetDatabase.LoadAssetAtPath<ValVertWorldConfig>(ConfigPath);
         if (!cfg) throw new System.InvalidOperationException("missing " + ConfigPath);
@@ -30,14 +40,37 @@ public static class ValVertSceneWire
         return go;
     }
 
-    public static void WireIntoScene()
+    /// <summary>Opens the scene with the existing host pre-patched to m_IsActive: 0 in the YAML, so ValVertClock's ExecuteAlways
+    /// OnEnable never runs on open (it would bake fog/ambient/sun/moon/sky.mat into the scene and the diff). SaveScoped restores it.</summary>
+    public static UnityEngine.SceneManagement.Scene OpenQuiesced()
     {
-        var sc = EditorSceneManager.OpenScene(ScenePath);
-        var go = Ensure();
-        bool wasInactive = !go.activeSelf;
+        var text = System.IO.File.ReadAllText(ScenePath);
+        int n = text.IndexOf("\n  m_Name: " + HostName + "\n", System.StringComparison.Ordinal);
+        if (n >= 0)
+        {
+            int i = text.LastIndexOf("\n--- !u!1 &", n, System.StringComparison.Ordinal);
+            int j = text.IndexOf("\n--- ", n, System.StringComparison.Ordinal);
+            var doc = text.Substring(i, (j < 0 ? text.Length : j) - i);
+            if (doc.Contains("  m_IsActive: 1"))
+                System.IO.File.WriteAllText(ScenePath, text.Substring(0, i) + doc.Replace("  m_IsActive: 1", "  m_IsActive: 0") + (j < 0 ? "" : text.Substring(j)));
+        }
+        return EditorSceneManager.OpenScene(ScenePath);
+    }
+
+    /// <summary>Saves the open scene with the host inactive (no ExecuteAlways bake), then flips only the host's m_IsActive back to 1 in the YAML.</summary>
+    public static void SaveScoped(UnityEngine.SceneManagement.Scene sc, GameObject host)
+    {
+        if (host.activeSelf) throw new System.InvalidOperationException("host must be inactive while saving (use Ensure())");
         EditorSceneManager.MarkSceneDirty(sc);
         EditorSceneManager.SaveScene(sc);
-        if (wasInactive) ActivateHostInYaml(go);
+        ActivateHostInYaml(host);
+    }
+
+    public static void WireIntoScene()
+    {
+        var sc = OpenQuiesced();
+        var go = Ensure();
+        SaveScoped(sc, go);
         Debug.Log($"[VV][SceneWire] host={go.name} components={string.Join(",", System.Array.ConvertAll(go.GetComponents<Component>(), c => c.GetType().Name))}");
     }
 

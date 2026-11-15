@@ -83,13 +83,14 @@ public static class ValVertGeneratedAssets
                 throw new System.InvalidOperationException("vendor packages not imported (Assets/ThirdParty/RealisticTrees, Assets/ThirdParty/InnerverseInteractive): see Docs/clean-clone.md step 3");
             int pf = ValVertDress.RegenerateVendorPrefabs(); L("vendor prefabs written=" + pf);
 
-            // 2. field grass chunks (+ their pack-derived materials) in memory; scene is NOT saved
+            // 2. field grass + flower chunks (+ their pack-derived materials) in memory; scene is NOT saved
             var cfg = ValVertGrassField.LoadConfig();
             var errs = ValVertGrassField.Preflight(cfg);
             if (errs.Count > 0) throw new System.InvalidOperationException("grass preflight failed:\n  " + string.Join("\n  ", errs));
             EditorSceneManager.OpenScene(ScenePath);
             var terr = ValVertGrassField.MainTerrainForTools();
             ValVertGrassField.Build(terr);
+            ValVertFlowerField.Build(terr);   // 191 flower chunks + derived atlas + flower_pack.mat (pack cards grassFlower01..10)
             AssetDatabase.SaveAssets();
 
             // 3. pin GUIDs back to what the committed scene/terrain reference

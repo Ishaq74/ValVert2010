@@ -14,7 +14,7 @@ public static class ValVertGrassField
     const string GEN = "Assets/Generated/";
     public const string ConfigPath = "Assets/Settings/World/Vegetation/grass_field_config.json";
     public const string ExpectedPackId = "138810";
-    public const string ExpectedSchema = "2";
+    public const string ExpectedSchema = "3";
 
     [System.Serializable]
     public class PackCard
@@ -22,6 +22,19 @@ public static class ValVertGrassField
         public string file;          // relative to pack.localRoot
         public string guid;          // expected .meta guid of the authentic package file
         public float weightMeadow, weightPark;
+    }
+
+    [System.Serializable]
+    public class FlowerCard { public string file; public string guid; public float weight; }
+
+    [System.Serializable]
+    public class FlowerSection
+    {
+        public string rootName, meshAssetPrefix, materialName, atlasPath;
+        public int atlasCell, atlasCols, atlasPad, seed;
+        public float chunkSize, spacingMeadow, spacingPark, probMeadow, probPark;
+        public float[] height, widthFactor;
+        public FlowerCard[] cards;
     }
 
     [System.Serializable]
@@ -55,12 +68,13 @@ public static class ValVertGrassField
         public float canopyThresh;
         public float meadowThresh;
         public PackSlot pack;
+        public FlowerSection flowers;
         public string[] exclusionMasks; // documentary — Build uses same hard-wired masks as historical Grass
         public string exclusionMasksNote;
         public string notes;
     }
 
-    static void L(string s) { Debug.Log("[VV][GrassField] " + s); }
+    internal static void L(string s) { Debug.Log("[VV][GrassField] " + s); }
 
     public static GrassConfig LoadConfig()
     {
@@ -107,10 +121,32 @@ public static class ValVertGrassField
             foreach (var arr in new[] { cfg.cardHeightPark, cfg.cardHeightMeadow, cfg.cardWidthFactor })
                 if (arr == null || arr.Length != 2 || !FinitePositive(arr[0]) || arr[1] < arr[0]) errs.Add("card size ranges must be [min,max] finite > 0");
         }
+        var fl = cfg.flowers;
+        if (fl == null) errs.Add("flowers section missing");
+        else
+        {
+            if (string.IsNullOrEmpty(fl.rootName)) errs.Add("flowers.rootName unset");
+            if (string.IsNullOrEmpty(fl.meshAssetPrefix)) errs.Add("flowers.meshAssetPrefix unset");
+            if (string.IsNullOrEmpty(fl.atlasPath) || !fl.atlasPath.StartsWith("Assets/ThirdParty/")) errs.Add("flowers.atlasPath must be under ignored Assets/ThirdParty/ (derived from the pack)");
+            if (!FinitePositive(fl.chunkSize) || !FinitePositive(fl.spacingMeadow) || !FinitePositive(fl.spacingPark)) errs.Add("flowers chunk/spacing must be finite > 0");
+            if (fl.atlasCell <= 0 || fl.atlasCols <= 0 || fl.atlasPad < 0 || fl.atlasPad * 2 >= fl.atlasCell) errs.Add("flowers atlas cell/cols/pad invalid");
+            foreach (var arr in new[] { fl.height, fl.widthFactor })
+                if (arr == null || arr.Length != 2 || !FinitePositive(arr[0]) || arr[1] < arr[0]) errs.Add("flowers size ranges must be [min,max] finite > 0");
+            if (fl.probMeadow < 0 || fl.probMeadow > 1 || fl.probPark < 0 || fl.probPark > 1) errs.Add("flowers probabilities must be in 0..1");
+            if (fl.cards == null || fl.cards.Length == 0) errs.Add("flowers.cards empty");
+            else if (cfg.pack != null && !string.IsNullOrEmpty(cfg.pack.localRoot))
+                foreach (var c in fl.cards)
+                {
+                    var full = (cfg.pack.localRoot + "/" + c.file).Replace('\\', '/');
+                    if (!File.Exists(full)) { errs.Add("flower card missing: " + full); continue; }
+                    var g = AssetDatabase.AssetPathToGUID(full);
+                    if (g != c.guid) errs.Add($"flower card GUID mismatch {c.file}: asset {g} != config {c.guid}");
+                }
+        }
         return errs;
     }
 
-    static bool Built(float x, float z)
+    internal static bool Built(float x, float z)
     {
         for (int k = 0; k < 5; k++)
         {
@@ -140,7 +176,7 @@ public static class ValVertGrassField
         return AssetDatabase.LoadAssetAtPath<Texture2D>(path);
     }
 
-    static void EnsureFolder(string folder)
+    internal static void EnsureFolder(string folder)
     {
         if (AssetDatabase.IsValidFolder(folder)) return;
         var parent = Path.GetDirectoryName(folder).Replace('\\', '/');
@@ -294,6 +330,45 @@ public static class ValVertGrassField
         int mr = 0, subs = 0; long verts = 0;
         foreach (var r in root.GetComponentsInChildren<MeshRenderer>()) { mr++; var m = r.GetComponent<MeshFilter>().sharedMesh; subs += m.subMeshCount; verts += m.vertexCount; }
         L($"SCENE SAVED root={root.name} chunks={mr} submeshes={subs} verts={verts}");
+    }
+
+    public static void RebuildFlowersInScene()
+    {
+        var sc = ValVertSceneWire.OpenQuiesced();
+        ValVertFlowerField.Build(MainTerrain());
+        var host = ValVertSceneWire.Ensure();   // adds the seasonal consumer to the existing host (idempotent), host kept inactive while saving
+        ValVertSceneWire.SaveScoped(sc, host);
+        var root = GameObject.Find(LoadConfig().flowers.rootName);
+        int mr = 0; long verts = 0;
+        foreach (var r in root.GetComponentsInChildren<MeshRenderer>()) { mr++; verts += r.GetComponent<MeshFilter>().sharedMesh.vertexCount; }
+        L($"FLOWERS SCENE SAVED root={root.name} chunks={mr} verts={verts} consumer={(host.GetComponent<ValVertFieldSeasonal>() != null)}");
+    }
+
+    /// <summary>Renders flower close-ups for several dates through the real consumer logic.</summary>
+    public static void ProofFlowers()
+    {
+        UnityEditor.SceneManagement.EditorSceneManager.OpenScene(ScenePath);
+        var cfg = LoadConfig();
+        var root = GameObject.Find(cfg.flowers.rootName); if (!root) throw new System.InvalidOperationException("no flower root");
+        var terr = MainTerrain();
+        MeshFilter best = null; int bestN = 0;
+        foreach (var mf in root.GetComponentsInChildren<MeshFilter>()) if (mf.sharedMesh.vertexCount > bestN) { bestN = mf.sharedMesh.vertexCount; best = mf; }
+        var verts = best.sharedMesh.vertices; var focus = verts[(verts.Length / 8) * 4 + 1];
+        var host = ValVertSceneWire.FindHost(); var seas = host.GetComponent<ValVertFieldSeasonal>();
+        var camGo = new GameObject("ProofCam"); var cam = camGo.AddComponent<Camera>(); cam.nearClipPlane = 0.05f; cam.fieldOfView = 55f; cam.clearFlags = CameraClearFlags.Skybox;
+        var rt = new RenderTexture(1024, 576, 24, RenderTextureFormat.ARGB32); cam.targetTexture = rt;
+        float gy = terr.SampleHeight(focus) + terr.transform.position.y; var f = new Vector3(focus.x, gy + 0.25f, focus.z);
+        seas.BindNow();
+        cam.transform.position = f + new Vector3(1.1f, 0.2f, 1.1f); cam.transform.LookAt(f); cam.Render(); cam.Render();   // warm-up (first frame is unlit on a fresh editor)
+        foreach (var kv in new[] { ("jun", 0.46f), ("aug", 0.62f), ("oct", 0.80f), ("dec", 0.97f) })
+        {
+            seas.Apply(ValVertFieldSeason.Evaluate(kv.Item2));
+            cam.transform.position = f + new Vector3(1.1f, 0.2f, 1.1f); cam.transform.LookAt(f); cam.Render();
+            var prev = RenderTexture.active; RenderTexture.active = rt;
+            var tex = new Texture2D(rt.width, rt.height, TextureFormat.RGB24, false); tex.ReadPixels(new Rect(0, 0, rt.width, rt.height), 0, 0); tex.Apply(); RenderTexture.active = prev;
+            File.WriteAllBytes(ValVertPaths.Work + "flower_proof_" + kv.Item1 + ".png", tex.EncodeToPNG()); Object.DestroyImmediate(tex); L("shot " + kv.Item1);
+        }
+        seas.UnbindNow(); Object.DestroyImmediate(camGo); rt.Release();
     }
 
     /// <summary>Renders close-up / eye-level frames of the generated grass (llvmpipe is fine) to /workspace/sys_grass_proof_*.png.</summary>

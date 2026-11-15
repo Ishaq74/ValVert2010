@@ -120,7 +120,6 @@ public static class ValVertDress {
         int si=0; foreach(var v in SeasonVariants){ trees.Add(EF(EfSlot[si],"ef_slot_"+v) ?? TreePrefab("tree_small_02",v,tsBark,tsBr)); trees.Add(UNS(SpruceRel(si),"uns_spruce_"+v) ?? TreePrefab("fir_tree_01",v,itBark,itBark)); si++; }
         var shA=Mat("shrub_02_autumnA",Tex(T+"shrub_02_leaves_autumnA.png"),null,true,Color.white); var shG=Mat("shrub_02_green",Tex(T+"shrub_02_leaves_green.png"),null,true,Color.white);
         var fern=Mat("fern_02",Tex(T+"fern_02_leaves_green.png"),null,true,new Color(.85f,.8f,.6f));
-        var grass=Mat("grass_medium_01",Tex(T+"grass_medium_01_leaves_green.png"),null,true,new Color(.85f,.82f,.65f));
         var small=new List<GameObject>{ UNS("Vegetation/Bushes/Prefabs/UNS_Bush","uns_bush_a") ?? Simple("shrub_02__a",shA,"shrub_a_autumn"), UNS("Vegetation/Bushes/Prefabs/UNS_Bush","uns_bush_c") ?? Simple("shrub_02__c",shG,"shrub_c_green"), Simple("fern_02__b",fern,"fern_b"), Simple("fern_02__c",fern,"fern_c"), Simple("laurel_cc0",Mat("laurel_leaves_acg",Tex("Assets/World/Vegetation/pilot6/laurel_acg_leaves.png"),Tex("Assets/World/Vegetation/pilot6/laurel_acg_nor.png",true),true,Color.white,0.55f),"laurel_cc0") };
         var protos=trees.Concat(small).ToList();
         // extra European Forests broadleaf variants (appended so existing indices stay valid); broadleaf slots are remapped among them

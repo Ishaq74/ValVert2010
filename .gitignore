@@ -54,6 +54,8 @@ crashlytics-build.properties
 # Herbe générée (1536 chunks, ~406 Mo) : régénérée par ValVertWoods.Grass()
 /Assets/Generated/grass_*.asset
 /Assets/Generated/grass_*.asset.meta
+/Assets/Generated/flowers_*.asset
+/Assets/Generated/flowers_*.asset.meta
 # Gros maillages de la ville (m_Bld_kerb/white_trim/facade/metal, m_OuterRing) : SUIVIS via Git LFS depuis le stage clean-clone
 # (ValVertSetup.Build n'est pas rejouable de façon prouvée ; la scène les référence par GUID). Voir Docs/clean-clone.md.
 

@@ -35,6 +35,12 @@ MonoBehaviour:
     perChild: 1
     loadRadius: 940
     unloadRadius: 1000
+  - id: flowers
+    objectName: V3_Flowers
+    policy: 0
+    perChild: 1
+    loadRadius: 500
+    unloadRadius: 560
   - id: east
     objectName: V3_East
     policy: 0

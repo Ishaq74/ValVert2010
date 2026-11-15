@@ -35,16 +35,23 @@ public class ValVertSeasons : MonoBehaviour
 
     static float Ramp(float x, float a, float b) => Mathf.SmoothStep(0, 1, Mathf.InverseLerp(a, b, x));
 
-    public void Evaluate(float doy)
+    /// <summary>Pure phenology (day-of-year -> 0..1 amounts). Single source of truth: the instance Evaluate,
+    /// the bootstrap's SeasonChanged event and the field-vegetation tint all call this.</summary>
+    public static void Phenology(float doy, out float leafCover, out float autumn, out float litter, out string season)
     {
-        // day-of-year thresholds (non-leap)
         float leafOut = Ramp(doy, 100, 125);                 // 10 Apr .. 5 May
         float fall = Ramp(doy, 290, 328);                    // 17 Oct .. 24 Nov
-        LeafCover = leafOut * (1 - fall);
-        Autumn = Ramp(doy, 265, 300) * (1 - fall * 0.3f);    // 22 Sep .. 27 Oct
-        if (doy < 200) Autumn = 0;
-        Litter = Ramp(doy, 278, 325) * (1 - Ramp(doy, 335, 366));   // fades in with leaf fall (early Oct..late Nov), decomposes/fades through December
-        SeasonName = doy < 79 || doy >= 355 ? "winter" : doy < 172 ? "spring" : doy < 266 ? "summer" : "autumn";
+        leafCover = leafOut * (1 - fall);
+        autumn = Ramp(doy, 265, 300) * (1 - fall * 0.3f);    // 22 Sep .. 27 Oct
+        if (doy < 200) autumn = 0;
+        litter = Ramp(doy, 278, 325) * (1 - Ramp(doy, 335, 366));   // fades in with leaf fall (early Oct..late Nov), decomposes/fades through December
+        season = doy < 79 || doy >= 355 ? "winter" : doy < 172 ? "spring" : doy < 266 ? "summer" : "autumn";
+    }
+
+    public void Evaluate(float doy)
+    {
+        Phenology(doy, out var leaf, out var aut, out var lit, out var name);
+        LeafCover = leaf; Autumn = aut; Litter = lit; SeasonName = name;
     }
 
     void Cache()

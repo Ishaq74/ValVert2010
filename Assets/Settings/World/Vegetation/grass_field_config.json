@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "2",
+  "schemaVersion": "3",
   "materialMode": "pack_cutout",
   "rootName": "V3_Grass",
   "meshAssetPrefix": "grass_",
@@ -40,7 +40,7 @@
         "weightPark": 0.65
       }
     ],
-    "note": "Authentic Asset Store package (2D alpha cards, 1024x1024 TGA; inspected from the .unitypackage). Imported ONLY under ignored Assets/ThirdParty/. Flower cards (grassFlower01-10) are not used yet."
+    "note": "Authentic Asset Store package (2D alpha cards, TGA; inspected from the .unitypackage). Imported ONLY under ignored Assets/ThirdParty/. grass01/02 = field grass cards; grassFlower01..10 = flower cards (packed into a derived, ignored atlas)."
   },
   "notes": "SOURCE config (not generated). Geometry stays crossed-quad batching (pack is 2D). One submesh per card texture (original textures, no derived atlas). Pack-derived materials are generated under the ignored materialFolder, never committed. Exclusion masks unchanged (veg_excl / canopy_orig / veg_meadow / Lab / Hidden / Built raycast).",
   "exclusionMasksNote": "documentary; runtime uses veg_excl/canopy_orig/veg_meadow + Lab/Hidden/Built",
@@ -56,5 +56,80 @@
   "cardWidthFactor": [
     0.9,
     1.2
-  ]
+  ],
+  "flowers": {
+    "rootName": "V3_Flowers",
+    "meshAssetPrefix": "flowers_",
+    "materialName": "flower_pack",
+    "atlasPath": "Assets/ThirdParty/ValVertGrass/flower_atlas.png",
+    "atlasCell": 512,
+    "atlasCols": 4,
+    "atlasPad": 4,
+    "chunkSize": 64.0,
+    "seed": 11,
+    "spacingMeadow": 1.1,
+    "spacingPark": 3.2,
+    "probMeadow": 0.5,
+    "probPark": 0.2,
+    "height": [
+      0.5,
+      0.95
+    ],
+    "widthFactor": [
+      0.8,
+      1.1
+    ],
+    "cards": [
+      {
+        "file": "Textures/GrassFlowers/grassFlower01.tga",
+        "guid": "5733619f617fd954cac22d3d11fd1b93",
+        "weight": 1.0
+      },
+      {
+        "file": "Textures/GrassFlowers/grassFlower02.tga",
+        "guid": "b0601839c4520064bb61d58d088810bc",
+        "weight": 1.0
+      },
+      {
+        "file": "Textures/GrassFlowers/grassFlower03.tga",
+        "guid": "c6bde8cacfa93444fa98152cb9e36815",
+        "weight": 1.0
+      },
+      {
+        "file": "Textures/GrassFlowers/grassFlower04.tga",
+        "guid": "5c744e80ad52c884c9ac4c9139b3aaae",
+        "weight": 1.0
+      },
+      {
+        "file": "Textures/GrassFlowers/grassFlower05.tga",
+        "guid": "e3b33de953074bc4a88d9487f19c1202",
+        "weight": 1.0
+      },
+      {
+        "file": "Textures/GrassFlowers/grassFlower06.tga",
+        "guid": "b3d0250e4b7a1ac4abe98a38d34d2048",
+        "weight": 1.0
+      },
+      {
+        "file": "Textures/GrassFlowers/grassFlower07.tga",
+        "guid": "5afd653e4d79b7a4c9523dd543c0bead",
+        "weight": 1.0
+      },
+      {
+        "file": "Textures/GrassFlowers/grassFlower08.tga",
+        "guid": "8900a35e436818940b97df26c3a8a1aa",
+        "weight": 1.0
+      },
+      {
+        "file": "Textures/GrassFlowers/grassFlower09.tga",
+        "guid": "d238efbd27bc5ae4ead9839995f74830",
+        "weight": 1.0
+      },
+      {
+        "file": "Textures/GrassFlowers/grassFlower10.tga",
+        "guid": "dcefc591c195a9f468e9157baa03eb4f",
+        "weight": 1.0
+      }
+    ]
+  }
 }

@@ -19,7 +19,7 @@ class GrassConfigTests(unittest.TestCase):
 
     def test_schema2_pack_cutout_authentic_package(self):
         c = cfg()
-        self.assertEqual(c["schemaVersion"], "2")
+        self.assertEqual(c["schemaVersion"], "3")
         self.assertEqual(c["materialMode"], "pack_cutout")
         self.assertEqual(c["seed"], 5)
         self.assertEqual(c["chunkSize"], 32.0)
@@ -27,6 +27,34 @@ class GrassConfigTests(unittest.TestCase):
         self.assertEqual(c["pack"]["packageSha256"], "b2278e2c7ea8ca005f6958af3e810ab554b04bea0adf4714320e3a00cb50c750")
         self.assertEqual([x["file"].split("/")[-1] for x in c["pack"]["cards"]], ["grass01.tga", "grass02.tga"])
         self.assertNotIn("legacyAlbedoPath", c)
+
+    def test_flowers_use_the_ten_pack_cards(self):
+        c = cfg()
+        names = [x["file"].split("/")[-1] for x in c["flowers"]["cards"]]
+        self.assertEqual(names, ["grassFlower%02d.tga" % i for i in range(1, 11)])
+        self.assertEqual(len({x["guid"] for x in c["flowers"]["cards"]}), 10)
+        self.assertTrue(c["flowers"]["atlasPath"].startswith("Assets/ThirdParty/"))
+        r = subprocess.run(["git", "check-ignore", "-q", c["flowers"]["atlasPath"]], cwd=ROOT)
+        self.assertEqual(r.returncode, 0, "flower atlas is pack-derived: must be gitignored")
+        self.assertEqual(PF.check(c, allow_missing_pack=True), [])
+
+    def test_flowers_invalid_configs_fail(self):
+        for mut, needle in (
+            (lambda c: c.pop("flowers"), "flowers section missing"),
+            (lambda c: c["flowers"].__setitem__("atlasPath", "Assets/Generated/a.png"), "atlasPath"),
+            (lambda c: c["flowers"].__setitem__("probPark", 1.5), "probPark"),
+            (lambda c: c["flowers"].__setitem__("cards", []), "flowers.cards"),
+            (lambda c: c["flowers"]["cards"][0].__setitem__("weight", -1), "flower card invalid"),
+            (lambda c: c["flowers"]["cards"].append(dict(c["flowers"]["cards"][0])), "duplicate flower card"),
+            (lambda c: c["flowers"].__setitem__("atlasPad", 300), "atlas"),
+        ):
+            c = copy.deepcopy(cfg()); mut(c)
+            errs = PF.check(c, allow_missing_pack=True)
+            self.assertTrue(any(needle in e for e in errs), (needle, errs))
+
+    def test_flower_mesh_assets_are_ignored(self):
+        for p in ("Assets/Generated/flowers_12.asset", "Assets/Generated/flowers_12.asset.meta"):
+            self.assertEqual(subprocess.run(["git", "check-ignore", "-q", p], cwd=ROOT).returncode, 0, p)
 
     def test_pack_and_derived_materials_are_private(self):
         c = cfg()
@@ -69,7 +97,7 @@ class GrassConfigTests(unittest.TestCase):
         woods = (ROOT / "Assets/Editor/Generators/ValVertWoods.cs").read_text()
         self.assertIn("ValVertGrassField.Build", woods)
         field = (ROOT / "Assets/Editor/Generators/Vegetation/ValVertGrassField.cs").read_text()
-        for s in ("Settings/World/Vegetation/grass_field_config.json", "ExpectedPackId", "FinitePositive", "GUID mismatch", "ExpectedSchema = \"2\""):
+        for s in ("Settings/World/Vegetation/grass_field_config.json", "ExpectedPackId", "FinitePositive", "GUID mismatch", "ExpectedSchema = \"3\""):
             self.assertIn(s, field)
         self.assertNotIn("legacy_homemade\")", field)
         self.assertNotIn("grass_blades", field)
