@@ -10,7 +10,7 @@ Steps (see Docs/clean-clone.md):
        oversized unused items such as UNS_HDRI.hdr are excluded: they OOM Unity's import on 16 GB). Unity imports them in step 4.
   3  vegetation preflight (pack card GUIDs == config)
   4  Unity: ValVertGeneratedAssets.RegenerateAll  (vendor prefabs + field grass), then pins the GUIDs the scene references
-  5  gate: clean_clone_audit.py on the resulting tree must report AUDIT_OK (only known-dangling frozen car materials remain)
+  5  gate: clean_clone_audit.py on the resulting tree must report AUDIT_OK (only the frozen-exception car materials remain)
 Exit 0 only if every step and the final audit pass. Large LFS assets (meshes/terrain) come with `git lfs pull`, not from here.
 """
 from __future__ import annotations
@@ -95,6 +95,9 @@ def main() -> int:
             if sha256(f) != pk["sha256"]:
                 print(f"SHA256 MISMATCH for {f}: not the verified package"); return 21
             extract_remap(f, pk.get("remap"), ROOT, pk.get("exclude", ()))
+
+        step("2b/5 vendor-internal dangling references (local, ignored files only)")
+        if run([sys.executable, "Tools/rebuild/sanitize_vendor.py"]).returncode != 0: return 25
 
         step("3/5 vegetation preflight")
         if run([sys.executable, "Tools/vegetation/preflight.py"]).returncode != 0: return 30

@@ -17,7 +17,7 @@ Classes (how a clone recovers):
   rebuild-unity    Unity generator + GUID pins (generated_guid_pins.json)             -> Tools/rebuild/restore_world.py
   vendor           Asset Store EULA content, never committed                           -> documented import (vendor_manifest.json)
   tracked-lfs      must be in the repo (LFS); absent only because it was never committed/ignored  => DEFECT if reported
-  known-dangling   already dangling in every checkout (cars/Aldi, frozen); listed in clean_clone_expected.json
+  frozen-exception already dangling in every checkout (cars/Aldi, FROZEN by owner decision); allow-listed in clean_clone_expected.json
   unresolved       unknown even in --full: new dangling reference => DEFECT
 
 Exit status: 0 = every missing GUID is accounted for by a documented recovery step; 2 = at least one DEFECT
@@ -127,7 +127,7 @@ def load_json(p: Path, default):
 
 def classify(path, g, ctx) -> str:
     if g in ctx["expected_dangling"]:
-        return "known-dangling"
+        return "frozen-exception"
     if path is None:
         return "unresolved"
     if path.startswith(("Packages/", "Library/PackageCache/")):
@@ -162,11 +162,11 @@ def main() -> int:
     rebuild_python = {o["path"] for t in rebuild.values() if t.get("status") == "proven" for o in t.get("outputs", [])}
     pins = load_json(ROOT / "Assets/Settings/Architecture/generated_guid_pins.json", {"assets": {}})["assets"]
     vendor = load_json(ROOT / "Tools/rebuild/vendor_manifest.json", {"globs": []})["globs"]
-    exp = load_json(HERE / "clean_clone_expected.json", {"knownDangling": {}})
+    exp = load_json(HERE / "clean_clone_expected.json", {"frozenExceptions": {}})
     attrs = (ROOT / ".gitattributes").read_text().splitlines() if (ROOT / ".gitattributes").is_file() else []
     lfs_globs = [l.split()[0] for l in attrs if "filter=lfs" in l and l.strip() and not l.startswith("#")]
     tracked = set(a.tracked_list.read_text().split("\n")) if a.tracked_list else set()
-    ctx = dict(expected_dangling=set(exp["knownDangling"]), vendor_globs=vendor, rebuild_python=rebuild_python, pins=set(pins),
+    ctx = dict(expected_dangling=set(exp["frozenExceptions"]), vendor_globs=vendor, rebuild_python=rebuild_python, pins=set(pins),
                lfs_globs=lfs_globs, tracked_paths=tracked)
 
     classes: dict[str, list] = collections.defaultdict(list)
@@ -174,7 +174,7 @@ def main() -> int:
         path = g2p.get(g) or full_g2p.get(g)
         classes[classify(path, g, ctx)].append({"guid": g, "path": path, "referrers": sorted(refs)[:3]})
     print(f"tree={tree}\nreferenced_and_present={len(seen)} missing_guids={len(missing)}")
-    order = ["rebuild-python", "rebuild-unity", "vendor", "package", "known-dangling", "tracked-lfs", "unresolved", "unclassified"]
+    order = ["rebuild-python", "rebuild-unity", "vendor", "package", "frozen-exception", "tracked-lfs", "unresolved", "unclassified"]
     for c in order + [k for k in classes if k not in order]:
         items = classes.get(c, [])
         if not items: continue

@@ -48,7 +48,7 @@ class Synthetic(unittest.TestCase):
         c = A.classify
         self.assertEqual(c("Assets/a.png", g(1), ctx), "rebuild-python"); self.assertEqual(c("Assets/b.asset", g(1), ctx), "rebuild-unity")
         self.assertEqual(c("Assets/ThirdParty/RealisticTrees/x.prefab", g(1), ctx), "vendor"); self.assertEqual(c("Packages/x/y.cs", g(1), ctx), "package")
-        self.assertEqual(c(None, g(9), ctx), "known-dangling"); self.assertEqual(c(None, g(1), ctx), "unresolved")
+        self.assertEqual(c(None, g(9), ctx), "frozen-exception"); self.assertEqual(c(None, g(1), ctx), "unresolved")
         self.assertEqual(c("Assets/c.asset", g(1), ctx), "tracked-lfs"); self.assertEqual(c("Assets/zzz", g(1), ctx), "unclassified")
 
 class RealRepo(unittest.TestCase):
@@ -81,7 +81,7 @@ class RealRepo(unittest.TestCase):
             self.assertTrue(pk["marker"].startswith("Assets/"))
             self.assertTrue(pk["marker"].startswith("Assets/ThirdParty/"), "step 6: every vendor package lives under Assets/ThirdParty/")
             if pk.get("remap"): self.assertTrue(pk["remap"][1].startswith("Assets/ThirdParty/"))
-        ex = json.loads((ROOT / "Tools/architecture/clean_clone_expected.json").read_text())["knownDangling"]
+        ex = json.loads((ROOT / "Tools/architecture/clean_clone_expected.json").read_text())["frozenExceptions"]
         self.assertTrue(ex and all(re.fullmatch(r"[0-9a-f]{32}", k) for k in ex))
 
     def test_pin_patterns_cover_only_ignored_paths(self):
@@ -113,3 +113,27 @@ class VendorExtract(unittest.TestCase):
             self.assertFalse((dest / "Assets/ThirdParty/V/big.hdr").exists(), "excluded")
             self.assertIn("folderAsset: yes", (dest / "Assets/ThirdParty/V.meta").read_text())
             self.assertIn("guid: ccc", (dest / "Assets/ThirdParty/V.meta").read_text())
+
+
+class SanitizeVendor(unittest.TestCase):
+    MAT = ("%YAML 1.1\n%TAG !u! tag:unity3d.com,2011:\n--- !u!114 &-111\nMonoBehaviour:\n  m_Script: {fileID: 11500000, guid: " + "a" * 32 + ", type: 3}\n"
+           "--- !u!21 &2100000\nMaterial:\n  m_TexEnvs:\n  - _A:\n      m_Texture: {fileID: 2800000, guid: " + "b" * 32 + ", type: 3}\n"
+           "  - _B:\n      m_Texture: {fileID: 2800000, guid: " + "c" * 32 + ", type: 3}\n")
+
+    def test_removes_only_listed_guids_and_is_idempotent(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("sv", ROOT / "Tools/rebuild/sanitize_vendor.py"); sv = importlib.util.module_from_spec(spec); spec.loader.exec_module(sv)
+        out = sv.sanitize_text(self.MAT, {"a" * 32, "b" * 32})
+        self.assertNotIn("a" * 32, out); self.assertNotIn("b" * 32, out)
+        self.assertNotIn("&-111", out, "MonoBehaviour with a missing script is dropped")
+        self.assertIn("c" * 32, out, "unlisted guid untouched")
+        self.assertIn("m_Texture: {fileID: 0}", out); self.assertIn("--- !u!21 &2100000", out)
+        self.assertEqual(sv.sanitize_text(out, {"a" * 32, "b" * 32}), out)
+
+    def test_manifest_lists_only_vendor_roots_and_expected_has_only_car_exceptions(self):
+        vm = json.loads((ROOT / "Tools/rebuild/vendor_manifest.json").read_text())
+        self.assertTrue(all(r.startswith("Assets/ThirdParty/") for r in vm["sanitizeRoots"]))
+        ex = json.loads((ROOT / "Tools/architecture/clean_clone_expected.json").read_text())["frozenExceptions"]
+        self.assertEqual(len(ex), 9)
+        self.assertFalse(set(ex) & set(vm["sanitizeDanglingGuids"]))
+        self.assertTrue(all(v[0] in ("plateF", "plateR", "bumper", "paint") for v in ex.values()))

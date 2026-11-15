@@ -19,7 +19,7 @@ Résultat sur `main` (0aff3b5), clone propre : **818 GUID manquants** → class�
 | `vendor` | (via les préfabs/terrain) | `ThirdParty/InnerverseInteractive` (UNS), `ThirdParty/RealisticTrees` (EF), pack *Grass Flowers* | import des `.unitypackage` vérifiés par SHA256 (`Tools/rebuild/vendor_manifest.json`) — **jamais commités** (EULA) |
 | `package` | 9 | scripts/mats URP | résolus par UPM à l'import |
 | `tracked-lfs` (**défaut corrigé ici**) | 10 | `Gen/m_Bld_{kerb,white_trim,facade,metal}.asset`, `m_OuterRing.asset` (153 Mo), 5 `demfix_*_<id>.asset` (33 Mo) | désormais **suivis en Git LFS** (chemins exacts dans `.gitattributes`, retirés du `.gitignore`) : `ValVertSetup.Build` n'est pas rejouable de façon prouvée et la scène les référence |
-| `known-dangling` | 9 | matériaux `plateF/plateR/bumper/paint` des voitures | introuvables dans **aucun** checkout (même complet). Voitures/Aldi gelées → listés dans `Tools/architecture/clean_clone_expected.json`, pas corrigés |
+| `frozen-exception` | 9 | matériaux `plateF/plateR/bumper/paint` des voitures | introuvables dans **aucun** checkout (même complet). **Exception gelée explicite** : `Assets/Cars` est gelé par décision du propriétaire → les 9 GUID sont listés dans `Tools/architecture/clean_clone_expected.json` (`frozenExceptions`), pas corrigés. Tout autre GUID manquant est un défaut. |
 
 ## Pourquoi des *pins* de GUID
 
@@ -31,7 +31,7 @@ Mise à jour des pins après toute régénération voulue du monde : `python3 To
 * Déterminisme de la génération d'herbe : régénération sur place → **762 `grass_N.asset` + métas + 2 mats identiques octet pour octet** (sha256), et idempotente (2ᵉ passe = 0 différence).
 * **Découverte** : les 17 préfabs `ef_*/uns_*` générés le 9 nov. étaient **creux** (0 `MeshRenderer`, `m_Children: []`) dans tous les checkouts → arbres du terrain invisibles. Régénérés par `RegenerateVendorPrefabs` (même code que `Vegetation()`, factorisé) : 4–12 `MeshRenderer` chacun.
 * **Prototypes d'arbres du terrain** : `TerrainData` (LFS, committé, **jamais modifié**) stocke GUID + fileID racine des préfabs. Les GUID sont épinglés (`generated_guid_pins.json`) et les fileID racine le sont aussi (`Assets/Settings/Architecture/terrain_tree_pins.json`, outil `Tools/architecture/tree_pins.py export|apply|check`) : `restore_world` réécrit le fileID racine des préfabs régénérés, puis `ReportTreesBatch` échoue si un prototype est cassé. Preuve sur clone neuf : `TREE_PROTOTYPES total=40 broken=0`, Play Mode 31/31 avec 0 avertissement « Tree prefab … missing » (le test de scène complète échoue désormais sur cet avertissement).
-* Clone propre simulé + restauration complète : `AUDIT_OK missing_but_recoverable=15`, `PINS_OK 781`, `REGENERATE_OK ... terrain trees bound`, `TREE_PROTOTYPES total=40 broken=0` (journal `regenerate.log`).
+* Clone propre simulé + restauration complète : `AUDIT_OK missing_but_recoverable=9` (les 9 exceptions gelées des voitures ; les 6 références internes aux paquets European Forests sont supprimées par `Tools/rebuild/sanitize_vendor.py`, étape 2b de `restore_world`), `PINS_OK 781`, `REGENERATE_OK ... terrain trees bound`, `TREE_PROTOTYPES total=40 broken=0` (journal `regenerate.log`).
 
 ## Procédure (clone neuf)
 

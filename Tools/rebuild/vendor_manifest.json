@@ -66,5 +66,17 @@
    ],
    "marker": "Assets/ThirdParty/ALP_Assets/GrassFlowersFREE"
   }
- ]
+ ],
+ "sanitizeRoots": [
+  "Assets/ThirdParty/RealisticTrees"
+ ],
+ "sanitizeDanglingGuids": [
+  "2565868f63b444f4cb2987aed259b262",
+  "4843fb6ba0bdaf740a748f394dbcdf55",
+  "aa486462e6be1764e89c788ba30e61f7",
+  "d1f007f6c4d10374b981af59f4290ca8",
+  "da692e001514ec24dbc4cca1949ff7e8",
+  "feedddcec6224164d90d0e77625e795f"
+ ],
+ "sanitizeNote": "GUIDs that dangle inside the European Forests package itself (missing textures, absent MonoBehaviour scripts); removed locally by sanitize_vendor.py after extraction."
 }
