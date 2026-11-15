@@ -12,7 +12,7 @@ Unity 6 URP recreation of Seynod “Val Vert” (2010). Free assets only; OSM/IG
 | Generated rebuild pipeline | `Tools/rebuild/` + `Docs/generated-rebuild.md` |
 | Migration ledger | `Assets/Settings/Architecture/migration_manifest.json` |
 | Historical art still co-located | `Assets/ValVert/` (Mats/Ground/Gen…) — migrating by system |
-| Vendor (ignored) | `Assets/ThirdParty/`, `InnerverseInteractive/`, `Realistic Tree/` |
+| Vendor (ignored) | `Assets/ThirdParty/{InnerverseInteractive,RealisticTrees,ALP_Assets,ValVertGrass}/` |
 
 ## Runtime foundations (real, minimal)
 - `ValVertEventBus` — time / season / weather events

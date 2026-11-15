@@ -30,7 +30,7 @@ public static class ValVertWoods {
 
     public static Shader LeavesUrpShader(){
         var sh=Shader.Find("Shader Graphs/Leaves_URP");
-        if(!sh) sh=AssetDatabase.LoadAssetAtPath<Shader>("Assets/Realistic Tree/Shader/URP/Leaves_URP.shadergraph");
+        if(!sh) sh=AssetDatabase.LoadAssetAtPath<Shader>("Assets/ThirdParty/RealisticTrees/Shader/URP/Leaves_URP.shadergraph");
         if(!sh){
             foreach(var n in new[]{"Leaves_URP","Shader Graphs/Leaves_URP","Hidden/Shader Graphs/Leaves_URP"}){
                 sh=Shader.Find(n); if(sh) break;
@@ -40,7 +40,7 @@ public static class ValVertWoods {
     }
     public static Shader BarkUrpShader(){
         var sh=Shader.Find("Shader Graphs/Bark_URP");
-        if(!sh) sh=AssetDatabase.LoadAssetAtPath<Shader>("Assets/Realistic Tree/Shader/URP/Bark_URP.shadergraph");
+        if(!sh) sh=AssetDatabase.LoadAssetAtPath<Shader>("Assets/ThirdParty/RealisticTrees/Shader/URP/Bark_URP.shadergraph");
         if(!sh) sh=Shader.Find("Bark_URP");
         return sh;
     }
@@ -48,7 +48,7 @@ public static class ValVertWoods {
     // Force leaf PNG importers to keep alpha (compressed DXT1 was turning cutout cards opaque orange).
     public static int ForceLeafTextureAlpha(){
         int n=0;
-        foreach(var root in new[]{"Assets/Realistic Tree/Source/Textures","Assets/Realistic Tree/Prefabs/Standard"}){
+        foreach(var root in new[]{"Assets/ThirdParty/RealisticTrees/Source/Textures","Assets/ThirdParty/RealisticTrees/Prefabs/Standard"}){
             if(!AssetDatabase.IsValidFolder(root)) continue;
             foreach(var guid in AssetDatabase.FindAssets("t:Texture2D", new[]{root})){
                 var path=AssetDatabase.GUIDToAssetPath(guid);
@@ -105,9 +105,9 @@ public static class ValVertWoods {
             foreach(var folder in new[]{"Birch","Ash","Chestnut","Spruce","Weeping Willow"}){
                 if(!m.name.ToLower().Contains(folder.ToLower().Replace(" ","")) && !m.name.ToLower().Contains(folder.ToLower())) continue;
                 for(int i=1;i<=3;i++){
-                    var p=$"Assets/Realistic Tree/Source/Textures/{folder}/Leaf_{i}.png";
+                    var p=$"Assets/ThirdParty/RealisticTrees/Source/Textures/{folder}/Leaf_{i}.png";
                     var t=AssetDatabase.LoadAssetAtPath<Texture2D>(p); if(t){ leaf=t; break; }
-                    p=$"Assets/Realistic Tree/Prefabs/Standard/{folder}/Leaf_{i}.png";
+                    p=$"Assets/ThirdParty/RealisticTrees/Prefabs/Standard/{folder}/Leaf_{i}.png";
                     t=AssetDatabase.LoadAssetAtPath<Texture2D>(p); if(t){ leaf=t; break; }
                 }
             }
@@ -134,7 +134,7 @@ public static class ValVertWoods {
         var lit=Shader.Find("Universal Render Pipeline/Lit");
         if(!lit){ Debug.LogError("[VV] URP Lit missing"); return 0; }
         int n=0;
-        foreach(var guid in AssetDatabase.FindAssets("t:Material", new[]{"Assets/Realistic Tree/Source/Materials/URP"})){
+        foreach(var guid in AssetDatabase.FindAssets("t:Material", new[]{"Assets/ThirdParty/RealisticTrees/Source/Materials/URP"})){
             var path=AssetDatabase.GUIDToAssetPath(guid);
             var m=AssetDatabase.LoadAssetAtPath<Material>(path); if(!m) continue;
             bool isLeaf=path.Contains("/Leaves/"); bool isBark=path.Contains("/Bark/");
@@ -237,7 +237,7 @@ public static class ValVertWoods {
     public static void WarmFoliageShaders(){
         var svc=AssetDatabase.LoadAssetAtPath<ShaderVariantCollection>("Assets/World/Post/FoliageVariants.shadervariants");
         if(svc!=null) svc.WarmUp();
-        foreach(var guid in AssetDatabase.FindAssets("t:Material", new[]{"Assets/Realistic Tree/Source/Materials/URP/Leaves"})){
+        foreach(var guid in AssetDatabase.FindAssets("t:Material", new[]{"Assets/ThirdParty/RealisticTrees/Source/Materials/URP/Leaves"})){
             var m=AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid));
             if(m){ m.EnableKeyword("_ALPHATEST_ON"); var _=m.passCount; }
         }
@@ -655,7 +655,7 @@ public static class ValVertWoods {
         for(int i=0;i+1<posts.Count;i++) foreach(var hgt in new[]{0.45f,0.88f}) log($"rail_{i}_{hgt}",posts[i]+Vector3.up*hgt,posts[i+1]+Vector3.up*hgt,0.055f);
         // boulder: UNS forest rock (CC0 pack already imported), low+wide, partly sunk, left foreground by fence
         float bx=363.15f, bz=125.6f;
-        var rockPrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/InnerverseInteractive/Ultimate Nature – Starter/Environment/Rocks/Forest/Prefabs/UNS_Standard_Rock_03.prefab");
+        var rockPrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ThirdParty/InnerverseInteractive/Ultimate Nature – Starter/Environment/Rocks/Forest/Prefabs/UNS_Standard_Rock_03.prefab");
         GameObject bo;
         bo=GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.DestroyImmediate(bo.GetComponent<Collider>());
             { var rm=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat")??rockM??wood; EnsureUrp(rm); bo.GetComponent<MeshRenderer>().sharedMaterial=rm; }
@@ -715,8 +715,8 @@ public static class ValVertWoods {
         }
         // --- Car-park edge boulders (path-to-carpark photo): row along park edge near stair-top junction ---
         // Path from ~349,134 toward car park SE (~370,120). Boulders along asphalt edge ~x 368-378, z~118-126
-        var rockPrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/InnerverseInteractive/Ultimate Nature – Starter/Environment/Rocks/Forest/Prefabs/UNS_Standard_Rock_03.prefab");
-        var rockPrefab2=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/InnerverseInteractive/Ultimate Nature – Starter/Environment/Rocks/Forest/Prefabs/UNS_Standard_Rock_01.prefab");
+        var rockPrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ThirdParty/InnerverseInteractive/Ultimate Nature – Starter/Environment/Rocks/Forest/Prefabs/UNS_Standard_Rock_03.prefab");
+        var rockPrefab2=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ThirdParty/InnerverseInteractive/Ultimate Nature – Starter/Environment/Rocks/Forest/Prefabs/UNS_Standard_Rock_01.prefab");
         float[,] boulders={{368.2f,125.5f,1.1f},{369.5f,123.8f,0.95f},{370.8f,122.2f,1.25f},{372.2f,120.8f,1.0f},{373.6f,119.5f,1.15f},{375.0f,118.4f,0.9f},{376.4f,117.5f,1.05f}};
         for(int i=0;i<boulders.GetLength(0);i++){
             float bx=boulders[i,0], bz=boulders[i,1], sc=boulders[i,2];
@@ -837,7 +837,7 @@ public static class ValVertWoods {
         // grey boulder near bottom of these stairs
         {
             float bx=365.2f, bz=151.5f;
-            var rockPrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/InnerverseInteractive/Ultimate Nature – Starter/Environment/Rocks/Forest/Prefabs/UNS_Standard_Rock_03.prefab");
+            var rockPrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ThirdParty/InnerverseInteractive/Ultimate Nature – Starter/Environment/Rocks/Forest/Prefabs/UNS_Standard_Rock_03.prefab");
             GameObject bo;
             bo=GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.DestroyImmediate(bo.GetComponent<Collider>());
             { var rm=AssetDatabase.LoadAssetAtPath<Material>("Assets/World/Materials/rock.mat")??rockM??wood; EnsureUrp(rm); bo.GetComponent<MeshRenderer>().sharedMaterial=rm; }
@@ -1153,7 +1153,7 @@ public static class ValVertWoods {
         box("vv_dir1", new Vector3(355.0f, gy(355f,177f)+2.6f, 177f), new Vector3(1.2f, 0.18f, 0.05f), M("dir_grey",null,null,new Color(.55f,.55f,.52f),0.25f));
         box("vv_dir2", new Vector3(355.0f, gy(355f,177f)+2.35f, 177f), new Vector3(1.0f, 0.18f, 0.05f), M("dir_grey2",null,null,new Color(.5f,.5f,.48f),0.25f));
         // verge boulders at crossing (photo 07)
-        var rockPrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/InnerverseInteractive/Ultimate Nature – Starter/Environment/Rocks/Forest/Prefabs/UNS_Standard_Rock_03.prefab");
+        var rockPrefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ThirdParty/InnerverseInteractive/Ultimate Nature – Starter/Environment/Rocks/Forest/Prefabs/UNS_Standard_Rock_03.prefab");
         foreach(var (bx,bz,sc) in new[]{(368.5f,175.2f,1.0f),(370.2f,174.8f,0.85f),(372.0f,175.5f,1.1f)}){
             GameObject bo;
             bo=GameObject.CreatePrimitive(PrimitiveType.Sphere); Object.DestroyImmediate(bo.GetComponent<Collider>());

@@ -73,9 +73,9 @@ public static class ValVertDress {
         float h=baseH(root); var pf=PrefabUtility.SaveAsPrefabAsset(root,"Assets/World/Prefabs/"+root.name+".prefab"); Object.DestroyImmediate(root); L($"tree prefab {pf.name} baseH={h:F2}"); hts[pf.name]=h; return pf; }
     static Dictionary<string,float> hts=new Dictionary<string,float>();
     // Ultimate Nature Starter (Innerverse Interactive; Asset Store EULA, git-ignored, imported locally by the user). Returns null if not imported.
-    public const string UNSDIR="Assets/InnerverseInteractive/Ultimate Nature \u2013 Starter/Environment/";
+    public const string UNSDIR="Assets/ThirdParty/InnerverseInteractive/Ultimate Nature \u2013 Starter/Environment/";
     // European Forests - Realistic Trees (MysticForge; Asset Store EULA, git-ignored). URP prefab wrapped: falling-leaf particles removed, LODGroup on root.
-    static GameObject EF(string rel,string name){ var a=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Realistic Tree/Prefabs/URP/"+rel+".prefab"); if(!a) return null;
+    static GameObject EF(string rel,string name){ var a=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ThirdParty/RealisticTrees/Prefabs/URP/"+rel+".prefab"); if(!a) return null;
         var root=new GameObject(name); var inst=(GameObject)PrefabUtility.InstantiatePrefab(a); PrefabUtility.UnpackPrefabInstance(inst,PrefabUnpackMode.Completely,InteractionMode.AutomatedAction); inst.transform.SetParent(root.transform,false);
         foreach(var ps in inst.GetComponentsInChildren<ParticleSystem>(true)){ if(ps.gameObject==inst){ var pr=ps.GetComponent<ParticleSystemRenderer>(); Object.DestroyImmediate(ps); if(pr) Object.DestroyImmediate(pr); } else Object.DestroyImmediate(ps.gameObject); }
         // vendor bug: some URP prefabs reference HDRP materials (not imported) -> swap missing slots for the URP material of the same name / tree bark

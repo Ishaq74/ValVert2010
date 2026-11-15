@@ -16,7 +16,7 @@ Résultat sur `main` (0aff3b5), clone propre : **818 GUID manquants** → class�
 |---|---:|---|---|
 | `rebuild-python` | 7 | `parking*.png/jpg`, `sign_danger.png`, `asphalt_ww_*` | `Tools/rebuild/rebuild.py rebuild-proven --apply` (octets prouvés vs `expected_baselines.json`) |
 | `rebuild-unity` | 781 | 762 chunks `Gen/grass_N.asset` (seed 5), 17 préfabs `Prefabs/{ef,uns}_*`, 2 mats `ThirdParty/ValVertGrass/grass_pack_*` | `ValVertGeneratedAssets.RegenerateAll` + **pins de GUID** (voir ci-dessous) |
-| `vendor` | (via les préfabs/terrain) | `InnerverseInteractive` (UNS), `Realistic Tree` (EF), pack *Grass Flowers* | import des `.unitypackage` vérifiés par SHA256 (`Tools/rebuild/vendor_manifest.json`) — **jamais commités** (EULA) |
+| `vendor` | (via les préfabs/terrain) | `ThirdParty/InnerverseInteractive` (UNS), `ThirdParty/RealisticTrees` (EF), pack *Grass Flowers* | import des `.unitypackage` vérifiés par SHA256 (`Tools/rebuild/vendor_manifest.json`) — **jamais commités** (EULA) |
 | `package` | 9 | scripts/mats URP | résolus par UPM à l'import |
 | `tracked-lfs` (**défaut corrigé ici**) | 10 | `Gen/m_Bld_{kerb,white_trim,facade,metal}.asset`, `m_OuterRing.asset` (153 Mo), 5 `demfix_*_<id>.asset` (33 Mo) | désormais **suivis en Git LFS** (chemins exacts dans `.gitattributes`, retirés du `.gitignore`) : `ValVertSetup.Build` n'est pas rejouable de façon prouvée et la scène les référence |
 | `known-dangling` | 9 | matériaux `plateF/plateR/bumper/paint` des voitures | introuvables dans **aucun** checkout (même complet). Voitures/Aldi gelées → listés dans `Tools/architecture/clean_clone_expected.json`, pas corrigés |
