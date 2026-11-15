@@ -1,9 +1,9 @@
-> **Source** : `README.md` du dépôt https://github.com/Ishaq74/ValVertII (branche `main`, commit `76790a9`, auteur Ishaq74), copié **sans modification** ci-dessous. C'est la spécification de vision et de production de la couche « jeu » de Val Vert II.
-> Ce que ce manuel décrit est **à construire** tant que `Docs/ValVertII/correspondance.md` ne dit pas autrement. Quand il contredit les faits vérifiés de ValVert2010 (version Unity 6000.3.27f2, monde de 2010, crédits OSM/IGN, 100 % gratuit), **les faits de ValVert2010 priment** (voir `ARCHITECTURE.md` §15).
+> **Statut de ce document** : manuel de conception et de production de la couche « jeu » de Val Vert (simulation narrative posée sur la reconstitution 3D de 2010). crédits dans le `README.md` ; adapté à l'état réel du projet unifié.
+> Ce que ce manuel décrit est **à construire** tant que `Docs/design/correspondance.md` ne dit pas autrement. Quand il contredit les faits vérifiés du dépôt (Unity 6000.3.27f2, monde de 2010, crédits OSM/IGN, 100 % gratuit), **les faits du dépôt priment** (voir `ARCHITECTURE.md`).
 
 ---
 
-# VAL VERT II
+# VAL VERT
 ## Manuel maître consolidé de conception, d'architecture et de production
 
 **Édition consolidée 1.0 — 7 novembre 2026**  
@@ -61,9 +61,9 @@ Le développement doit avancer par tranches verticales jouables : un petit morce
 
 # TOME 0 — IDENTITÉ DU JEU ET PRINCIPES DIRECTEURS
 
-## 1. Vision de Val Vert II
+## 1. Vision de Val Vert
 
-Val Vert II est une simulation narrative contemporaine en monde ouvert située à Seynod, dans l'agglomération annécienne. Le joueur traverse des lieux de vie reconnaissables : le bois du Val Vert, ses chemins, ses abords, les espaces verts, les immeubles, les rues, les logements, les établissements scolaires, les commerces et les espaces publics retenus pour le scénario.
+Val Vert est une simulation narrative contemporaine en monde ouvert située à Seynod, dans l'agglomération annécienne. Le joueur traverse des lieux de vie reconnaissables : le bois du Val Vert, ses chemins, ses abords, les espaces verts, les immeubles, les rues, les logements, les établissements scolaires, les commerces et les espaces publics retenus pour le scénario.
 
 Le principe central n'est pas de sauver le monde ni d'accumuler une puissance. Il est de vivre une situation humaine dans un environnement qui continue d'exister lorsque le joueur regarde ailleurs. Les personnes ont leurs horaires, leurs habitudes, leurs relations, leurs obligations, leurs interprétations et leurs souvenirs. Une action peut avoir une conséquence immédiate, différée, indirecte ou aucune conséquence notable.
 
@@ -93,7 +93,7 @@ Son parcours explore le travail, les contraintes financières et familiales, les
 
 Les trois parcours ont des états distincts mais partagent un monde, une horloge, des événements et des relations. Un événement dans un parcours ne se propage pas automatiquement aux autres : il faut un mécanisme crédible d'observation, de conversation, d'appel, de message ou de rumeur.
 
-## 4. Ce que Val Vert II n'est pas
+## 4. Ce que Val Vert n'est pas
 
 Les éléments suivants issus du tutoriel technique générique sont retirés :
 
@@ -249,9 +249,8 @@ Elle porte les caméras, animations, audio, UI, effets et présentation visuelle
 À la racine du dépôt :
 
 ```text
-ValVertII/
+ValVert2010/
 ├── Assets/
-│   └── _ValVertII/
 ├── Packages/
 │   ├── manifest.json
 │   └── packages-lock.json
@@ -1119,7 +1118,7 @@ Chaque version doit être identifiée par numéro de build, commit Git, version 
 ## 66. Phase 1 — Projet Unity propre
 
 1. Installer Unity 6.6 LTS et l'IDE.
-2. Créer le projet Universal 3D `ValVertII`.
+2. Créer le projet Universal 3D `ValVert` (fait : Unity 6000.3.27f2, URP).
 3. Résoudre les packages et verrouiller le manifeste.
 4. Créer le dépôt Git et vérifier `.gitignore`/LFS.
 5. Créer les assemblies initiales.
@@ -1227,7 +1226,7 @@ Chaque version doit être identifiée par numéro de build, commit Git, version 
 # TOME XIV — ARBORESCENCE CIBLE DU PROJET
 
 ```text
-Assets/_ValVertII/
+Assets/   (cible fonctionnelle du manuel ; l'arborescence réelle est décrite dans ARCHITECTURE.md §3)
 ├── Art/
 │   ├── Characters/{Karim,Teacher,Father,Residents}/
 │   ├── Buildings/
@@ -1308,7 +1307,7 @@ Assets/_ValVertII/
 └── Editor/{Inspectors,Windows,Validators,Importers}/
 ```
 
-Les noms d'assemblies doivent être cohérents : `ValVertII.Core`, `ValVertII.Input`, `ValVertII.Player`, `ValVertII.Narrative`, `ValVertII.World`, `ValVertII.Save`, `ValVertII.AI`, `ValVertII.ECS`, `ValVertII.Developer` et `ValVertII.Tests`. L'assembly Editor est marquée Editor-only et ne doit pas être référencée par le runtime Release.
+Les noms d'assemblies doivent être cohérents : `ValVert.Core`, `ValVert.Input`, `ValVert.Player`, `ValVert.Narrative`, `ValVert.World`, `ValVert.Save`, `ValVert.AI`, `ValVert.ECS`, `ValVert.Developer` et `ValVert.Tests`. L'assembly Editor est marquée Editor-only et ne doit pas être référencée par le runtime Release.
 
 ---
 
@@ -1387,7 +1386,7 @@ Un script fourni dans ce manuel est un exemple ou un contrat d'implémentation t
 
 # ANNEXE A — CORRECTIONS APPORTÉES AUX SOURCES FUSIONNÉES
 
-1. Les références à Aetheria sont supprimées : nom, namespaces, dossiers, assets et exemples sont renommés ValVertII.
+1. Les références à Aetheria sont supprimées : nom, namespaces, dossiers, assets et exemples sont renommés Val Vert.
 2. Les modules de combat, ennemis, dégâts, santé, projectiles, butin de combat et quêtes Kill/Collect sont supprimés du périmètre.
 3. Les systèmes réutilisables du tutoriel générique (bootstrap, scènes, événements, input, ECS, streaming, sauvegarde, profiling, outils) sont réaffectés aux besoins de simulation sociale.
 4. La version de référence est fixée à Unity 6.6 LTS, et non à une version Unity 2022 ou à un assemblage de packages anciens.
@@ -1416,9 +1415,9 @@ Références consultées pour établir la base technique au 7 novembre 2026. Les
 
 ---
 
-# CONCLUSION — DÉFINITION DE « VAL VERT II EST PRÊT »
+# CONCLUSION — DÉFINITION DE « VAL VERT EST PRÊT »
 
-Val Vert II n'est pas prêt parce que ses dossiers existent, que les scripts compilent ou que la caméra se déplace dans une scène vide. Il est prêt lorsque son parcours principal est jouable de bout en bout, que les personnages poursuivent des activités crédibles, que les informations circulent avec des règles cohérentes, que les lieux sont traversables, que les sauvegardes survivent aux mises à jour prévues, que le streaming restaure l'état du monde, que les performances sont mesurées et que le build public ne contient aucun outil interne.
+Val Vert n'est pas prêt parce que ses dossiers existent, que les scripts compilent ou que la caméra se déplace dans une scène vide. Il est prêt lorsque son parcours principal est jouable de bout en bout, que les personnages poursuivent des activités crédibles, que les informations circulent avec des règles cohérentes, que les lieux sont traversables, que les sauvegardes survivent aux mises à jour prévues, que le streaming restaure l'état du monde, que les performances sont mesurées et que le build public ne contient aucun outil interne.
 
 Le premier objectif concret est une tranche verticale : Karim dans une petite portion reconnaissable du bois du Val Vert, un déplacement propre, une interaction avec un banc, un appel de sa mère, un choix, une réaction différée, une sauvegarde, un rechargement et un habitant qui connaît uniquement les faits qu'il a pu apprendre. Une fois cette tranche entièrement validée, le reste du monde peut être construit sur des fondations vérifiées.
 
