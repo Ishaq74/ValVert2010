@@ -8,7 +8,7 @@ using UnityEngine;
 /// Fresh-clone recovery of the git-ignored GENERATED assets that the committed scene references by GUID.
 ///
 /// Generated assets are born with random GUIDs, so a plain regeneration would leave ValVert.unity pointing at nothing.
-/// Pins (Assets/_Project/Settings/Architecture/generated_guid_pins.json: path -> guid) restore the GUIDs the scene was
+/// Pins (Assets/Settings/Architecture/generated_guid_pins.json: path -> guid) restore the GUIDs the scene was
 /// saved with: after each generation step the .meta guid is rewritten and the asset re-imported (verified: the GUID database
 /// resolves the pinned guid, the random one disappears).
 ///
@@ -17,7 +17,7 @@ using UnityEngine;
 /// </summary>
 public static class ValVertGeneratedAssets
 {
-    public const string PinsPath = "Assets/_Project/Settings/Architecture/generated_guid_pins.json";
+    public const string PinsPath = "Assets/Settings/Architecture/generated_guid_pins.json";
     const string ScenePath = "Assets/Scenes/ValVert.unity";
 
     static void L(string s) { Debug.Log("[VV][GeneratedAssets] " + s); }

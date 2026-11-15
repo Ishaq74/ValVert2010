@@ -335,7 +335,7 @@ public class RuntimeLifecycleTests
     // ---------------- Authored data vs the real scene ----------------
     [Test] public void RealConfigAsset_IsValid_AndRegionObjectsExistInRealScene()
     {
-        var cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<ValVertWorldConfig>("Assets/_Project/Settings/World/ValVertWorldConfig.asset");
+        var cfg = UnityEditor.AssetDatabase.LoadAssetAtPath<ValVertWorldConfig>("Assets/Settings/World/ValVertWorldConfig.asset");
         Assert.IsNotNull(cfg, "config asset loads (script GUID intact after move to Runtime/Boot/Config)");
         Assert.IsEmpty(cfg.Validate());
         Assert.GreaterOrEqual(cfg.regions.Count, 4);

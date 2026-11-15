@@ -13,7 +13,7 @@ Constat d’audit : la plupart des « props » urbains (bollards, bancs, lampada
 
 | Ancien chemin | Nouveau chemin | GUID |
 |---|---|---|
-| `Assets/ValVert/Prefabs/vv_entrance.prefab` | `Assets/_Project/Runtime/World/Props/Entrance/Prefabs/vv_entrance.prefab` | `1005397838e350487ba5dea45715821c` |
+| `Assets/ValVert/Prefabs/vv_entrance.prefab` | `Assets/Runtime/World/Props/Entrance/Prefabs/vv_entrance.prefab` | `1005397838e350487ba5dea45715821c` |
 | `Assets/ValVert/Mats/door_alum_grey.mat` | `…/Entrance/Materials/door_alum_grey.mat` | `5636d3876a34ecc47849d2f79b90d3fd` |
 | `Assets/ValVert/Mats/door_glass.mat` | `…/Entrance/Materials/door_glass.mat` | `dd42d158d65854c038583542de8d662c` |
 | `Assets/ValVert/Mats/handle_brushed.mat` | `…/Entrance/Materials/handle_brushed.mat` | `98ec511653ccdf4438069fddca80280c` |

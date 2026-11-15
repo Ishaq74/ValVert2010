@@ -11,7 +11,7 @@
   "moves": [
     {
       "from": "Assets/ValVert/Sky/kloofendal_48d_partly_cloudy_puresky.hdr",
-      "to": "Assets/_Project/Runtime/World/Sky/kloofendal_48d_partly_cloudy_puresky.hdr",
+      "to": "Assets/Runtime/World/Sky/kloofendal_48d_partly_cloudy_puresky.hdr",
       "kind": "owned",
       "system": "World/Sky",
       "preserveMetaGuid": true,
@@ -19,7 +19,7 @@
     },
     {
       "from": "Assets/ValVert/Sky/kloofendal_overcast_puresky_2k.hdr",
-      "to": "Assets/_Project/Runtime/World/Sky/kloofendal_overcast_puresky_2k.hdr",
+      "to": "Assets/Runtime/World/Sky/kloofendal_overcast_puresky_2k.hdr",
       "kind": "owned",
       "system": "World/Sky",
       "preserveMetaGuid": true,
@@ -27,7 +27,7 @@
     },
     {
       "from": "Assets/ValVert/Prefabs/fern_b.prefab",
-      "to": "Assets/_Project/Runtime/World/Vegetation/Prefabs/fern_b.prefab",
+      "to": "Assets/Runtime/World/Vegetation/Prefabs/fern_b.prefab",
       "kind": "owned",
       "system": "World/Vegetation",
       "preserveMetaGuid": true,
@@ -35,7 +35,7 @@
     },
     {
       "from": "Assets/ValVert/Prefabs/fern_c.prefab",
-      "to": "Assets/_Project/Runtime/World/Vegetation/Prefabs/fern_c.prefab",
+      "to": "Assets/Runtime/World/Vegetation/Prefabs/fern_c.prefab",
       "kind": "owned",
       "system": "World/Vegetation",
       "preserveMetaGuid": true,
@@ -43,7 +43,7 @@
     },
     {
       "from": "Assets/ValVert/Prefabs/laurel_cc0.prefab",
-      "to": "Assets/_Project/Runtime/World/Vegetation/Prefabs/laurel_cc0.prefab",
+      "to": "Assets/Runtime/World/Vegetation/Prefabs/laurel_cc0.prefab",
       "kind": "owned",
       "system": "World/Vegetation",
       "preserveMetaGuid": true,
@@ -51,15 +51,15 @@
     },
     {
       "from": "Assets/ValVert/Prefabs/shrub_mix_green.prefab",
-      "to": "Assets/_Project/Runtime/World/Vegetation/Prefabs/shrub_mix_green.prefab",
+      "to": "Assets/Runtime/World/Vegetation/Prefabs/shrub_mix_green.prefab",
       "kind": "owned",
       "system": "World/Vegetation",
       "preserveMetaGuid": true,
       "guid": "bf1450325610a78bc9bb7ad4b2ce0f50"
     },
     {
-      "from": "Assets/_Project/Generated/Vegetation/grass_field_config.json",
-      "to": "Assets/_Project/Settings/World/Vegetation/grass_field_config.json",
+      "from": "Assets/Generated/Vegetation/grass_field_config.json",
+      "to": "Assets/Settings/World/Vegetation/grass_field_config.json",
       "kind": "config",
       "system": "World/Vegetation",
       "preserveMetaGuid": true,
@@ -68,7 +68,7 @@
     },
     {
       "from": "Assets/ValVert/Shaders/VVSkyBlend.shader",
-      "to": "Assets/_Project/Runtime/World/Sky/Shaders/VVSkyBlend.shader",
+      "to": "Assets/Runtime/World/Sky/Shaders/VVSkyBlend.shader",
       "kind": "shader",
       "system": "World/Sky",
       "preserveMetaGuid": true,
@@ -77,7 +77,7 @@
     },
     {
       "from": "Assets/ValVert/Mats/sky.mat",
-      "to": "Assets/_Project/Runtime/World/Sky/Materials/sky.mat",
+      "to": "Assets/Runtime/World/Sky/Materials/sky.mat",
       "kind": "material",
       "system": "World/Sky",
       "preserveMetaGuid": true,
@@ -86,7 +86,7 @@
     },
     {
       "from": "Assets/ValVert/Mats/sky_blend.mat",
-      "to": "Assets/_Project/Runtime/World/Sky/Materials/sky_blend.mat",
+      "to": "Assets/Runtime/World/Sky/Materials/sky_blend.mat",
       "kind": "material",
       "system": "World/Sky",
       "preserveMetaGuid": true,
@@ -95,7 +95,7 @@
     },
     {
       "from": "Assets/ValVert/Mats/sky_overcast.mat",
-      "to": "Assets/_Project/Runtime/World/Sky/Materials/sky_overcast.mat",
+      "to": "Assets/Runtime/World/Sky/Materials/sky_overcast.mat",
       "kind": "material",
       "system": "World/Sky",
       "preserveMetaGuid": true,
@@ -104,12 +104,12 @@
     }
   ],
   "runtimeFoundations": [
-    "Assets/_Project/Runtime/Boot/ValVertEventBus.cs",
-    "Assets/_Project/Runtime/Boot/ValVertServices.cs",
-    "Assets/_Project/Runtime/Boot/ValVertRuntimeBootstrap.cs",
-    "Assets/_Project/Runtime/World/Streaming/ValVertWorldStreaming.cs",
-    "Assets/_Project/Runtime/Boot/Config/ValVertWorldConfig.cs",
-    "Assets/_Project/Runtime/ValVert.Runtime.asmdef"
+    "Assets/Runtime/Boot/ValVertEventBus.cs",
+    "Assets/Runtime/Boot/ValVertServices.cs",
+    "Assets/Runtime/Boot/ValVertRuntimeBootstrap.cs",
+    "Assets/Runtime/World/Streaming/ValVertWorldStreaming.cs",
+    "Assets/Runtime/Boot/Config/ValVertWorldConfig.cs",
+    "Assets/Runtime/ValVert.Runtime.asmdef"
   ],
   "notMovedYet": [
     "Assets/ValVert/Mats (shared cross-system materials — migrate by exclusive ownership audit)",

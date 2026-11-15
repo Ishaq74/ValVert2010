@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Authored world runtime configuration (SOURCE data, lives in Assets/_Project/Settings/World/).
+/// Authored world runtime configuration (SOURCE data, lives in Assets/Settings/World/).
 /// Read by ValVertRuntimeBootstrap. Validated by ValVertWorldConfig.Validate() (also run by the
 /// Editor validation suite).
 /// </summary>

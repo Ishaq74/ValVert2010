@@ -1,6 +1,6 @@
 # Runtime lifecycle (EventBus / Services / Bootstrap / Region activation)
 
-Date : 2026-11-15 (Europe/Paris). Tests : `Assets/_Project/Tests/PlayMode/RuntimeLifecycleTests.cs` (25 synthetic-scene tests) + `FullSceneSmokeTests.cs` (the committed `ValVert.unity`, full scene).
+Date : 2026-11-15 (Europe/Paris). Tests : `Assets/Tests/PlayMode/RuntimeLifecycleTests.cs` (25 synthetic-scene tests) + `FullSceneSmokeTests.cs` (the committed `ValVert.unity`, full scene).
 
 ## Rules
 * **Nobody clears the bus or the registry globally.** Only `ResetForDomain()` (domain/subsystem registration hook, tests) does.

@@ -91,4 +91,4 @@ Ne jamais régénérer/écraser les `.meta` des sorties. Le producteur n’écri
 
 ## Emplacement architectural
 
-`Assets/_Project/Generated/` : point d’ancrage documentaire pour de futures catégories migrées. Les sorties proven actuelles restent aux chemins historiques consommés par la scène (Ground/Gen) pour stabilité des références.
+`Assets/Generated/` : point d’ancrage documentaire pour de futures catégories migrées. Les sorties proven actuelles restent aux chemins historiques consommés par la scène (Ground/Gen) pour stabilité des références.

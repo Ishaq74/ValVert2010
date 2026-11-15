@@ -12,7 +12,7 @@ import argparse, hashlib, json, math, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-CFG = ROOT / "Assets/_Project/Settings/World/Vegetation/grass_field_config.json"
+CFG = ROOT / "Assets/Settings/World/Vegetation/grass_field_config.json"
 EXPECTED_PACK_ID = "138810"
 EXPECTED_SCHEMA = "2"
 

@@ -160,7 +160,7 @@ def main() -> int:
 
     rebuild = load_json(ROOT / "Tools/rebuild/manifest.json", {"targets": {}})["targets"]
     rebuild_python = {o["path"] for t in rebuild.values() if t.get("status") == "proven" for o in t.get("outputs", [])}
-    pins = load_json(ROOT / "Assets/_Project/Settings/Architecture/generated_guid_pins.json", {"assets": {}})["assets"]
+    pins = load_json(ROOT / "Assets/Settings/Architecture/generated_guid_pins.json", {"assets": {}})["assets"]
     vendor = load_json(ROOT / "Tools/rebuild/vendor_manifest.json", {"globs": []})["globs"]
     exp = load_json(HERE / "clean_clone_expected.json", {"knownDangling": {}})
     attrs = (ROOT / ".gitattributes").read_text().splitlines() if (ROOT / ".gitattributes").is_file() else []
