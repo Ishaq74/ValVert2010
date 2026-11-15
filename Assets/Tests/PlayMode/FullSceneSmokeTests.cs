@@ -15,9 +15,10 @@ public class FullSceneSmokeTests
     readonly List<string> _errors = new List<string>();
     void OnLog(string msg, string stack, LogType t)
     {
-        if (t == LogType.Exception || t == LogType.Error || t == LogType.Assert)
+        // Terrain tree prototypes that fail to resolve are logged as WARNINGS by Unity: treat them as failures (step: tree fileID pins).
+        if (t == LogType.Exception || t == LogType.Error || t == LogType.Assert ||
+            (t == LogType.Warning && msg.StartsWith("Tree prefab at index")))
         {
-            if (msg.StartsWith("Tree prefab at index")) return;   // env: a vendor tree prototype absent from this checkout (private/ignored asset)
             _errors.Add(t + ": " + msg);
         }
     }

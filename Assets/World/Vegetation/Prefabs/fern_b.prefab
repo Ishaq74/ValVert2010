@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &8115848403238081693
+--- !u!1 &2339125491276610472
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -24,7 +24,7 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8115848403238081693}
+  m_GameObject: {fileID: 2339125491276610472}
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071067}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -39,7 +39,7 @@ MeshFilter:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8115848403238081693}
+  m_GameObject: {fileID: 2339125491276610472}
   m_Mesh: {fileID: 7747046194908713960, guid: a3d005c9b10b097538ca83cf9cf9c252, type: 3}
 --- !u!23 &5048229952173653870
 MeshRenderer:
@@ -47,7 +47,7 @@ MeshRenderer:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8115848403238081693}
+  m_GameObject: {fileID: 2339125491276610472}
   m_Enabled: 1
   m_CastShadows: 1
   m_ReceiveShadows: 1

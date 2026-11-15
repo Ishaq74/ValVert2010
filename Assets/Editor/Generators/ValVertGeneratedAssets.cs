@@ -99,16 +99,10 @@ public static class ValVertGeneratedAssets
             foreach (var e in verr) Debug.LogError("[VV][GeneratedAssets] " + e);
             if (verr.Count > 0) code = 1;
 
-            // 4. terrain tree prototypes: TerrainData (LFS) stores prefab GUID + root fileID; regenerated prefabs get new fileIDs,
-            //    so the 20 prototypes load as null. Rebind by name (existing, tested ValVertDress.RepairTreePrototypes) and persist.
-            EditorSceneManager.OpenScene(ScenePath);
-            ValVertDress.RepairTreePrototypes();
-            foreach (var t in Object.FindObjectsByType<Terrain>(FindObjectsInactive.Include, FindObjectsSortMode.None))
-                if (t.terrainData) EditorUtility.SetDirty(t.terrainData);
-            AssetDatabase.SaveAssets();
-            int broken = ReportTrees();
-            if (broken > 0) { Debug.LogError("[VV][GeneratedAssets] terrain tree prototypes still broken: " + broken); code = 1; }
-            if (code == 0) L("REGENERATE_OK all pinned GUIDs resolve to their paths; terrain trees bound");
+            // 4. terrain tree prototypes: TerrainData (committed, LFS) stores prefab GUID + root-GameObject fileID. The GUIDs are pinned above;
+            //    the root fileIDs are pinned by Tools/architecture/tree_pins.py (restore_world applies them to the regenerated prefabs, then runs
+            //    ReportTreesBatch). The terrain asset itself is never modified, so no rebind and no dirty LFS file.
+            if (code == 0) L("REGENERATE_OK all pinned GUIDs resolve to their paths (tree fileIDs: run tree_pins.py apply, then ReportTreesBatch)");
         }
         catch (System.Exception ex) { Debug.LogError("[VV][GeneratedAssets] FAILED: " + ex); code = 1; }
         EditorApplication.Exit(code);
