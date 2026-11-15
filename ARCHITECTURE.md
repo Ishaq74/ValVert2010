@@ -1,6 +1,6 @@
 # ARCHITECTURE — Val Vert 2010 × Val Vert II
 
-> **Statut : proposition de conception, rien n'est migré.** Ce document ne déplace aucun fichier, ne change aucune scène et n'ajoute aucun code. Il décrit l'architecture cible et l'ordre de migration. Il est volontairement **non fusionné** tant que le propriétaire ne l'a pas validé.
+> **Statut : architecture validée par le propriétaire le 15/11/2026 (« refonte intégrale »). Ce document décrit la cible et l'ordre de migration ; il ne déplace rien lui-même.** La migration est réalisée par petites PR successives (§12), chacune validée puis fusionnée normalement. Les statuts « existe / à construire » de ce document sont mis à jour à chaque étape (colonne « Statut » du §12 dans les PR correspondantes).
 >
 > Date : 15 novembre 2026 (Europe/Paris). Base : `main` au commit `a0940a4` (après la PR #20).
 > Sources croisées :
