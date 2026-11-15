@@ -98,11 +98,43 @@ public static class ValVertGeneratedAssets
             var verr = VerifyPins(pins);
             foreach (var e in verr) Debug.LogError("[VV][GeneratedAssets] " + e);
             if (verr.Count > 0) code = 1;
-            else L("REGENERATE_OK all pinned GUIDs resolve to their paths");
+
+            // 4. terrain tree prototypes: TerrainData (LFS) stores prefab GUID + root fileID; regenerated prefabs get new fileIDs,
+            //    so the 20 prototypes load as null. Rebind by name (existing, tested ValVertDress.RepairTreePrototypes) and persist.
+            EditorSceneManager.OpenScene(ScenePath);
+            ValVertDress.RepairTreePrototypes();
+            foreach (var t in Object.FindObjectsByType<Terrain>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (t.terrainData) EditorUtility.SetDirty(t.terrainData);
+            AssetDatabase.SaveAssets();
+            int broken = ReportTrees();
+            if (broken > 0) { Debug.LogError("[VV][GeneratedAssets] terrain tree prototypes still broken: " + broken); code = 1; }
+            if (code == 0) L("REGENERATE_OK all pinned GUIDs resolve to their paths; terrain trees bound");
         }
         catch (System.Exception ex) { Debug.LogError("[VV][GeneratedAssets] FAILED: " + ex); code = 1; }
         EditorApplication.Exit(code);
     }
+
+    /// <summary>Opens the committed scene and reports every terrain tree prototype with its prefab (null = broken reference).</summary>
+    public static int ReportTrees()
+    {
+        EditorSceneManager.OpenScene(ScenePath);
+        int bad = 0, total = 0;
+        foreach (var t in Object.FindObjectsByType<Terrain>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+        {
+            var protos = t.terrainData.treePrototypes;
+            for (int i = 0; i < protos.Length; i++)
+            {
+                total++; var pf = protos[i].prefab;
+                var path = pf ? AssetDatabase.GetAssetPath(pf) : "<NULL>";
+                if (!pf) bad++;
+                L($"terrain={t.name} proto[{i}] {(pf ? pf.name : "NULL")} -> {path} instances={t.terrainData.treeInstanceCount}");
+            }
+        }
+        L($"TREE_PROTOTYPES total={total} broken={bad}");
+        return bad;
+    }
+
+    public static void ReportTreesBatch() { EditorApplication.Exit(ReportTrees() == 0 ? 0 : 1); }
 
     /// <summary>Check-only (no generation): fails when any pinned asset is absent/mismatched. Used by restore_world.py as the final gate.</summary>
     public static void VerifyOnly()

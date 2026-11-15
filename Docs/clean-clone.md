@@ -30,7 +30,8 @@ Mise à jour des pins après toute régénération voulue du monde : `python3 To
 
 * Déterminisme de la génération d'herbe : régénération sur place → **762 `grass_N.asset` + métas + 2 mats identiques octet pour octet** (sha256), et idempotente (2ᵉ passe = 0 différence).
 * **Découverte** : les 17 préfabs `ef_*/uns_*` générés le 9 nov. étaient **creux** (0 `MeshRenderer`, `m_Children: []`) dans tous les checkouts → arbres du terrain invisibles. Régénérés par `RegenerateVendorPrefabs` (même code que `Vegetation()`, factorisé) : 4–12 `MeshRenderer` chacun.
-* Clone propre simulé + restauration complète : voir « Résultat du clone propre » ci-dessous.
+* **Prototypes d'arbres du terrain** : `TerrainData` (LFS) stocke GUID + fileID racine des préfabs ; les préfabs régénérés ont de nouveaux fileID, donc les 20 prototypes (terrain principal + est) chargeaient `null` (« Tree prefab at index N is missing »). `RegenerateAll` rappelle `ValVertDress.RepairTreePrototypes()` (rebind par nom, existant), sauvegarde le `TerrainData` **dans le working tree seulement** (ne pas committer ce fichier LFS) puis échoue si `ReportTrees` trouve des prototypes cassés.
+* Clone propre simulé + restauration complète : `AUDIT_OK missing_but_recoverable=15`, `PINS_OK 781`, `REGENERATE_OK ... terrain trees bound`, `TREE_PROTOTYPES total=40 broken=0` (journal `regenerate.log`).
 
 ## Procédure (clone neuf)
 
@@ -42,7 +43,7 @@ python3 Tools/rebuild/restore_world.py \
     --grass-pack "<…/Grass Flowers Pack Free.unitypackage>" \
     --unity <chemin Unity 6000.3.27f2>
 ```
-`restore_world.py` : (1) rebuild-proven, (2) vendor SHA256 + import, (3) preflight pack, (4) Unity `RegenerateAll`, (5) audit : doit afficher `AUDIT_OK`. Sans les packages vendor, il s'arrête avec le nom/SHA256 attendus (pas de repli silencieux).
+`restore_world.py` : (1) rebuild-proven, (2) vendor SHA256 + extraction (sans `-importPackage` : le `.hdr` de 262 Mo met l'import à court de RAM), (3) preflight pack, (4) Unity `RegenerateAll`, (5) audit : doit afficher `AUDIT_OK`. Sans les packages vendor, il s'arrête avec le nom/SHA256 attendus (pas de repli silencieux).
 
 ## Limites honnêtes
 
