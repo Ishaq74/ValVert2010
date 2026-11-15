@@ -77,7 +77,7 @@ class RealRepo(unittest.TestCase):
         vm = json.loads((ROOT / "Tools/rebuild/vendor_manifest.json").read_text())
         self.assertGreaterEqual(len(vm["packages"]), 4)
         for pk in vm["packages"]:
-            self.assertRegex(pk["sha256"], r"^[0-9a-f]{64}$"); self.assertIn(pk["method"], ("unity-importPackage", "extract-remap"))
+            self.assertRegex(pk["sha256"], r"^[0-9a-f]{64}$"); self.assertEqual(pk["method"], "extract-remap")
             self.assertTrue(pk["marker"].startswith("Assets/"))
         ex = json.loads((ROOT / "Tools/architecture/clean_clone_expected.json").read_text())["knownDangling"]
         self.assertTrue(ex and all(re.fullmatch(r"[0-9a-f]{32}", k) for k in ex))
@@ -88,3 +88,26 @@ class RealRepo(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class VendorExtract(unittest.TestCase):
+    def test_extract_keeps_guids_synthesizes_missing_meta_excludes_hdr(self):
+        import tarfile, io, importlib.util
+        spec = importlib.util.spec_from_file_location("rw", ROOT / "Tools/rebuild/restore_world.py"); rw = importlib.util.module_from_spec(spec); spec.loader.exec_module(rw)
+        with tempfile.TemporaryDirectory() as t:
+            t = Path(t); pkg = t / "p.unitypackage"
+            def add(tf, name, data):
+                ti = tarfile.TarInfo(name); ti.size = len(data); tf.addfile(ti, io.BytesIO(data))
+            with tarfile.open(pkg, "w:gz") as tf:
+                add(tf, "aaa/pathname", b"Assets/V/tex.png\n00"); add(tf, "aaa/asset", b"PNG"); add(tf, "aaa/asset.meta", b"fileFormatVersion: 2\nguid: aaa\nTextureImporter: {}\n")
+                add(tf, "bbb/pathname", b"Assets/V/nometa.fbx\n00"); add(tf, "bbb/asset", b"FBX")
+                add(tf, "ccc/pathname", b"Assets/V\n00")                                  # folder entry, no meta
+                add(tf, "ddd/pathname", b"Assets/V/big.hdr\n00"); add(tf, "ddd/asset", b"HDR")
+            dest = t / "proj"; dest.mkdir()
+            rw.extract_remap(pkg, ["Assets/V", "Assets/ThirdParty/V"], dest, exclude=["*.hdr"])
+            self.assertEqual((dest / "Assets/ThirdParty/V/tex.png").read_bytes(), b"PNG")
+            self.assertIn("guid: aaa", (dest / "Assets/ThirdParty/V/tex.png.meta").read_text())
+            self.assertIn("guid: bbb", (dest / "Assets/ThirdParty/V/nometa.fbx.meta").read_text(), "package GUID (dir name) preserved when package has no .meta")
+            self.assertFalse((dest / "Assets/ThirdParty/V/big.hdr").exists(), "excluded")
+            self.assertIn("folderAsset: yes", (dest / "Assets/ThirdParty/V.meta").read_text())
+            self.assertIn("guid: ccc", (dest / "Assets/ThirdParty/V.meta").read_text())

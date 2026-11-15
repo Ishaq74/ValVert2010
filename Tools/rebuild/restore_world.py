@@ -2,13 +2,12 @@
 """Fresh clone -> the same world.  One documented command, every step gated.
 
   python3 Tools/rebuild/restore_world.py --packages-dir <dir with the vendor .unitypackage files> --unity <Unity executable>
-        [--grass-pack <path to 'Grass Flowers Pack Free.unitypackage'>] [--skip-unity-import] [--check-only]
+        [--grass-pack <path to 'Grass Flowers Pack Free.unitypackage'>] [--check-only]
 
 Steps (see Docs/clean-clone.md):
   1  python environment preflight + `rebuild.py rebuild-proven --apply`   (byte-proven textures: parking, signs, asphalt)
-  2  vendor packages: SHA256-verified against Tools/rebuild/vendor_manifest.json, then imported
-       - Unity `-importPackage` (UNS, European Forests): GUIDs come from the package
-       - extract-remap (Grass Flowers Pack -> Assets/ThirdParty/...): GUIDs come from the package's own .meta files
+  2  vendor packages: SHA256-verified against Tools/rebuild/vendor_manifest.json, then EXTRACTED (GUIDs come from the package;
+       oversized unused items such as UNS_HDRI.hdr are excluded: they OOM Unity's import on 16 GB). Unity imports them in step 4.
   3  vegetation preflight (pack card GUIDs == config)
   4  Unity: ValVertGeneratedAssets.RegenerateAll  (vendor prefabs + field grass), then pins the GUIDs the scene references
   5  gate: clean_clone_audit.py on the resulting tree must report AUDIT_OK (only known-dangling frozen car materials remain)
@@ -32,10 +31,16 @@ def sha256(p: Path) -> str:
             h.update(b)
     return h.hexdigest()
 
-def extract_remap(pkg: Path, remap: list[str], dest_root: Path):
-    """Write every asset of a .unitypackage under dest_root using its pathname (prefix remapped) and its own .meta."""
-    src, dst = remap
-    n = 0
+FOLDER_META = ("fileFormatVersion: 2\nguid: {g}\nfolderAsset: yes\nDefaultImporter:\n  externalObjects: {{}}\n  userData: \n"
+               "  assetBundleName: \n  assetBundleVariant: \n")
+
+def extract_remap(pkg: Path, remap, dest_root: Path, exclude=()):
+    """Write every asset of a .unitypackage under dest_root using its pathname (optional prefix remap) and its own .meta.
+    A package entry without asset.meta gets a minimal meta carrying the package's GUID (the entry's directory name), so
+    references to it stay valid; Unity completes the importer settings on first import."""
+    import fnmatch
+    src, dst = remap if remap else ("", "")
+    n = skipped = 0
     with tarfile.open(pkg) as tf, tempfile.TemporaryDirectory() as td:
         tf.extractall(td, filter="data")
         for d in Path(td).iterdir():
@@ -43,17 +48,23 @@ def extract_remap(pkg: Path, remap: list[str], dest_root: Path):
             if not pn.is_file():
                 continue
             rel = pn.read_text().splitlines()[0].strip()
-            if rel.startswith(src):
+            if src and rel.startswith(src):
                 rel = dst + rel[len(src):]
-            if not (d / "asset").is_file():
-                continue          # folder entry
+            if any(fnmatch.fnmatch(rel, pat) or fnmatch.fnmatch(Path(rel).name, pat) for pat in exclude):
+                skipped += 1; continue
             out = dest_root / rel
+            meta_dst = Path(str(out) + ".meta")
+            if not (d / "asset").is_file():                      # folder entry
+                out.mkdir(parents=True, exist_ok=True)
+                if (d / "asset.meta").is_file(): shutil.copy2(d / "asset.meta", meta_dst)
+                else: meta_dst.write_text(FOLDER_META.format(g=d.name))
+                continue
             out.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(d / "asset", out)
-            if (d / "asset.meta").is_file():
-                shutil.copy2(d / "asset.meta", str(out) + ".meta")
+            if (d / "asset.meta").is_file(): shutil.copy2(d / "asset.meta", meta_dst)
+            else: meta_dst.write_text(f"fileFormatVersion: 2\nguid: {d.name}\n")
             n += 1
-    print(f"extracted {n} files from {pkg.name}")
+    print(f"extracted {n} files from {pkg.name} (excluded {skipped})")
 
 def step(msg):
     print(f"\n=== {msg}", flush=True)
@@ -63,7 +74,6 @@ def main() -> int:
     ap.add_argument("--packages-dir", type=Path)
     ap.add_argument("--grass-pack", type=Path)
     ap.add_argument("--unity", default=os.environ.get("UNITY_PATH"))
-    ap.add_argument("--skip-unity-import", action="store_true", help="vendor dirs already imported")
     ap.add_argument("--check-only", action="store_true", help="only run the final audit")
     ap.add_argument("--log-dir", type=Path, default=Path("/tmp/vv_restore"))
     a = ap.parse_args()
@@ -83,13 +93,7 @@ def main() -> int:
                 print(f"MISSING package {pk['id']}: {pk['name']}\n  expected file: {pk['file']} (sha256 {pk['sha256']})"); return 20
             if sha256(f) != pk["sha256"]:
                 print(f"SHA256 MISMATCH for {f}: not the verified package"); return 21
-            if pk["method"] == "extract-remap":
-                extract_remap(f, pk["remap"], ROOT)
-            else:
-                if not a.unity: print("--unity required to import " + pk["id"]); return 22
-                if a.skip_unity_import: print("skip import " + pk["id"]); continue
-                r = run([a.unity, "-batchmode", "-nographics", "-quit", "-projectPath", ROOT, "-importPackage", f, "-logFile", a.log_dir / f"import_{pk['id']}.log"])
-                if r.returncode != 0: print(f"import {pk['id']} failed, see {a.log_dir}"); return 23
+            extract_remap(f, pk.get("remap"), ROOT, pk.get("exclude", ()))
 
         step("3/5 vegetation preflight")
         if run([sys.executable, "Tools/vegetation/preflight.py"]).returncode != 0: return 30
