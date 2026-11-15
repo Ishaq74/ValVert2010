@@ -173,6 +173,8 @@ namespace ValVertII.Core
             await SceneLoader.LoadSingleAsync(rootPath);
             await SceneLoader.LoadAdditiveAsync(sectorPath, setActive: true);
 
+            if (!IsReady) return;   // the root was shut down while scenes were loading: nothing to start
+
             WorldSession.BeginNewSession(sectorSceneId);
             ValVertEventBus.Publish(new WorldStartedEvent(sectorSceneId));
 

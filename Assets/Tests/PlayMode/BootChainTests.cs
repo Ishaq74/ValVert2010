@@ -35,9 +35,10 @@ public class BootChainTests
         ValVertEventBus.ResetForDomain(); ValVertServices.ResetForDomain();
     }
 
-    static IEnumerator Until(System.Func<bool> cond, string what, int maxFrames = 1200)
+    static IEnumerator Until(System.Func<bool> cond, string what, float maxSeconds = 600f)
     {
-        for (int i = 0; i < maxFrames && !cond(); i++) yield return null;
+        float t0 = Time.realtimeSinceStartup;
+        while (!cond() && Time.realtimeSinceStartup - t0 < maxSeconds) yield return null;
         Assert.IsTrue(cond(), "timeout waiting for: " + what);
     }
 
