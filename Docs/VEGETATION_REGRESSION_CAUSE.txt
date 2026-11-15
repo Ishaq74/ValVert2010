@@ -31,7 +31,7 @@ Root cause
   This was NOT "trees deleted from the merged scene on main" as a content change;
   main still serializes the TerrainData + instance list. The break was local
   prototype binding after LFS pointer checkout/restore. Vendor packs were present
-  under Assets/InnerverseInteractive and Assets/Realistic Tree the whole time.
+  under Assets/ThirdParty/InnerverseInteractive and Assets/ThirdParty/RealisticTrees the whole time.
 
 Fix
   ValVertDress.RepairTreePrototypes() rebinds the 20 known wrapper prefabs by name

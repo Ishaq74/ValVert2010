@@ -1,7 +1,7 @@
 // European Forests - Realistic Trees (MysticForge, Asset Store EULA; vendor files git-ignored) inspection.
 using UnityEngine; using UnityEditor; using System.Linq;
 public static class ValVertEF {
-    public const string EF="Assets/Realistic Tree/Prefabs/URP/";
+    public const string EF="Assets/ThirdParty/RealisticTrees/Prefabs/URP/";
     public static void Inspect(){
         foreach(var p in AssetDatabase.FindAssets("t:Prefab",new[]{EF}).Select(AssetDatabase.GUIDToAssetPath)){
             var g=(GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(p));

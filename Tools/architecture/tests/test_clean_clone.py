@@ -43,11 +43,11 @@ class Synthetic(unittest.TestCase):
         self.assertEqual(A.swapped("0123456789abcdef0123456789abcdef"), bytes.fromhex("1032547698badcfe1032547698badcfe"))
 
     def test_classify(self):
-        ctx = dict(expected_dangling={g(9)}, vendor_globs=["Assets/Realistic Tree/*"], rebuild_python={"Assets/a.png"}, pins={"Assets/b.asset"},
+        ctx = dict(expected_dangling={g(9)}, vendor_globs=["Assets/ThirdParty/RealisticTrees/*"], rebuild_python={"Assets/a.png"}, pins={"Assets/b.asset"},
                    lfs_globs=["Assets/c.asset"], tracked_paths=set())
         c = A.classify
         self.assertEqual(c("Assets/a.png", g(1), ctx), "rebuild-python"); self.assertEqual(c("Assets/b.asset", g(1), ctx), "rebuild-unity")
-        self.assertEqual(c("Assets/Realistic Tree/x.prefab", g(1), ctx), "vendor"); self.assertEqual(c("Packages/x/y.cs", g(1), ctx), "package")
+        self.assertEqual(c("Assets/ThirdParty/RealisticTrees/x.prefab", g(1), ctx), "vendor"); self.assertEqual(c("Packages/x/y.cs", g(1), ctx), "package")
         self.assertEqual(c(None, g(9), ctx), "known-dangling"); self.assertEqual(c(None, g(1), ctx), "unresolved")
         self.assertEqual(c("Assets/c.asset", g(1), ctx), "tracked-lfs"); self.assertEqual(c("Assets/zzz", g(1), ctx), "unclassified")
 
@@ -79,6 +79,8 @@ class RealRepo(unittest.TestCase):
         for pk in vm["packages"]:
             self.assertRegex(pk["sha256"], r"^[0-9a-f]{64}$"); self.assertEqual(pk["method"], "extract-remap")
             self.assertTrue(pk["marker"].startswith("Assets/"))
+            self.assertTrue(pk["marker"].startswith("Assets/ThirdParty/"), "step 6: every vendor package lives under Assets/ThirdParty/")
+            if pk.get("remap"): self.assertTrue(pk["remap"][1].startswith("Assets/ThirdParty/"))
         ex = json.loads((ROOT / "Tools/architecture/clean_clone_expected.json").read_text())["knownDangling"]
         self.assertTrue(ex and all(re.fullmatch(r"[0-9a-f]{32}", k) for k in ex))
 

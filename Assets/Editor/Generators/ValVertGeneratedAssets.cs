@@ -79,8 +79,8 @@ public static class ValVertGeneratedAssets
             var pins = LoadPins(); L("pins=" + pins.Count);
 
             // 1. vendor-derived prefabs (trees/bushes) from the imported Asset Store packages
-            if (!Directory.Exists("Assets/Realistic Tree") || !Directory.Exists("Assets/InnerverseInteractive"))
-                throw new System.InvalidOperationException("vendor packages not imported (Assets/Realistic Tree, Assets/InnerverseInteractive): see Docs/clean-clone.md step 3");
+            if (!Directory.Exists("Assets/ThirdParty/RealisticTrees") || !Directory.Exists("Assets/ThirdParty/InnerverseInteractive"))
+                throw new System.InvalidOperationException("vendor packages not imported (Assets/ThirdParty/RealisticTrees, Assets/ThirdParty/InnerverseInteractive): see Docs/clean-clone.md step 3");
             int pf = ValVertDress.RegenerateVendorPrefabs(); L("vendor prefabs written=" + pf);
 
             // 2. field grass chunks (+ their pack-derived materials) in memory; scene is NOT saved

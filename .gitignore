@@ -57,7 +57,8 @@ crashlytics-build.properties
 # Gros maillages de la ville (m_Bld_kerb/white_trim/facade/metal, m_OuterRing) : SUIVIS via Git LFS depuis le stage clean-clone
 # (ValVertSetup.Build n'est pas rejouable de façon prouvée ; la scène les référence par GUID). Voir Docs/clean-clone.md.
 
-# Unity Asset Store vendor content (Ultimate Nature Starter, Standard Unity Asset Store EULA) - never commit raw files
+# Unity Asset Store vendor content lives under /Assets/ThirdParty/** (ignored below). Legacy pre-step-6 roots stay ignored as a guard.
+# Ultimate Nature Starter (Standard Unity Asset Store EULA) - never commit raw files
 Assets/InnerverseInteractive/
 Assets/InnerverseInteractive.meta
 Assets/World/Prefabs/uns_*

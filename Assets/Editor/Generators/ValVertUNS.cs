@@ -1,7 +1,7 @@
 // Ultimate Nature Starter (Innerverse Interactive, Asset Store EULA - vendor files are git-ignored) : preview + runtime env test.
 using UnityEngine; using UnityEditor;
 public static class ValVertUNS {
-    const string U="Assets/InnerverseInteractive/Ultimate Nature – Starter/Environment/";
+    const string U="Assets/ThirdParty/InnerverseInteractive/Ultimate Nature – Starter/Environment/";
     public static void PreviewAndTest(){
         var scene=UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/Scenes/ValVert.unity");
         var terr=Terrain.activeTerrain; var root=new GameObject("uns_preview");

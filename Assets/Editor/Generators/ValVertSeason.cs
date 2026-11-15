@@ -73,7 +73,7 @@ public static class ValVertEnvWire {
         { var m=Mt("laurel_leaves_acg"); if(m) sea.foliage.Add(new ValVertSeasons.Foliage{mat=m,evergreen=true}); }
         // European Forests (MysticForge) Leaves_URP shader-graph: properties have generated reference names
         foreach(var sp in new[]{("Ash",new Color(1.2f,1.0f,0.5f),new Color(1.8f,1.05f,0.25f)),("Birch",new Color(1.4f,1.05f,0.35f),new Color(1.95f,1.05f,0.18f)),("Chestnut",new Color(1.3f,0.9f,0.35f),new Color(1.7f,0.72f,0.25f))})
-            foreach(var guid in AssetDatabase.FindAssets("t:Material",new[]{"Assets/Realistic Tree/Source/Materials/URP/Leaves/"+sp.Item1})){
+            foreach(var guid in AssetDatabase.FindAssets("t:Material",new[]{"Assets/ThirdParty/RealisticTrees/Source/Materials/URP/Leaves/"+sp.Item1})){
                 var m=AssetDatabase.LoadAssetAtPath<Material>(AssetDatabase.GUIDToAssetPath(guid)); if(!m) continue;
                 sea.foliage.Add(new ValVertSeasons.Foliage{mat=m,colorProp="_BaseColor",texProp="_BaseMap",cutProp="_Cutoff",autumnTint=sp.Item2,autumnTint2=sp.Item3}); }
         // Ultimate Nature Starter adapter: classify its foliage materials once the package is imported (vendor files stay local)
