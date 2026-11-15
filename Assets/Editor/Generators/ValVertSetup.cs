@@ -13,7 +13,16 @@ public static class ValVertSetup {
         AssetDatabase.CreateAsset(msh,path); return msh;
     }
 
+    /// <summary>Opt-in switch for the legacy genesis generator (see Docs/clean-clone.md, "Full Build is not a rebuild step").</summary>
+    public const string AllowEnv="VV_ALLOW_GENESIS";
+    public static bool GenesisAllowed => System.Environment.GetEnvironmentVariable(AllowEnv)=="1";
+
+    /// <summary>LEGACY GENESIS GENERATOR. It deletes Assets/World/Materials, Assets/World/Prefabs and the Ground terrain layers,
+    /// creates a NEW scene over Assets/Scenes/ValVert.unity, replaces Build Settings and renders ~80 screenshots.
+    /// It cannot reproduce the committed, hand-evolved scene (measured: 267 tracked files changed, 102823 scene lines, 12 assets deleted,
+    /// new GUIDs). It therefore refuses to run unless VV_ALLOW_GENESIS=1 is set, and should only be run on a throw-away clone.</summary>
     public static void Build(){
+        if(!GenesisAllowed){ throw new System.InvalidOperationException("ValVertSetup.Build is a destructive legacy genesis generator and would overwrite the validated scene, materials and Build Settings. Set "+AllowEnv+"=1 on a throw-away clone to run it. The supported rebuild is Tools/rebuild/restore_world.py."); }
         string fbx="Assets/World/Meshes/valvert_clean.fbx";
         var mi=(ModelImporter)AssetImporter.GetAtPath(fbx);
         mi.globalScale=1; mi.useFileUnits=true; mi.bakeAxisConversion=false; mi.addCollider=true; mi.importAnimation=false; mi.SaveAndReimport();

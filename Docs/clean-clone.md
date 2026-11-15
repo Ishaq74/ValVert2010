@@ -45,8 +45,23 @@ python3 Tools/rebuild/restore_world.py \
 ```
 `restore_world.py` : (1) rebuild-proven, (2) vendor SHA256 + extraction (sans `-importPackage` : le `.hdr` de 262 Mo met l'import à court de RAM), (3) preflight pack, (4) Unity `RegenerateAll`, (5) audit : doit afficher `AUDIT_OK`. Sans les packages vendor, il s'arrête avec le nom/SHA256 attendus (pas de repli silencieux).
 
+## `ValVertSetup.Build` complet : rejoué, mesuré, verrouillé
+
+`Build` est le générateur *genesis* historique. Il a été rejoué de bout en bout sur un clone neuf restauré (`VV_WORK=<dossier>` relocalise ses entrées, `ValVertPaths.Work`). Résultat mesuré (clone neuf, Unity 6000.3.27f2) :
+
+| Mesure | Valeur |
+|---|---|
+| Fichiers suivis modifiés / supprimés / nouveaux | 234 / 12 / 21 (dont 16 `.meta`) |
+| `Assets/Scenes/ValVert.unity` | +102 823 / −49 660 lignes (la scène est recréée : `NewScene` + `SaveScene`) |
+| Assets supprimés puis recréés avec **nouveaux GUID** | `Assets/World/Materials` et `Assets/World/Prefabs` entiers (`aldi_bollard`, `heal_bark`, `heal_foliage`, `n9_blue`, `vv_rain`, `vv_snow` disparaissent) |
+| Autres | `PostProfile.asset`, 2 terrains, `sky*.mat`, `vv_entrance.prefab`, Build Settings remplacés par une seule scène |
+| Entrées hors dépôt | `<VV_WORK>/clean/` (heightmap, masques, JSON de maillages) ; voitures et Aldi absents d'un clone neuf |
+| Déterminisme | `Random.value` utilisé ; ~80 captures rendues (plusieurs minutes chacune en llvmpipe, le lot ne se termine pas dans un temps raisonnable) |
+
+Conclusion : `Build` ne reproduit pas la scène validée (ni l'art, ni la disposition, ni les GUID) ; l'exécuter sur le dépôt réel détruirait le travail validé. La reconstruction supportée est `Tools/rebuild/restore_world.py` (scène jamais sauvegardée par la régénération, diff de scène = 0). `Build` est donc **verrouillé** : il lève une exception sauf si `VV_ALLOW_GENESIS=1` (clone jetable uniquement). Test : `test_genesis_guard`.
+
 ## Limites honnêtes
 
 * Les `demfix_*` ont un **nom déterministe** (`demfix_<nom du MeshFilter>`, sans id d'instance ; `ValVertSetup.SaveDemfixMesh` réécrit l'asset existant en place, GUID conservé). Les 5 référencés par la scène (`Forest`, `Parks`, `Paths`, `Roads`, `Urban`) sont renommés avec leur GUID (R100) et suivis en LFS ; les 72 orphelins (0 référence, preuve `prove_unreferenced.py`) sont supprimés.
-* `ValVertSetup.Build` complet n'est toujours pas rejoué/prouvé ; les maillages ville sont donc **suivis** et non reconstruits.
+* `ValVertSetup.Build` complet **ne doit pas être rejoué** comme étape de reconstruction (voir la section suivante) ; les maillages ville sont donc **suivis** et non reconstruits.
 * Rendu prouvé en llvmpipe (CPU).
