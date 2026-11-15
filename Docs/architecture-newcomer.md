@@ -27,3 +27,8 @@ Unity 6 URP recreation of Seynod “Val Vert” (2010). Free assets only; OSM/IG
 - Commit Asset Store binaries or user photos
 - Force-push / hard-reset
 - Claim empty folders are implemented systems
+
+## Aller plus loin
+- Architecture totale et plan de migration : `ARCHITECTURE.md` (à la racine).
+- Manuel de la couche « jeu » (Val Vert II) et son statut : `Docs/ValVertII/`.
+- Où mettre un nouveau fichier : voir la règle dans `README.md` (section « Architecture »).
