@@ -67,7 +67,34 @@ public class ValVertClock : MonoBehaviour
             moon.type = LightType.Directional; moon.shadows = LightShadows.Soft; moon.color = new Color(.62f, .70f, .90f);
         }
         if (!daySkybox) daySkybox = RenderSettings.skybox;
+        if (Application.isPlaying) CloneSkyboxes();
         Apply();
+    }
+
+    // Play Mode must never write into the project's sky materials (they are tracked assets): drive private runtime copies instead.
+    Material origDay, origOvercast, origBlend; bool skyCloned;
+    static Material RuntimeCopy(Material m) { if (!m) return null; var c = Instantiate(m); c.name = m.name + " (runtime)"; c.hideFlags = HideFlags.DontSave; return c; }
+    void CloneSkyboxes()
+    {
+        if (skyCloned) return;
+        skyCloned = true;
+        Material current = RenderSettings.skybox;
+        origDay = daySkybox; origOvercast = overcastSkybox; origBlend = blendSkybox;
+        daySkybox = RuntimeCopy(origDay); overcastSkybox = RuntimeCopy(origOvercast); blendSkybox = RuntimeCopy(origBlend);
+        if (current && current == origDay) RenderSettings.skybox = daySkybox;
+        else if (current && current == origOvercast) RenderSettings.skybox = overcastSkybox;
+        else if (current && current == origBlend) RenderSettings.skybox = blendSkybox;
+    }
+
+    void OnDestroy()
+    {
+        if (!skyCloned) return;
+        Material current = RenderSettings.skybox;
+        if (current && current == daySkybox) RenderSettings.skybox = origDay;
+        else if (current && current == overcastSkybox) RenderSettings.skybox = origOvercast;
+        else if (current && current == blendSkybox) RenderSettings.skybox = origBlend;
+        if (daySkybox) Destroy(daySkybox); if (overcastSkybox) Destroy(overcastSkybox); if (blendSkybox) Destroy(blendSkybox);
+        daySkybox = origDay; overcastSkybox = origOvercast; blendSkybox = origBlend; skyCloned = false;
     }
 
     void Update()
