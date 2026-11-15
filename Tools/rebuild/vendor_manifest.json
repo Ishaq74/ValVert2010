@@ -37,7 +37,7 @@
    "file": "EF_extra.unitypackage",
    "sha256": "6ab5379a8995fbf7fedf3896120257c69de5cb17575d58902687ca563b9e836d",
    "method": "extract-remap",
-   "marker": "Assets/Realistic Tree/Prefabs/URP",
+   "marker": "Assets/Realistic Tree/Prefabs/Standard/Chestnut/Leaf_3.png",
    "exclude": [
     "*.hdr"
    ]

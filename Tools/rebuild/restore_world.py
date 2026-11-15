@@ -86,7 +86,8 @@ def main() -> int:
 
         step("2/5 vendor packages")
         for pk in VENDOR["packages"]:
-            if (ROOT / pk["marker"]).is_dir() and any((ROOT / pk["marker"]).rglob("*.meta")):
+            mk = ROOT / pk["marker"]
+            if mk.is_file() or (mk.is_dir() and any(mk.rglob("*.meta"))):
                 print(f"{pk['id']}: already present ({pk['marker']})"); continue
             f = a.grass_pack if (pk["id"] == "GRASS" and a.grass_pack) else (a.packages_dir / pk["file"] if a.packages_dir else None)
             if not f or not f.is_file():
