@@ -92,6 +92,23 @@ public static class ValVertDress {
     static GameObject Simple(string fbx,Material m,string name){ var inst=(GameObject)Object.Instantiate(Fbx(V+fbx+".fbx")); inst.name=name; Assign(inst,n=>m);
         float h=baseH(inst); var pf=PrefabUtility.SaveAsPrefabAsset(inst,"Assets/ValVert/Prefabs/"+name+".prefab"); Object.DestroyImmediate(inst); hts[name]=h; L($"prefab {name} h={h:F2}"); return pf; }
 
+    // ---- vendor-derived prefab specs (single source for Vegetation() and RegenerateVendorPrefabs()) ----
+    static readonly string[] SeasonVariants={"autumnA","autumnB","green"};
+    static readonly string[] EfSlot={"Chestnut/Chestnut 7","Birch/Birch 4","Ash/Ash 7"};
+    static readonly string[] EfExtra={"Ash/Ash 1","Ash/Ash 4","Ash/Ash 5","Ash/Ash 8","Chestnut/Chestnut 3","Chestnut/Chestnut 4","Chestnut/Chestnut 8","Birch/Birch 2","Birch/Birch 6"};
+    static string SpruceRel(int i)=>"Trees/Fir/Prefabs/UNS_Spruce_0"+(i%2==0?"1":"2");
+    static string EfExtraName(string p)=>"ef_"+p.Split('/')[1].Replace(" ","_").ToLower();
+
+    /// <summary>Re-creates ONLY the vendor-derived tree/bush prefabs (Assets/ValVert/Prefabs/{ef,uns}_*; git-ignored, built from the
+    /// Asset Store packages) exactly as Vegetation() does, without touching terrain/scene. Returns the number of prefabs written.</summary>
+    public static int RegenerateVendorPrefabs(){
+        Directory.CreateDirectory("Assets/ValVert/Prefabs"); AssetDatabase.Refresh(); int n=0; int si=0;
+        foreach(var v in SeasonVariants){ if(EF(EfSlot[si],"ef_slot_"+v)) n++; if(UNS(SpruceRel(si),"uns_spruce_"+v)) n++; si++; }
+        if(UNS("Vegetation/Bushes/Prefabs/UNS_Bush","uns_bush_a")) n++;
+        if(UNS("Vegetation/Bushes/Prefabs/UNS_Bush","uns_bush_c")) n++;
+        foreach(var p in EfExtra) if(EF(p,EfExtraName(p))) n++;
+        AssetDatabase.SaveAssets(); return n; }
+
     public static void Vegetation(Terrain terr){
         Directory.CreateDirectory("Assets/ValVert/Mats"); Directory.CreateDirectory("Assets/ValVert/Prefabs"); AssetDatabase.Refresh();
         var td=terr.terrainData;
@@ -100,14 +117,14 @@ public static class ValVertDress {
         var itBark=Mat("fir_tree_01_bark",Tex(T+"fir_tree_01_bark_diff_1k.jpg"),Tex(T+"fir_tree_01_bark_nor_gl_1k.jpg",true),false,Color.white);
         var itBr=Mat("island_tree_02_branch",Tex(T+"island_tree_02_branches_diff_1k.jpg"),Tex(T+"island_tree_02_branches_nor_gl_1k.jpg",true),true,Color.white);
         var trees=new List<GameObject>();
-        int vi=0; string[] efSlot={"Chestnut/Chestnut 7","Birch/Birch 4","Ash/Ash 7"}; int si=0; foreach(var v in new[]{"autumnA","autumnB","green"}){ trees.Add(EF(efSlot[si++],"ef_slot_"+v) ?? TreePrefab("tree_small_02",v,tsBark,tsBr)); trees.Add(UNS("Trees/Fir/Prefabs/UNS_Spruce_0"+(vi++%2==0?"1":"2"),"uns_spruce_"+v) ?? TreePrefab("fir_tree_01",v,itBark,itBark)); }
+        int si=0; foreach(var v in SeasonVariants){ trees.Add(EF(EfSlot[si],"ef_slot_"+v) ?? TreePrefab("tree_small_02",v,tsBark,tsBr)); trees.Add(UNS(SpruceRel(si),"uns_spruce_"+v) ?? TreePrefab("fir_tree_01",v,itBark,itBark)); si++; }
         var shA=Mat("shrub_02_autumnA",Tex(T+"shrub_02_leaves_autumnA.png"),null,true,Color.white); var shG=Mat("shrub_02_green",Tex(T+"shrub_02_leaves_green.png"),null,true,Color.white);
         var fern=Mat("fern_02",Tex(T+"fern_02_leaves_green.png"),null,true,new Color(.85f,.8f,.6f));
         var grass=Mat("grass_medium_01",Tex(T+"grass_medium_01_leaves_green.png"),null,true,new Color(.85f,.82f,.65f));
         var small=new List<GameObject>{ UNS("Vegetation/Bushes/Prefabs/UNS_Bush","uns_bush_a") ?? Simple("shrub_02__a",shA,"shrub_a_autumn"), UNS("Vegetation/Bushes/Prefabs/UNS_Bush","uns_bush_c") ?? Simple("shrub_02__c",shG,"shrub_c_green"), Simple("fern_02__b",fern,"fern_b"), Simple("fern_02__c",fern,"fern_c"), Simple("laurel_cc0",Mat("laurel_leaves_acg",Tex("Assets/ValVert/Veg/pilot6/laurel_acg_leaves.png"),Tex("Assets/ValVert/Veg/pilot6/laurel_acg_nor.png",true),true,Color.white,0.55f),"laurel_cc0") };
         var protos=trees.Concat(small).ToList();
         // extra European Forests broadleaf variants (appended so existing indices stay valid); broadleaf slots are remapped among them
-        var efExtra=new[]{"Ash/Ash 1","Ash/Ash 4","Ash/Ash 5","Ash/Ash 8","Chestnut/Chestnut 3","Chestnut/Chestnut 4","Chestnut/Chestnut 8","Birch/Birch 2","Birch/Birch 6"}.Select(p=>EF(p,"ef_"+p.Split('/')[1].Replace(" ","_").ToLower())).Where(p=>p).ToList();
+        var efExtra=EfExtra.Select(p=>EF(p,EfExtraName(p))).Where(p=>p).ToList();
         int efBase=protos.Count; protos.AddRange(efExtra);
         // undergrowth variety: Poly Haven shrub_02 (CC0) + laurel mixed into the UNS bush slots (no uniform hedge rows)
         int shrubPH=protos.Count; protos.Add(Simple("shrub_02__a",shG,"shrub_mix_green")); int laurelIdx=protos.FindIndex(p=>p.name=="laurel_cc0");

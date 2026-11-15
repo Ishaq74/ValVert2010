@@ -1,0 +1,58 @@
+{
+ "schema": 1,
+ "note": "Asset Store content (EULA): never committed. Packages are verified by SHA256 before import; GUIDs come from the packages themselves, so references stay valid. 'globs' = repo paths that are vendor content or vendor-derived (ignored). Packages are EXTRACTED (not Unity -importPackage) so that oversized, unused items can be excluded: UNS_HDRI.hdr (262 MB) makes Unity batchmode import exceed 16 GB RAM and get OOM-killed (observed); no scene/prefab references it.",
+ "globs": [
+  "Assets/InnerverseInteractive/*",
+  "Assets/Realistic Tree/*",
+  "Assets/ThirdParty/ALP_Assets/*",
+  "Assets/ValVert/Gen/snowtrees/*",
+  "Assets/ValVert/Gen/snow/shell_*"
+ ],
+ "packages": [
+  {
+   "id": "UNS",
+   "name": "Ultimate Nature Starter (Innerverse Interactive), filtered export",
+   "file": "UNS_filtered_noManifest.unitypackage",
+   "sha256": "777dd5f9a3863bb423d384008e1b6d8b3bacb61352414d4f7b4a4d662d06f186",
+   "method": "extract-remap",
+   "marker": "Assets/InnerverseInteractive",
+   "exclude": [
+    "*.hdr"
+   ]
+  },
+  {
+   "id": "EF",
+   "name": "European Forests - Realistic Trees (MysticForge), filtered export",
+   "file": "EF_filtered.unitypackage",
+   "sha256": "702afa4ce34a91bdb2b3ffc960f0f4b27e8b87038cca944f95d8226c5d4f5e5c",
+   "method": "extract-remap",
+   "marker": "Assets/Realistic Tree",
+   "exclude": [
+    "*.hdr"
+   ]
+  },
+  {
+   "id": "EF_extra",
+   "name": "European Forests extra URP prefabs",
+   "file": "EF_extra.unitypackage",
+   "sha256": "6ab5379a8995fbf7fedf3896120257c69de5cb17575d58902687ca563b9e836d",
+   "method": "extract-remap",
+   "marker": "Assets/Realistic Tree/Prefabs/Standard/Chestnut/Leaf_3.png",
+   "exclude": [
+    "*.hdr"
+   ]
+  },
+  {
+   "id": "GRASS",
+   "name": "Grass Flowers Pack Free (Objective Environment, Asset Store 138810)",
+   "file": "Grass Flowers Pack Free.unitypackage",
+   "sha256": "b2278e2c7ea8ca005f6958af3e810ab554b04bea0adf4714320e3a00cb50c750",
+   "method": "extract-remap",
+   "remap": [
+    "Assets/ALP_Assets",
+    "Assets/ThirdParty/ALP_Assets"
+   ],
+   "marker": "Assets/ThirdParty/ALP_Assets/GrassFlowersFREE"
+  }
+ ]
+}
