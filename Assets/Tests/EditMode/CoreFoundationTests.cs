@@ -4,12 +4,11 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
-using ValVertII.Bridge;
 using ValVertII.Core;
 
 namespace ValVertII.Tests.EditMode
 {
-    /// <summary>Step 7: EditMode proofs for the Core foundations (event bus, session, catalog, id registry) and the durable bridge.</summary>
+    /// <summary>Step 7: EditMode proofs for the Core foundations (event bus, session, catalog, id registry) and the durable-event deriver (single bus, single registry).</summary>
     public class CoreFoundationTests
     {
         const string CatalogPath = "Assets/Settings/Catalog/SceneCatalog.asset";
@@ -19,35 +18,34 @@ namespace ValVertII.Tests.EditMode
 
         struct Ping { public int N; }
 
-        // ---------------- WorldEventBus ----------------
-        [Test] public void WorldBus_RequiresInitialize()
+        // ---------------- single ValVertEventBus carries durable events too ----------------
+        [Test] public void Bus_DeliversInOrder_AndDisposeUnsubscribes()
         {
-            var bus = new WorldEventBus();
-            Assert.Throws<InvalidOperationException>(() => bus.Publish(new Ping()));
-            Assert.Throws<InvalidOperationException>(() => bus.Subscribe<Ping>(_ => { }));
-        }
-
-        [Test] public void WorldBus_DeliversInOrder_AndDisposeUnsubscribes()
-        {
-            var bus = new WorldEventBus(); bus.Initialize();
             var log = new List<string>();
-            var a = bus.Subscribe<Ping>(p => log.Add("a" + p.N));
-            bus.Subscribe<Ping>(p => log.Add("b" + p.N));
-            bus.Publish(new Ping { N = 1 });
+            var a = ValVertEventBus.Subscribe<Ping>(p => log.Add("a" + p.N));
+            ValVertEventBus.Subscribe<Ping>(p => log.Add("b" + p.N));
+            ValVertEventBus.Publish(new Ping { N = 1 });
             a.Dispose();
-            bus.Publish(new Ping { N = 2 });
+            ValVertEventBus.Publish(new Ping { N = 2 });
             CollectionAssert.AreEqual(new[] { "a1", "b1", "b2" }, log);
         }
 
-        [Test] public void WorldBus_ThrowingHandlerDoesNotBlockOthers()
+        [Test] public void Bus_ThrowingHandlerDoesNotBlockOthers()
         {
-            var bus = new WorldEventBus(); bus.Initialize();
             int reached = 0;
-            bus.Subscribe<Ping>(_ => throw new InvalidOperationException("boom"));
-            bus.Subscribe<Ping>(_ => reached++);
+            ValVertEventBus.Subscribe<Ping>(_ => throw new InvalidOperationException("boom"));
+            ValVertEventBus.Subscribe<Ping>(_ => reached++);
             LogAssert.Expect(LogType.Exception, new System.Text.RegularExpressions.Regex("boom"));
-            bus.Publish(new Ping());
+            ValVertEventBus.Publish(new Ping());
             Assert.AreEqual(1, reached);
+        }
+
+        [Test] public void Bus_DurableEventsAreSticky_LateSubscriberCanReplay()
+        {
+            ValVertEventBus.Publish(new SeasonQuarterChanged(default, 3));
+            int q = -1;
+            ValVertEventBus.Subscribe<SeasonQuarterChanged>(e => q = e.Quarter, replayLast: true);
+            Assert.AreEqual(3, q);
         }
 
         // ---------------- WorldSession ----------------
@@ -137,21 +135,20 @@ namespace ValVertII.Tests.EditMode
             finally { UnityEngine.Object.DestroyImmediate(go); UnityEngine.Object.DestroyImmediate(cat); }
         }
 
-        // ---------------- ValVertDurableBridge ----------------
-        static (WorldEventBus bus, List<object> log) NewBridgeBus()
+        // ---------------- DurableEventDeriver ----------------
+        static List<object> NewDurableLog()
         {
-            var bus = new WorldEventBus(); bus.Initialize();
             var log = new List<object>();
-            bus.Subscribe<EnvironmentHourReached>(e => log.Add(e));
-            bus.Subscribe<SeasonQuarterChanged>(e => log.Add(e));
-            bus.Subscribe<PrecipitationToggled>(e => log.Add(e));
-            return (bus, log);
+            ValVertEventBus.Subscribe<EnvironmentHourReached>(e => log.Add(e));
+            ValVertEventBus.Subscribe<SeasonQuarterChanged>(e => log.Add(e));
+            ValVertEventBus.Subscribe<PrecipitationToggled>(e => log.Add(e));
+            return log;
         }
 
-        [Test] public void Bridge_Hour_FirstObservationSilent_ThenOneEventPerNewHour()
+        [Test] public void Deriver_Hour_FirstObservationSilent_ThenOneEventPerNewHour()
         {
-            var (bus, log) = NewBridgeBus();
-            using (new ValVertDurableBridge(bus, () => "SECTOR_T"))
+            var log = NewDurableLog();
+            using (new DurableEventDeriver(() => "SECTOR_T"))
             {
                 ValVertEventBus.Publish(new ValVertTimeChanged(6, 1, 10.2f, 1f));
                 Assert.AreEqual(0, log.Count, "first observation only records state");
@@ -163,17 +160,17 @@ namespace ValVertII.Tests.EditMode
                 Assert.AreEqual(11, e.Hour); Assert.AreEqual(6, e.Month);
                 Assert.AreEqual("SECTOR_T", e.Envelope.SectorId);
                 Assert.AreEqual("environment.hour/06-01-11", e.Envelope.IdempotencyKey);
-                Assert.AreEqual(ValVertDurableBridge.Origin, e.Envelope.Origin);
+                Assert.AreEqual(DurableEventDeriver.Origin, e.Envelope.Origin);
                 Assert.IsNotEmpty(e.Envelope.EventId);
                 ValVertEventBus.Publish(new ValVertTimeChanged(6, 1, 11.5f, 1f));
                 Assert.AreEqual(1, log.Count, "no duplicate for the same hour");
             }
         }
 
-        [Test] public void Bridge_Season_And_Rain_OnlyOnRealChanges()
+        [Test] public void Deriver_Season_And_Rain_OnlyOnRealChanges()
         {
-            var (bus, log) = NewBridgeBus();
-            using (new ValVertDurableBridge(bus))
+            var log = NewDurableLog();
+            using (new DurableEventDeriver())
             {
                 ValVertEventBus.Publish(new ValVertSeasonChanged(0.10f));
                 ValVertEventBus.Publish(new ValVertSeasonChanged(0.20f));
@@ -193,32 +190,30 @@ namespace ValVertII.Tests.EditMode
             }
         }
 
-        [Test] public void Bridge_Dispose_UnsubscribesFromPresentationBus()
+        [Test] public void Deriver_Dispose_UnsubscribesFromPresentationBus()
         {
-            var (bus, log) = NewBridgeBus();
-            var bridge = new ValVertDurableBridge(bus);
+            var log = NewDurableLog();
+            var deriver = new DurableEventDeriver();
             Assert.AreEqual(1, ValVertEventBus.ListenerCount<ValVertTimeChanged>());
-            bridge.Dispose();
+            deriver.Dispose();
             Assert.AreEqual(0, ValVertEventBus.ListenerCount<ValVertTimeChanged>());
             Assert.AreEqual(0, ValVertEventBus.ListenerCount<ValVertSeasonChanged>());
             Assert.AreEqual(0, ValVertEventBus.ListenerCount<ValVertWeatherChanged>());
         }
 
-        [Test] public void Bridge_IsOneWay_WorldBusNeverFeedsPresentationBus()
+        [Test] public void Deriver_IsOneWay_DurableEventsNeverFeedPresentationEvents()
         {
-            var (bus, _) = NewBridgeBus();
-            using (new ValVertDurableBridge(bus))
+            var log = NewDurableLog();
+            using (new DurableEventDeriver())
             {
-                bus.Publish(new SeasonQuarterChanged(default, 2));
+                ValVertEventBus.Publish(new SeasonQuarterChanged(default, 2));
                 Assert.IsFalse(ValVertEventBus.TryGetLast<ValVertSeasonChanged>(out _));
             }
         }
 
-        [Test] public void Adapter_DoesNothing_WithoutPersistentRoot()
+        [Test] public void Registry_IsEmpty_WithoutPersistentRoot()
         {
-            Assert.IsFalse(AppServicesAdapter.IsPublished);
-            AppServicesAdapter.Publish(null);
-            Assert.IsFalse(AppServicesAdapter.IsPublished);
+            Assert.IsNull(PersistentRoot.Instance);
             Assert.AreEqual(0, ValVertServices.Count);
         }
     }

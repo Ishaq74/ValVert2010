@@ -25,7 +25,7 @@ Voir `ARCHITECTURE.md` pour la destination de chaque système. Le manuel est dan
 | §15 | Architecture en couches, règles de dépendance | Spécifié → traduit en asmdef (ARCHITECTURE.md §5) |
 | §16 | Structure de dépôt et versionnement | **Remplacé** par la structure réelle (ARCHITECTURE.md §3) ; règles Git déjà appliquées (`.gitignore`, LFS) |
 | §17 | Démarrage, services, scènes | Implémenté (code repris), non intégré |
-| §18–19 | Données, identifiants, événements | Implémenté (code repris : `IdRegistry`, `StableId`, `WorldEventBus`), non testé |
+| §18–19 | Données, identifiants, événements | Implémenté (code repris : `IdRegistry`, `StableId` ; `WorldEventBus` fusionné dans `ValVertEventBus`), non testé |
 | §20 | Entrées et modes | Implémenté (`InputRouter`, asset d'entrée), non intégré ; `SimpleFPS` garde ses entrées actuelles |
 | §21–24 | Joueur, déplacement, caméras | Non implémenté (`SimpleFPS` = joueur provisoire) |
 | §25 | Mode développeur | Non implémenté |

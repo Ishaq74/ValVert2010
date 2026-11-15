@@ -48,7 +48,7 @@ Val Vert II est une **simulation narrative en monde ouvert** à Seynod : on vit 
 | Herbe du pack 138810 (762 chunks) | **Fonctionne** ; fleurs du pack : en pause |
 | Fondations runtime : `ValVertEventBus`, `ValVertServices`, `ValVertRuntimeBootstrap`, `ValVertWorldStreaming` | **Fonctionne, 25 tests Play Mode + test de la scène complète** |
 | Reconstruction / restauration d'un clone vierge (`Tools/rebuild`, `restore_world.py`) | **Fonctionne** (3 cibles prouvées + régénération prouvée de l'herbe) |
-| Noyau applicatif de Val Vert II (`PersistentRoot`, `SceneLoader`, `WorldEventBus`, `IdRegistry`…) | **Importé de ValVertII (contenu repris à l'identique ; l'historique git d'Ishaq n'est pas fusionné, voir PR #26) ; compile sous 6000.3 ; branché (SceneCatalog, adaptateur, pont durable) et prouvé par 13 tests EditMode et 5 tests Play Mode d'intégration** |
+| Noyau applicatif de Val Vert II (`PersistentRoot`, `SceneLoader`, `IdRegistry`…) | **Importé de ValVertII (contenu repris à l'identique ; l'historique git d'Ishaq n'est pas fusionné, voir PR #26) ; compile sous 6000.3 ; branché (SceneCatalog, adaptateur, pont durable) et prouvé par 13 tests EditMode et 5 tests Play Mode d'intégration** |
 | Joueur, caméras, téléphone, dialogues, relations, habitants, sauvegarde, intérieurs | **À construire** (`SimpleFPS` est un joueur provisoire) |
 | Véhicules et parking Aldi | **Gelés** : aucune modification |
 
@@ -122,7 +122,7 @@ Assets/
 └── Cars/          gelé
 ```
 
-Principes : le manuel (couche « jeu ») s'intègre dans cette arborescence sans second arbre ; `ValVert.unity` reste jouable seule ; deux bus d'événements, deux rôles (`ValVertEventBus` pour l'environnement et la présentation, prouvé ; `WorldEventBus` pour les événements durables du jeu), reliés par un pont à sens unique ; les GUID ne changent jamais (les déplacements se font avec leur `.meta`).
+Principes : le manuel (couche « jeu ») s'intègre dans cette arborescence sans second arbre ; `ValVert.unity` reste jouable seule ; un seul bus d'événements (`ValVertEventBus`, présentation **et** événements durables dérivés par `DurableEventDeriver`) et un seul registre de services (`ValVertServices`, alimenté par `PersistentRoot`) ; les GUID ne changent jamais (les déplacements se font avec leur `.meta`).
 
 **Où mettre un nouveau fichier** (cible) : code qui tourne en jeu → `Assets/Runtime/` · outil qui utilise `UnityEditor` → `Assets/Editor/` · contenu du monde → `Assets/World/` · réglage ou config → `Assets/Settings/` · sortie reconstructible → `Assets/Generated/` + `Tools/rebuild/manifest.json` · contenu tiers → `Assets/ThirdParty/`.
 

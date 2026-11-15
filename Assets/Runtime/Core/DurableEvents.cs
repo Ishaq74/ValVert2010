@@ -3,7 +3,7 @@ using System;
 namespace ValVertII.Core
 {
     /// <summary>
-    /// Common envelope of every durable event published on <see cref="WorldEventBus"/> (ARCHITECTURE.md §7.1):
+    /// Common envelope of every durable event published on <see cref="ValVertEventBus"/> (ARCHITECTURE.md §7.1):
     /// unique event id, versioned type, origin, sector, and an idempotency key so that replaying a load never adds
     /// the same consequence twice.
     /// </summary>
@@ -58,5 +58,16 @@ namespace ValVertII.Core
 
         public PrecipitationToggled(DurableEventEnvelope envelope, bool started)
         { Envelope = envelope; Started = started; }
+    }
+
+    /// <summary>A world session started (published by <see cref="PersistentRoot.EnterWorldAsync"/>).</summary>
+    public readonly struct WorldStartedEvent
+    {
+        public readonly string StartingSectorId;
+
+        public WorldStartedEvent(string startingSectorId)
+        {
+            StartingSectorId = startingSectorId;
+        }
     }
 }

@@ -5,10 +5,9 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.TestTools;
-using ValVertII.Bridge;
 using ValVertII.Core;
 
-/// <summary>Step 7 (Play Mode): PersistentRoot + adapter + durable bridge, and the guarantee that without a root nothing changes.</summary>
+/// <summary>Step 7 (Play Mode): PersistentRoot + single registry + single bus (durable events derived on it), and the guarantee that without a root nothing changes.</summary>
 public class PersistentRootIntegrationTests
 {
     GameObject _go;
@@ -53,28 +52,26 @@ public class PersistentRootIntegrationTests
     {
         PersistentRoot root = null;
         yield return Boot(r => root = r);
-        Assert.IsTrue(AppServicesAdapter.IsPublished);
         Assert.AreSame(root, ValVertServices.Get<PersistentRoot>());
-        Assert.AreSame(root.Events, ValVertServices.Get<WorldEventBus>());
         Assert.AreSame(root.SceneLoader, ValVertServices.Get<SceneLoader>());
         Assert.AreSame(root.WorldSession, ValVertServices.Get<WorldSession>());
         Assert.AreSame(root.Logger, ValVertServices.Get<AppLogger>());
         Assert.AreSame(_catalog, ValVertServices.Get<SceneCatalog>());
-        Assert.IsFalse(ValVertServices.Register(new WorldEventBus()), "no duplicate service: second registration refused");
-        Assert.AreSame(root.Events, ValVertServices.Get<WorldEventBus>());
-        foreach (IAppService s in new IAppService[] { root.Logger, root.Diagnostics, root.Events, root.IdRegistry, root.SceneLoader, root.WorldSession, root.Validator, root.Modes })
+        Assert.IsFalse(ValVertServices.Register(new AppLogger()), "no duplicate service: second registration refused");
+        Assert.AreSame(root.Logger, ValVertServices.Get<AppLogger>());
+        foreach (IAppService s in new IAppService[] { root.Logger, root.Diagnostics, root.IdRegistry, root.SceneLoader, root.WorldSession, root.Validator, root.Modes })
             Assert.IsTrue(s.IsInitialized, s.GetType().Name);
     }
 
     [UnityTest] public IEnumerator Root_Shutdown_WithdrawsEverythingItPublished()
     {
         yield return Boot();
-        Assert.IsTrue(ValVertServices.IsRegistered<WorldEventBus>());
+        Assert.IsTrue(ValVertServices.IsRegistered<SceneLoader>());
         UnityEngine.Object.DestroyImmediate(_go); _go = null;
-        Assert.IsFalse(AppServicesAdapter.IsPublished);
-        Assert.IsFalse(ValVertServices.IsRegistered<WorldEventBus>());
+        Assert.IsFalse(ValVertServices.IsRegistered<SceneLoader>());
         Assert.IsFalse(ValVertServices.IsRegistered<PersistentRoot>());
-        Assert.AreEqual(0, ValVertEventBus.ListenerCount<ValVertTimeChanged>(), "bridge unsubscribed");
+        Assert.AreEqual(0, ValVertServices.Count);
+        Assert.AreEqual(0, ValVertEventBus.ListenerCount<ValVertTimeChanged>(), "deriver unsubscribed");
     }
 
     [UnityTest] public IEnumerator Root_ResolvesMenuFromCatalog()
@@ -84,13 +81,13 @@ public class PersistentRootIntegrationTests
         Assert.AreEqual("Assets/Scenes/Menus/01_MainMenu.unity", root.ResolveScenePath(SceneIds.MenuMain));
     }
 
-    [UnityTest] public IEnumerator Bridge_ForwardsNarrativeFactsToDurableBus_ExactlyOnce()
+    [UnityTest] public IEnumerator Root_DerivesNarrativeFactsOntoTheSingleBus_ExactlyOnce()
     {
         PersistentRoot root = null;
         yield return Boot(r => root = r);
         int hours = 0, rain = 0; int lastHour = -1;
-        root.Events.Subscribe<EnvironmentHourReached>(e => { hours++; lastHour = e.Hour; });
-        root.Events.Subscribe<PrecipitationToggled>(e => rain++);
+        ValVertEventBus.Subscribe<EnvironmentHourReached>(e => { hours++; lastHour = e.Hour; });
+        ValVertEventBus.Subscribe<PrecipitationToggled>(e => rain++);
 
         // Baseline first: another loaded scene (e.g. ValVert.unity left by the smoke test) may already have published its own state.
         ValVertEventBus.Publish(new ValVertTimeChanged(10, 3, 7.1f, 0.5f));
@@ -107,8 +104,7 @@ public class PersistentRootIntegrationTests
     [UnityTest] public IEnumerator Standalone_WithoutPersistentRoot_NothingIsPublished()
     {
         yield return null;
-        Assert.IsFalse(AppServicesAdapter.IsPublished);
-        Assert.IsFalse(ValVertServices.IsRegistered<WorldEventBus>());
+        Assert.AreEqual(0, ValVertServices.Count);
         Assert.IsNull(PersistentRoot.Instance);
     }
 }
