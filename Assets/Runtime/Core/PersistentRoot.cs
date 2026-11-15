@@ -37,6 +37,8 @@ namespace ValVertII.Core
         public ProjectValidator Validator { get; private set; }
         public InputRouter InputRouter { get; private set; }
         public AppModeManager Modes { get; private set; }
+        public SaveService Save { get; private set; }
+        public GameSettings Settings { get; private set; }
 
         public SceneCatalog Catalog => sceneCatalog;
 
@@ -94,6 +96,8 @@ namespace ValVertII.Core
         {
             Logger = Register(new AppLogger());
             Diagnostics = Register(new DiagnosticsService());
+            Settings = Register(new GameSettings());
+            Save = Register(new SaveService());
             IdRegistry = Register(new IdRegistry());
             SceneLoader = Register(new SceneLoader(Logger));
             WorldSession = Register(new WorldSession());
@@ -123,6 +127,8 @@ namespace ValVertII.Core
             ValVertServices.Register(IdRegistry);
             ValVertServices.Register(Modes);
             ValVertServices.Register(Diagnostics);
+            ValVertServices.Register(Save);
+            ValVertServices.Register(Settings);
             if (sceneCatalog != null) ValVertServices.Register(sceneCatalog);
 
             _deriver = new DurableEventDeriver(
@@ -142,6 +148,8 @@ namespace ValVertII.Core
             if (IdRegistry != null) ValVertServices.Unregister(IdRegistry);
             if (Modes != null) ValVertServices.Unregister(Modes);
             if (Diagnostics != null) ValVertServices.Unregister(Diagnostics);
+            if (Save != null) ValVertServices.Unregister(Save);
+            if (Settings != null) ValVertServices.Unregister(Settings);
             if (sceneCatalog != null) ValVertServices.Unregister(sceneCatalog);
         }
 
@@ -155,9 +163,9 @@ namespace ValVertII.Core
         /// <summary>
         /// Starts a world session through the real boot chain: SESSION_ROOT (single) then the sector scene
         /// (additive, made active so its lighting/skybox apply). The sector id is the logical scene id
-        /// (default SECTOR_VALVERT_CORE = ValVert.unity).
+        /// (default SECTOR_VALVERT_CORE = ValVert.unity). The session is saved (SaveService) when it starts.
         /// </summary>
-        public async Task EnterSessionAsync(string sectorSceneId = SceneIds.SectorValVertCore)
+        public async Task EnterSessionAsync(string sectorSceneId = SceneIds.SectorValVertCore, SaveData resume = null)
         {
             EnsureReady();
 
@@ -175,11 +183,31 @@ namespace ValVertII.Core
 
             if (!IsReady) return;   // the root was shut down while scenes were loading: nothing to start
 
-            WorldSession.BeginNewSession(sectorSceneId);
+            if (resume != null && DateTime.TryParse(resume.startedUtc, null, System.Globalization.DateTimeStyles.RoundtripKind, out DateTime started))
+                WorldSession.RestoreSession(resume.sessionId, sectorSceneId, started);
+            else
+                WorldSession.BeginNewSession(sectorSceneId);
+            Save.Write(new SaveData
+            {
+                sessionId = WorldSession.SessionId,
+                sectorId = sectorSceneId,
+                startedUtc = WorldSession.StartedUtc.ToString("o")
+            });
             ValVertEventBus.Publish(new WorldStartedEvent(sectorSceneId));
 
             Logger.Info(
                 $"WorldSession démarrée : {WorldSession.SessionId} ({sectorSceneId})");
+        }
+
+        /// <summary>"Continuer": resumes the saved session in its saved sector.</summary>
+        public Task ContinueAsync()
+        {
+            EnsureReady();
+
+            if (!Save.TryLoad(out SaveData data))
+                throw new InvalidOperationException("Aucune sauvegarde à reprendre.");
+
+            return EnterSessionAsync(data.sectorId, data);
         }
 
         public void ExitWorldSession()
