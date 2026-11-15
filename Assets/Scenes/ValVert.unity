@@ -37323,6 +37323,144 @@ Transform:
   - {fileID: 2051147283}
   m_Father: {fileID: 1386285864}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &453636369
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 453636373}
+  - component: {fileID: 453636372}
+  - component: {fileID: 453636371}
+  - component: {fileID: 453636370}
+  m_Layer: 0
+  m_Name: ValVertEnvironment
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &453636370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453636369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0155dd54d49ec22ca2275a3acdc89a3e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ValVert.Runtime::ValVertRuntimeBootstrap
+  config: {fileID: 11400000, guid: 6f2cd9e1f47047d2cff2bdc8692ceaa6, type: 2}
+  autoFindEnvSystems: 1
+  autoRegisterStreamingRegions: 1
+--- !u!114 &453636371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453636369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2497e3dfbf43b5d3daeb6546b97c389f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ValVert.Runtime::ValVertSeasons
+  foliage: []
+  overlays: []
+  forestLayer: {fileID: 0}
+  forestLitterTex: {fileID: 0}
+  forestLitterNor: {fileID: 0}
+  forestBaseTex: {fileID: 0}
+  forestBaseNor: {fileID: 0}
+  forestSteps: []
+  wetSurfaces: []
+  wetLayers: []
+  wetness: 0
+  snowCover: 0
+  yearFractionOverride: -1
+--- !u!114 &453636372
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453636369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f983f58b9efba5514a9fd96b18534ecb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: ValVert.Runtime::ValVertClock
+  year: 2010
+  month: 10
+  day: 20
+  hour: 11
+  timeScale: 60
+  running: 1
+  latitude: 45.89041
+  longitude: 6.11269
+  sun: {fileID: 0}
+  moon: {fileID: 0}
+  daySkybox: {fileID: 0}
+  overcastSkybox: {fileID: 0}
+  blendSkybox: {fileID: 0}
+  skyBaseExposure: 0.9
+  skyBaseTint: {r: 0.62, g: 0.63, b: 0.64, a: 1}
+  nightAmbient: {r: 0.07, g: 0.085, b: 0.13, a: 1}
+  dayAmbient: {r: 0.58, g: 0.57, b: 0.54, a: 1}
+  sunMaxIntensity: 1.25
+  moonIntensity: 0.32
+  sunColor:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 1, a: 1}
+    key1: {r: 1, g: 1, b: 1, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  cloudCover: 0.3
+  fogAmount: 0
+  precip: 0
+--- !u!4 &453636373
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 453636369}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &453788819
 GameObject:
   m_ObjectHideFlags: 0
@@ -174177,3 +174315,4 @@ SceneRoots:
   - {fileID: 536109106}
   - {fileID: 1086116639}
   - {fileID: 1893079335}
+  - {fileID: 453636373}

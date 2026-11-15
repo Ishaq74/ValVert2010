@@ -169,6 +169,7 @@ public class ValVertRuntimeBootstrap : MonoBehaviour
     public static ValVertRuntimeBootstrap EnsureOn(GameObject host, ValVertWorldConfig cfg = null)
     {
         var b = host.GetComponent<ValVertRuntimeBootstrap>();
+        if (!b) b = FindFirstObjectByType<ValVertRuntimeBootstrap>(FindObjectsInactive.Include);   // one bootstrap per scene, never a second one
         if (!b) b = host.AddComponent<ValVertRuntimeBootstrap>();
         if (cfg) b.config = cfg;
         b.autoFindEnvSystems = true;
