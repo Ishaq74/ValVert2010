@@ -1,5 +1,7 @@
 # Architecture Val Vert 2010 — Phase 1 (audit + squelette)
 
+> **Document historique (9 nov. 2026)** : état *avant* la refonte (étapes 0 à 7, PR #21 à #30). Les chemins `Assets/ValVert`, `Assets/Scripts`, `Assets/_Project` cités ci-dessous n'existent plus ; voir `ARCHITECTURE.md` et `Docs/architecture-map.md` pour l'état actuel.
+
 Date : 2026-11-09 (Europe/Paris). Base initiale : `origin/main` @ `0143568` (merge PR #8) ; corrections de formulation après merge PR #9.
 Périmètre autorisé : audit en lecture seule + dossiers vides. Aucun déplacement d’asset, aucune migration, aucun correctif visuel.
 

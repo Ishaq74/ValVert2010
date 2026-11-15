@@ -15,8 +15,9 @@ Unity 6 URP recreation of Seynod “Val Vert” (2010). Free assets only; OSM/IG
 | Vendor (ignored) | `Assets/ThirdParty/{InnerverseInteractive,RealisticTrees,ALP_Assets,ValVertGrass}/` |
 
 ## Runtime foundations (real, minimal)
-- `ValVertEventBus` — time / season / weather events
-- `ValVertServices` — register clock, seasons, weather, streaming
+- `ValVertEventBus` — the single event bus (`Runtime/Core/`): time / season / weather presentation events and durable events (derived by `DurableEventDeriver`)
+- `ValVertServices` — the single service registry (`Runtime/Core/`): clock, seasons, weather, streaming, and the application services published by `PersistentRoot`
+- Boot chain: `00_Bootstrap` (PersistentRoot + SceneCatalog) → `01_MainMenu` ("Nouvelle partie") → `02_SeynodRoot` + `ValVert.unity` additively as `SECTOR_VALVERT_CORE` (`BootChainTests`); `ValVert.unity` still plays alone
 - `ValVertRuntimeBootstrap` — wired from `ValVertEnvWire`
 - `ValVertWorldStreaming` — **region** activate/deactivate by distance (not LOD)
 

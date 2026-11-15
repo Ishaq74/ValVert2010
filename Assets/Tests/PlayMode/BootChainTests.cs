@@ -1,0 +1,107 @@
+#if UNITY_EDITOR
+using System.Collections;
+using System.Collections.Generic;
+using NUnit.Framework;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.TestTools;
+using ValVertII.Core;
+
+/// <summary>
+/// The REAL boot chain, no stubs: 00_Bootstrap (PersistentRoot + committed SceneCatalog) -> 01_MainMenu ->
+/// "Nouvelle partie" -> 02_SeynodRoot (single) -> ValVert.unity loaded ADDITIVELY as SECTOR_VALVERT_CORE.
+/// </summary>
+public class BootChainTests
+{
+    const string Bootstrap = "Assets/Scenes/Bootstrap/00_Bootstrap.unity";
+    const string Menu = "Assets/Scenes/Menus/01_MainMenu.unity";
+    const string Root = "Assets/Scenes/SeynodRoot/02_SeynodRoot.unity";
+    const string Sector = "Assets/Scenes/ValVert.unity";
+
+    readonly List<string> _errors = new List<string>();
+    void OnLog(string msg, string stack, LogType t)
+    {
+        if (t == LogType.Exception || t == LogType.Error || t == LogType.Assert ||
+            (t == LogType.Warning && (msg.StartsWith("Tree prefab at index") || msg.Contains("audio listeners") || msg.Contains("no audio listeners"))))
+            _errors.Add(t + ": " + msg);
+    }
+
+    [TearDown]
+    public void TearDown()
+    {
+        Application.logMessageReceived -= OnLog;
+        LogAssert.ignoreFailingMessages = false;
+        if (PersistentRoot.Instance) Object.DestroyImmediate(PersistentRoot.Instance.gameObject);
+        ValVertEventBus.ResetForDomain(); ValVertServices.ResetForDomain();
+    }
+
+    static IEnumerator Until(System.Func<bool> cond, string what, float maxSeconds = 600f)
+    {
+        float t0 = Time.realtimeSinceStartup;
+        while (!cond() && Time.realtimeSinceStartup - t0 < maxSeconds) yield return null;
+        Assert.IsTrue(cond(), "timeout waiting for: " + what);
+    }
+
+    [UnityTest, Timeout(900000)]
+    public IEnumerator Bootstrap_Menu_SessionRoot_AdditiveValVertSector()
+    {
+        LogAssert.ignoreFailingMessages = true;
+        Application.logMessageReceived += OnLog;
+        ValVertEventBus.ResetForDomain(); ValVertServices.ResetForDomain();
+
+        // ---- 00_Bootstrap: PersistentRoot boots from the committed catalog, then loads the menu by logical id
+        yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(Bootstrap, new LoadSceneParameters(LoadSceneMode.Single));
+        yield return Until(() => PersistentRoot.Instance != null && PersistentRoot.Instance.IsReady, "PersistentRoot ready");
+        var root = PersistentRoot.Instance;
+        Assert.IsNotNull(root.Catalog, "SceneCatalog assigned in 00_Bootstrap");
+        Assert.AreEqual(Menu, root.ResolveScenePath(SceneIds.MenuMain));
+        Assert.AreEqual(Root, root.ResolveScenePath(SceneIds.SessionRoot));
+        Assert.AreEqual(Sector, root.ResolveScenePath(SceneIds.SectorValVertCore));
+
+        // ---- 01_MainMenu
+        yield return Until(() => SceneManager.GetActiveScene().path == Menu, "menu loaded");
+        var menu = Object.FindFirstObjectByType<MainMenuController>();
+        Assert.IsNotNull(menu, "MainMenuController in 01_MainMenu");
+        Assert.IsFalse(root.WorldSession.IsRunning);
+        Assert.IsFalse(SceneManager.GetSceneByPath(Sector).isLoaded, "sector not loaded before 'Nouvelle partie'");
+
+        // ---- "Nouvelle partie" -> 02_SeynodRoot (single) + ValVert.unity (additive, SECTOR_VALVERT_CORE)
+        menu.StartNewGame();
+        yield return Until(() => root.WorldSession.IsRunning, "world session running");
+        yield return null; yield return null;
+
+        Assert.IsTrue(SceneManager.GetSceneByPath(Root).isLoaded, "02_SeynodRoot loaded");
+        Assert.IsTrue(SceneManager.GetSceneByPath(Sector).isLoaded, "ValVert.unity loaded");
+        Assert.IsFalse(SceneManager.GetSceneByPath(Menu).isLoaded, "menu unloaded by the single load of the session root");
+        Assert.AreEqual(Sector, SceneManager.GetActiveScene().path, "sector is the active scene (its lighting applies)");
+        Assert.AreEqual(2, SceneManager.sceneCount, "exactly SESSION_ROOT + SECTOR_VALVERT_CORE");
+        Assert.AreEqual(SceneIds.SectorValVertCore, root.WorldSession.StartingSectorId);
+        Assert.IsTrue(ValVertEventBus.TryGetLast<WorldStartedEvent>(out var ws));
+        Assert.AreEqual(SceneIds.SectorValVertCore, ws.StartingSectorId);
+
+        foreach (var go in SceneManager.GetSceneByPath(Root).GetRootGameObjects())
+        {
+            Assert.IsNull(go.GetComponentInChildren<Camera>(true), "02_SeynodRoot is a pure container: no camera");
+            Assert.IsNull(go.GetComponentInChildren<Light>(true), "02_SeynodRoot is a pure container: no light");
+        }
+
+        // ---- the real ValVert.unity systems run inside the session
+        for (int i = 0; i < 10; i++) yield return null;
+        Assert.IsTrue(ValVertServices.TryGet<ValVertClock>(out _), "ValVert clock registered");
+        Assert.IsTrue(ValVertServices.TryGet<ValVertWorldStreaming>(out var st), "streaming registered");
+        Assert.IsNotNull(st.viewer, "viewer resolved");
+        Assert.AreSame(root, ValVertServices.Get<PersistentRoot>(), "app services and sector systems share ONE registry");
+        Assert.AreEqual(1, Object.FindObjectsByType<AudioListener>(FindObjectsSortMode.None).Length, "single audio listener across the two scenes");
+        int cams = 0; foreach (var c in Object.FindObjectsByType<Camera>(FindObjectsSortMode.None)) if (c.enabled && c.gameObject.activeInHierarchy && c.targetTexture == null) cams++;
+        Assert.AreEqual(1, cams, "single active screen camera across the two scenes");
+
+        // second entry is refused while a session runs
+        var t = root.EnterSessionAsync();
+        yield return Until(() => t.IsCompleted, "second EnterSession completes");
+        Assert.IsTrue(t.IsFaulted, "second session refused");
+        t.Exception.Handle(_ => true);
+
+        CollectionAssert.IsEmpty(_errors, "no unexpected errors/warnings in the log:\n" + string.Join("\n", _errors));
+    }
+}
+#endif

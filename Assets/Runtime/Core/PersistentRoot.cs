@@ -13,13 +13,9 @@ namespace ValVertII.Core
 
         [Header("Startup")]
         [SerializeField]
-        private string mainMenuScenePath =
-            "Assets/Scenes/Menus/01_MainMenu.unity";
-
-        [SerializeField]
         private bool startWithMainMenu = true;
 
-        [Tooltip("Logical scene ids (MENU_MAIN, SECTOR_...). When set it replaces the raw path above.")]
+        [Tooltip("Logical scene ids (MENU_MAIN, SESSION_ROOT, SECTOR_...). The only source of scene paths.")]
         [SerializeField]
         private SceneCatalog sceneCatalog;
 
@@ -46,16 +42,13 @@ namespace ValVertII.Core
 
         public bool IsReady { get; private set; }
 
-        /// <summary>Scene path for a logical id (catalog first); falls back to the serialized menu path for MENU_MAIN.</summary>
+        /// <summary>Scene path for a logical id, from the <see cref="SceneCatalog"/> only (no hard-coded path).</summary>
         public string ResolveScenePath(string sceneId)
         {
             if (sceneCatalog != null && sceneCatalog.TryGetPath(sceneId, out string path))
                 return path;
 
-            if (sceneId == SceneIds.MenuMain && !string.IsNullOrWhiteSpace(mainMenuScenePath))
-                return mainMenuScenePath;
-
-            throw new InvalidOperationException($"Scène inconnue : '{sceneId}' (SceneCatalog manquant ?).");
+            throw new InvalidOperationException($"Scène inconnue : '{sceneId}' (SceneCatalog manquant ou id absent ?).");
         }
 
         private void Awake()
@@ -159,9 +152,12 @@ namespace ValVertII.Core
             return service;
         }
 
-        public async Task EnterWorldAsync(
-            string worldScenePath,
-            string startingSectorId)
+        /// <summary>
+        /// Starts a world session through the real boot chain: SESSION_ROOT (single) then the sector scene
+        /// (additive, made active so its lighting/skybox apply). The sector id is the logical scene id
+        /// (default SECTOR_VALVERT_CORE = ValVert.unity).
+        /// </summary>
+        public async Task EnterSessionAsync(string sectorSceneId = SceneIds.SectorValVertCore)
         {
             EnsureReady();
 
@@ -169,15 +165,21 @@ namespace ValVertII.Core
                 throw new InvalidOperationException(
                     "Une WorldSession est déjà active.");
 
+            string rootPath = ResolveScenePath(SceneIds.SessionRoot);
+            string sectorPath = ResolveScenePath(sectorSceneId);
+
             Modes.SetMode(AppInputMode.None);
 
-            await SceneLoader.LoadSingleAsync(worldScenePath);
+            await SceneLoader.LoadSingleAsync(rootPath);
+            await SceneLoader.LoadAdditiveAsync(sectorPath, setActive: true);
 
-            WorldSession.BeginNewSession(startingSectorId);
-            ValVertEventBus.Publish(new WorldStartedEvent(startingSectorId));
+            if (!IsReady) return;   // the root was shut down while scenes were loading: nothing to start
+
+            WorldSession.BeginNewSession(sectorSceneId);
+            ValVertEventBus.Publish(new WorldStartedEvent(sectorSceneId));
 
             Logger.Info(
-                $"WorldSession démarrée : {WorldSession.SessionId}");
+                $"WorldSession démarrée : {WorldSession.SessionId} ({sectorSceneId})");
         }
 
         public void ExitWorldSession()

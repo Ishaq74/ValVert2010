@@ -120,14 +120,14 @@ namespace ValVertII.Tests.EditMode
             finally { UnityEngine.Object.DestroyImmediate(cat); }
         }
 
-        [Test] public void PersistentRoot_ResolvesMenuFromCatalog_OrFallsBackToSerializedPath()
+        [Test] public void PersistentRoot_ResolvesScenesFromCatalogOnly_NoHardCodedFallback()
         {
             var go = new GameObject("pr"); go.SetActive(false);     // inactive: no Awake, no singleton
             var root = go.AddComponent<PersistentRoot>();
             var cat = SceneCatalog.Create(new[] { new SceneCatalog.Entry(SceneIds.MenuMain, "Assets/Scenes/Menus/Other.unity") });
             try
             {
-                Assert.AreEqual("Assets/Scenes/Menus/01_MainMenu.unity", root.ResolveScenePath(SceneIds.MenuMain), "fallback path");
+                Assert.Throws<InvalidOperationException>(() => root.ResolveScenePath(SceneIds.MenuMain), "no catalog -> no hard-coded fallback");
                 Assert.Throws<InvalidOperationException>(() => root.ResolveScenePath("NOPE"));
                 typeof(PersistentRoot).GetField("sceneCatalog", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(root, cat);
                 Assert.AreEqual("Assets/Scenes/Menus/Other.unity", root.ResolveScenePath(SceneIds.MenuMain), "catalog wins");
