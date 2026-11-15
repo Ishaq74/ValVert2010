@@ -38,7 +38,7 @@ def meta_guid(rel: str):
 
 def main() -> int:
     ap = argparse.ArgumentParser(); ap.add_argument("--report", action="store_true"); ap.add_argument("--manifest", type=Path, default=MAN); args = ap.parse_args()
-    moves = json.loads(args.manifest.read_text())["moves"]
+    manifest = json.loads(args.manifest.read_text()); moves = manifest["moves"]; removals = manifest.get("removals", [])
     files = tracked()
     errs: list[str] = []
 
@@ -84,13 +84,19 @@ def main() -> int:
             ext = [g for g in yaml_guids.get(to, ()) if g not in guid_owner and not g.startswith("0" * 16)]  # 0000..: Unity built-in resources
             for g in ext: rows.append(("  external-ref", to, g, ["(generated/ignored/vendor; not tracked)"]))
 
+    # removals: the GUID must be gone from the tree AND referenced by nothing tracked (dangling refs would silently break assets)
+    for rm in removals:
+        for name, g in rm.get("guids", {}).items():
+            if g in guid_owner: errs.append(f"removed asset still present: {name} ({g}) -> {guid_owner[g]}")
+            for f in sorted(refs.get(g, ())): errs.append(f"dangling reference to removed {name} ({g}) in {f}")
+
     if args.report:
         for sysn, to, g, users in rows:
             print(f"{sysn:14} {to}\n{'':14} guid={g} referenced_by={users}")
     if errs:
         for e in errs: print("FAIL", e)
         return 2
-    print(f"GUID_REFS_OK moves={len(moves)} tracked_metas={len(guid_owner)} yaml_scanned={len(yaml_files)}")
+    print(f"GUID_REFS_OK moves={len(moves)} removals={sum(len(r.get("guids", {})) for r in removals)} tracked_metas={len(guid_owner)} yaml_scanned={len(yaml_files)}")
     return 0
 
 if __name__ == "__main__":

@@ -86,6 +86,25 @@ public class FullSceneSmokeTests
 
             for (int i = 0; i < 30; i++) yield return null;      // a few real frames after the teleports
 
+            // ---- flowers (pack cards, one atlas) + seasonal consumer on the real bus
+            var flowerRoot = GameObject.Find("V3_Flowers"); Assert.IsNotNull(flowerRoot, "flowers persisted in the scene");
+            var fRends = flowerRoot.GetComponentsInChildren<MeshRenderer>(true);
+            Assert.Greater(fRends.Length, 150, "flower chunks");
+            var fMats = new HashSet<Material>(); foreach (var fr in fRends) foreach (var m in fr.sharedMaterials) fMats.Add(m);
+            Assert.AreEqual(1, fMats.Count, "all flower chunks share ONE (cloned) material = one draw per chunk");
+            int flowerRegions = 0; foreach (var r in st.regions) if (r.id.StartsWith("flowers/")) flowerRegions++;
+            Assert.AreEqual(fRends.Length, flowerRegions, "every flower chunk is a streaming region");
+            var seasonal = boot.GetComponent<ValVertFieldSeasonal>(); Assert.IsNotNull(seasonal, "seasonal consumer wired on the host");
+            Assert.Greater(seasonal.BoundRendererCount, 900, "grass + flowers bound");
+            Assert.AreEqual(1, ValVertEventBus.ListenerCount<ValVertSeasonChanged>() - 1, "consumer is the bus subscriber (+1 = this test's counter)");
+            var fMat = new List<Material>(fMats)[0];
+            clock.Set(6, 21, 12f); yield return null; yield return null;
+            float aSummer = fMat.GetColor("_BaseColor").a; Color gSummer = grassRoot.GetComponentInChildren<MeshRenderer>(true).sharedMaterials[0].GetColor("_BaseColor");
+            clock.Set(10, 20, 12f); yield return null; yield return null;
+            float aAutumn = fMat.GetColor("_BaseColor").a; Color gAutumn = grassRoot.GetComponentInChildren<MeshRenderer>(true).sharedMaterials[0].GetColor("_BaseColor");
+            Debug.Log($"[SMOKE] flowers chunks={fRends.Length} alpha jun={aSummer:F2} oct={aAutumn:F2} grass jun={gSummer} oct={gAutumn}");
+            Assert.Greater(aSummer, 0.9f); Assert.Less(aAutumn, 0.2f); Assert.AreNotEqual(gSummer, gAutumn);
+
             // ---- shutdown restores everything
             viewer.position = new Vector3(-9000, home.y, -9000); st.Tick(); Assert.AreEqual(0, Active(chunks));
             boot.gameObject.SetActive(false);

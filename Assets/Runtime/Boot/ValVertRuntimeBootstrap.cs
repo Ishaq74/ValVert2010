@@ -116,9 +116,14 @@ public class ValVertRuntimeBootstrap : MonoBehaviour
         if (float.IsNaN(_lastYearFrac) || Mathf.Abs(yf - _lastYearFrac) > 0.0005f)
         {
             _lastYearFrac = yf;
-            ValVertEventBus.Publish(_seasons
-                ? new ValVertSeasonChanged(yf, _seasons.LeafCover, _seasons.Autumn)
-                : new ValVertSeasonChanged(yf));
+            if (_seasons)
+            {
+                // computed from the date directly (ValVertSeasons.Tick may not have run yet this frame: no stale values)
+                float doy = (_seasons.yearFractionOverride >= 0 ? _seasons.yearFractionOverride : yf) * 365f;
+                ValVertSeasons.Phenology(doy, out var leaf, out var aut, out _, out _);
+                ValVertEventBus.Publish(new ValVertSeasonChanged(yf, leaf, aut));
+            }
+            else ValVertEventBus.Publish(new ValVertSeasonChanged(yf));
         }
         PublishWeatherIfChanged();
     }

@@ -12,9 +12,6 @@ Val Vert (Seynod) Unity project - third-party asset credits
 - fern_02 (model, Poly Haven) - used for: undergrowth ferns
   URL: https://polyhaven.com/a/fern_02
   License: CC0 1.0 (public domain), https://polyhaven.com/license
-- grass_medium_01 (model, Poly Haven) - used for: terrain detail grass
-  URL: https://polyhaven.com/a/grass_medium_01
-  License: CC0 1.0 (public domain), https://polyhaven.com/license
 - leafy_grass (texture, Poly Haven) - used for: terrain grass layer
   URL: https://polyhaven.com/a/leafy_grass
   License: CC0 1.0 (public domain), https://polyhaven.com/license

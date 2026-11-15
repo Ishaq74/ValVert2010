@@ -33,6 +33,11 @@ Mise à jour des pins après toute régénération voulue du monde : `python3 To
 * **Prototypes d'arbres du terrain** : `TerrainData` (LFS, committé, **jamais modifié**) stocke GUID + fileID racine des préfabs. Les GUID sont épinglés (`generated_guid_pins.json`) et les fileID racine le sont aussi (`Assets/Settings/Architecture/terrain_tree_pins.json`, outil `Tools/architecture/tree_pins.py export|apply|check`) : `restore_world` réécrit le fileID racine des préfabs régénérés, puis `ReportTreesBatch` échoue si un prototype est cassé. Preuve sur clone neuf : `TREE_PROTOTYPES total=40 broken=0`, Play Mode 31/31 avec 0 avertissement « Tree prefab … missing » (le test de scène complète échoue désormais sur cet avertissement).
 * Clone propre simulé + restauration complète : `AUDIT_OK missing_but_recoverable=9` (les 9 exceptions gelées des voitures ; les 6 références internes aux paquets European Forests sont supprimées par `Tools/rebuild/sanitize_vendor.py`, étape 2b de `restore_world`), `PINS_OK 781`, `REGENERATE_OK ... terrain trees bound`, `TREE_PROTOTYPES total=40 broken=0` (journal `regenerate.log`).
 
+## Fleurs de prairie (pack `grassFlower01..10`)
+
+`ValVertFlowerField` (Éditeur) empaquette les 10 cartes du pack (GUID vérifiés par la config, `Tools/vegetation/preflight.py`) dans **un seul atlas dérivé** `Assets/ThirdParty/ValVertGrass/flower_atlas.png` (ignoré) ; 191 chunks de 64 m (`Assets/Generated/flowers_N.asset`, ignorés, graine 11) et le matériau `flower_pack.mat` (ignoré) sont régénérés par `ValVertGeneratedAssets.RegenerateAll`, puis leurs GUID sont épinglés (`generated_guid_pins.json` : 973 entrées, dont 191 chunks + le matériau). Rien de dérivé du pack n'est commité. `ValVertFieldSeasonal` (consommateur du bus, teinte saisonnière herbe/fleurs, ne touche jamais aux assets partagés) est branché sur `ValVertEnvironment` et testé (`FieldSeasonalTests`, 7 tests).
+Preuve : régénération sur clone neuf → `flowers_0..190.asset` **identiques octet pour octet** aux fichiers de la branche d'origine (191/191), `AUDIT_OK missing_but_recoverable=9`, `TREE_PROTOTYPES total=40 broken=0`, Play Mode 39/39 (scène de fleurs ouverte, régions `flowers` actives).
+
 ## Procédure (clone neuf)
 
 ```bash

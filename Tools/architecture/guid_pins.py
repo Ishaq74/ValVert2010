@@ -19,6 +19,8 @@ PATTERNS = [
     "Assets/World/Prefabs/ef_*.prefab",               # European Forests variants (vendor-derived, ignored)
     "Assets/World/Prefabs/uns_*.prefab",              # Ultimate Nature Starter variants (vendor-derived, ignored)
     "Assets/ThirdParty/ValVertGrass/grass_pack_*.mat",  # pack-derived grass materials (ignored)
+    "Assets/Generated/flowers_*.asset",               # field flower chunks (ValVertFlowerField, seed 11)
+    "Assets/ThirdParty/ValVertGrass/flower_pack.mat",  # pack-derived flower material (ignored)
 ]
 GUID = re.compile(r"^guid: ([0-9a-f]{32})\s*$", re.M)
 
