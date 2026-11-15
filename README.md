@@ -177,7 +177,7 @@ La neige se dépose sur les faces tournées vers le ciel (branches, sapins, buis
 
 ## Paquets Asset Store (locaux, non redistribués)
 Deux paquets gratuits de l'Asset Store (EULA standard) sont utilisés localement et **git-ignorés** : *Ultimate Nature – Starter* (Innerverse Interactive) et *European Forests – Realistic Trees* (MysticForge), ainsi que leurs dérivés (`Assets/World/Prefabs/uns_*`, `ef_*`, `Assets/ValVert/Gen/snowtrees/`, masques de neige issus des feuilles UNS).
-Pour les retrouver : les ajouter à votre compte Unity, les importer via Package Manager (sans `Packages/manifest.json`, `Demo`, `Settings`, HDRP), puis lancer `ValVertSetup.Build`.
+Pour les retrouver : les ajouter à votre compte Unity, les importer via Package Manager (sans `Packages/manifest.json`, `Demo`, `Settings`, HDRP), puis lancer `Tools/rebuild/restore_world.py`.
 **Sans eux**, `ValVertSetup.Build` retombe sur les arbres/buissons CC0 Poly Haven (`tree_small_02`, `fir_tree_01`, `shrub_02`) — rendu moins riche mais complet (repli présent dans le code, non re-testé sur un clone vierge).
 
 ## Données générées (rebuild)
@@ -191,7 +191,7 @@ python3 Tools/rebuild/tests/test_rebuild.py
 Détails : `Docs/generated-rebuild.md`, manifeste `Tools/rebuild/manifest.json`.
 
 ## Construire / tester
-- Régénérer la scène : `Unity -batchmode -quit -projectPath . -executeMethod ValVertSetup.Build`
+- Régénérer le monde (supporté) : `python3 Tools/rebuild/restore_world.py …` (voir `Docs/clean-clone.md`). `ValVertSetup.Build` (genesis historique, destructif) est verrouillé : `VV_ALLOW_GENESIS=1`, clone jetable uniquement.
 - Test environnement : `-executeMethod ValVertEnvWire.Test` (attend `[VV] ENVTEST DONE`)
 - Rendus POV saisons/météo : `-executeMethod ValVertPOV.Run`
 - Jeu Linux autonome : `-executeMethod ValVertPlayer.BuildLinux` ; test fumée : `./ValVert2010.x86_64 -vvsmoke -vvout <dossier>` (parcours scripté, FPS, captures, puis quitte).

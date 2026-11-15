@@ -1,7 +1,7 @@
 // Autumn midday compares vs user photos (never commit the photos).
 using UnityEngine; using UnityEditor; using System.IO;
 public static class ValVertPhotoCompare {
-    const string OUT="/workspace/valvert/verify/";
+    static readonly string OUT=ValVertPaths.Work+"verify/";
     static Camera cam; static ValVertClock clk; static ValVertSeasons sea; static ValVertStreetLights sl; static ValVertWeather w;
     static void Place(Vector3 p, Vector3 dir, float fov=65f){
         Terrain terr=Terrain.activeTerrain;

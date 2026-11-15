@@ -30,12 +30,12 @@ public static class ValVertFoliageEvidence {
         clk.Set(11,1,13f); w.Tick(); sea.snowCover=0f; sea.Tick(); clk.Apply(); sl.Tick();
         RenderSettings.ambientMode=UnityEngine.Rendering.AmbientMode.Flat;
         RenderSettings.ambientLight=new Color(0.72f,0.74f,0.76f);
-        Directory.CreateDirectory("/workspace/valvert/verify");
+        Directory.CreateDirectory(ValVertPaths.Work+"verify");
         int W=1280,H=720;
         var rt=new RenderTexture(W,H,24); cam.targetTexture=rt; cam.Render();
         RenderTexture.active=rt; var tx=new Texture2D(W,H,TextureFormat.RGB24,false);
         tx.ReadPixels(new Rect(0,0,W,H),0,0); tx.Apply();
-        var path="/workspace/valvert/verify/evidence_woods_no_cards.png";
+        var path=ValVertPaths.Work+"verify/evidence_woods_no_cards.png";
         File.WriteAllBytes(path, tx.EncodeToPNG());
         // pixel guard
         var px=tx.GetPixels32(); int mag=0,cyan=0;

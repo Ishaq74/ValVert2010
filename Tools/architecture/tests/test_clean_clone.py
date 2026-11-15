@@ -88,6 +88,17 @@ class RealRepo(unittest.TestCase):
         for p in ["Assets/Generated/grass_0.asset", "Assets/World/Prefabs/ef_ash_1.prefab", "Assets/World/Prefabs/uns_bush_a.prefab", "Assets/ThirdParty/ValVertGrass/grass_pack_0.mat"]:
             self.assertEqual(subprocess.run(["git", "check-ignore", "-q", p], cwd=ROOT).returncode, 0, p + " is generated: must be ignored (else pin it differently)")
 
+class GenesisGuard(unittest.TestCase):
+    def test_genesis_guard(self):
+        src = (ROOT / "Assets/Editor/Generators/ValVertSetup.cs").read_text()
+        body = src.split("public static void Build(){", 1)[1]
+        first = body.strip().splitlines()[0]
+        self.assertIn("GenesisAllowed", first)           # guard is the first statement
+        self.assertIn("throw", first)
+        self.assertIn('"VV_ALLOW_GENESIS"', src)
+        self.assertNotIn("/workspace/valvert", src)      # relocatable work dir only via ValVertPaths.Work
+
+
 if __name__ == "__main__":
     unittest.main()
 
@@ -137,3 +148,4 @@ class SanitizeVendor(unittest.TestCase):
         self.assertEqual(len(ex), 9)
         self.assertFalse(set(ex) & set(vm["sanitizeDanglingGuids"]))
         self.assertTrue(all(v[0] in ("plateF", "plateR", "bumper", "paint") for v in ex.values()))
+
