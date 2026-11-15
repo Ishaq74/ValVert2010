@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     public enum AppLogLevel { Trace, Info, Warning, Error }
 
@@ -31,7 +31,7 @@ namespace ValVertII.Core
             if (!IsInitialized && level != AppLogLevel.Error) return;
             if (level < MinimumLevel) return;
 
-            string formatted = $"[ValVertII][{level}] {message}";
+            string formatted = $"[ValVert][{level}] {message}";
 
             switch (level)
             {

@@ -1,4 +1,4 @@
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     public enum AppInputMode
     {

@@ -4,9 +4,9 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
-using ValVertII.Core;
+using ValVert.Core;
 
-namespace ValVertII.Tests.EditMode
+namespace ValVert.Tests.EditMode
 {
     /// <summary>Step 7: EditMode proofs for the Core foundations (event bus, session, catalog, id registry) and the durable-event deriver (single bus, single registry).</summary>
     public class CoreFoundationTests

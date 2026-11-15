@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using UnityEngine;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     /// <summary>Persisted session record (versioned JSON). More game state is added under new versions.</summary>
     [Serializable]

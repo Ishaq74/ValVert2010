@@ -1,9 +1,9 @@
 using System.IO;
 using NUnit.Framework;
 using UnityEngine;
-using ValVertII.Core;
+using ValVert.Core;
 
-namespace ValVertII.Tests.EditMode
+namespace ValVert.Tests.EditMode
 {
     /// <summary>SaveService (save slot behind "Continuer") and GameSettings (Options).</summary>
     public class MenuServicesTests

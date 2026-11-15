@@ -1,6 +1,6 @@
 using System;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     /// <summary>
     /// Common envelope of every durable event published on <see cref="ValVertEventBus"/> (ARCHITECTURE.md §7.1):

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     public sealed class IdRegistry : IAppService
     {

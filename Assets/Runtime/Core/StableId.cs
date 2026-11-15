@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     [DisallowMultipleComponent]
     public sealed class StableId : MonoBehaviour

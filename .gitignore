@@ -89,7 +89,7 @@ __pycache__/
 !/Assets/ThirdParty/.gitkeep
 !/Assets/ThirdParty.meta
 
-# --- Règles ajoutées depuis ValVertII (Unity .gitignore standard) : ajouts seulement ---
+# --- Règles Unity standard : ajouts seulement ---
 *.log
 *.slnx
 *.DotSettings.user

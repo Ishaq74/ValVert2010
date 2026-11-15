@@ -1,6 +1,6 @@
-# --- Règles texte / YAML Unity ajoutées depuis ValVertII (modèle gitattributes/Unity) ---
+# --- Règles texte / YAML Unity (modèle gitattributes Unity standard) ---
 # Placées AVANT nos règles LFS : les règles LFS plus bas restent prioritaires. Pas de règles LFS larges (png, jpg, mp3…)
-# reprises de ValVertII : elles changeraient le suivi des fichiers déjà commités.
+# du modèle Unity standard : elles changeraient le suivi des fichiers déjà commités.
 [attr]unity-json        eol=lf linguist-language=json
 [attr]unity-yaml        merge=unityyamlmerge eol=lf linguist-language=yaml
 *.cginc                 text

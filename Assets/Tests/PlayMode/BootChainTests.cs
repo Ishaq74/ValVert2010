@@ -5,7 +5,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
-using ValVertII.Core;
+using ValVert.Core;
 
 /// <summary>
 /// The REAL boot chain, no stubs: 00_Bootstrap (PersistentRoot + committed SceneCatalog) -> 01_MainMenu ->

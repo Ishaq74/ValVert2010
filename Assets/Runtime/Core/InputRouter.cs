@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace ValVertII.Core
+namespace ValVert.Core
 {
     public sealed class InputRouter : IAppService
     {
