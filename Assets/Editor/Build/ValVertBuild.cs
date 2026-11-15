@@ -13,7 +13,12 @@ public static class ValVertBuild
     /// this GPU cannot create D3D12, and compiling both APIs needlessly doubles terrain variants.
     /// The editor's prior graphics API settings are restored after BuildPipeline finishes.
     /// </summary>
-    public static void BuildWindowsDevD3D11()
+    public static void BuildWindowsDevD3D11() => BuildWindowsD3D11(BuildOptions.Development);
+
+    /// <summary>Release build for the same D3D11 target, with developer controls excluded at runtime.</summary>
+    public static void BuildWindowsReleaseD3D11() => BuildWindowsD3D11(BuildOptions.None);
+
+    static void BuildWindowsD3D11(BuildOptions buildOptions)
     {
         const BuildTarget target = BuildTarget.StandaloneWindows64;
         bool oldUseDefault = PlayerSettings.GetUseDefaultGraphicsAPIs(target);
@@ -38,7 +43,7 @@ public static class ValVertBuild
                 scenes = scenes,
                 locationPathName = output,
                 target = target,
-                options = BuildOptions.Development
+                options = buildOptions
             };
             BuildReport report = BuildPipeline.BuildPlayer(options);
             Debug.Log($"[ValVertBuild] {report.summary.result}: {report.summary.totalSize} bytes -> {output}");

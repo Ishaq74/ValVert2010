@@ -5,7 +5,7 @@ using ValVert.Core;
 [RequireComponent(typeof(CharacterController))]
 public sealed class SimpleFPS : MonoBehaviour
 {
-    [Header("Developer-only walking")]
+    [Header("Player movement")]
     [Min(0f)] public float speed = 4f;
     [Min(0f)] public float runSpeed = 8f;
     [Min(0f)] public float mouseSens = 0.1f;
@@ -32,28 +32,37 @@ public sealed class SimpleFPS : MonoBehaviour
     void Awake()
     {
         _controller = GetComponent<CharacterController>();
-        // This is an exploration aid, not the shipped gameplay character.
-        if (!DeveloperControlsAllowed) enabled = false;
     }
 
     void Start()
     {
         CacheAppModeManager();
-        if (_modes == null) SetLocalCursor(false);
+        if (_modes == null) SetLocalCursor(true);
     }
 
     void Update()
     {
-        if (!DeveloperControlsAllowed) return;
         var keyboard = Keyboard.current;
         if (keyboard == null) return;
 
-        if (keyboard.f1Key.wasPressedThisFrame) ToggleDeveloperMode();
-        if (!IsDeveloperModeActive) return;
+        CacheAppModeManager();
+        if (DeveloperControlsAllowed && keyboard.f1Key.wasPressedThisFrame)
+            ToggleDeveloperMode();
 
-        if (keyboard.f2Key.wasPressedThisFrame) ToggleFlightMode();
+        bool developerMode = IsDeveloperModeActive;
+        if (_flying && !developerMode) SetFlight(false);
+        bool appModeAllowsMovement = _modes == null || !_modes.IsInitialized ||
+            _modes.CurrentMode == AppInputMode.Gameplay || developerMode;
+        if (!appModeAllowsMovement)
+        {
+            if (_flying) SetFlight(false);
+            return;
+        }
+
+        if (developerMode && keyboard.f2Key.wasPressedThisFrame)
+            ToggleFlightMode();
         Look(Mouse.current);
-        if (_flying) Fly(keyboard);
+        if (developerMode && _flying) Fly(keyboard);
         else Walk(keyboard);
     }
 
@@ -108,7 +117,7 @@ public sealed class SimpleFPS : MonoBehaviour
 
         _localDeveloperMode = !_localDeveloperMode;
         if (!_localDeveloperMode) SetFlight(false);
-        SetLocalCursor(_localDeveloperMode);
+        SetLocalCursor(true);
         Debug.Log(_localDeveloperMode
             ? "[SimpleFPS][DEV] Local developer exploration enabled."
             : "[SimpleFPS][DEV] Local developer exploration disabled.");

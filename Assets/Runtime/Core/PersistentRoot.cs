@@ -12,8 +12,11 @@ namespace ValVert.Core
         public static PersistentRoot Instance { get; private set; }
 
         [Header("Startup")]
-        [SerializeField]
-        private bool startWithMainMenu = true;
+        [SerializeField, Tooltip("Show the main menu instead of entering or resuming the world at startup.")]
+        private bool startWithMainMenu;
+
+        [SerializeField, Tooltip("Start or resume a world session automatically after bootstrap.")]
+        private bool startWorldSessionOnBoot;
 
         [Tooltip("Logical scene ids (MENU_MAIN, SESSION_ROOT, SECTOR_...). The only source of scene paths.")]
         [SerializeField]
@@ -77,6 +80,13 @@ namespace ValVert.Core
 
                 if (startWithMainMenu)
                     await SceneLoader.LoadSingleAsync(ResolveScenePath(SceneIds.MenuMain));
+                else if (startWorldSessionOnBoot)
+                {
+                    if (Save.TryLoad(out SaveData savedSession))
+                        await EnterSessionAsync(savedSession.sectorId, savedSession);
+                    else
+                        await EnterSessionAsync();
+                }
             }
             catch (Exception exception)
             {
@@ -194,6 +204,7 @@ namespace ValVert.Core
                 startedUtc = WorldSession.StartedUtc.ToString("o")
             });
             ValVertEventBus.Publish(new WorldStartedEvent(sectorSceneId));
+            Modes.SetMode(AppInputMode.Gameplay);
 
             Logger.Info(
                 $"WorldSession démarrée : {WorldSession.SessionId} ({sectorSceneId})");

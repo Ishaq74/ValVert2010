@@ -8,8 +8,8 @@ using UnityEngine.TestTools;
 using ValVert.Core;
 
 /// <summary>
-/// The REAL boot chain, no stubs: 00_Bootstrap (PersistentRoot + committed SceneCatalog) -> 01_MainMenu ->
-/// "Nouvelle partie" -> 02_SeynodRoot (single) -> ValVert.unity loaded ADDITIVELY as SECTOR_VALVERT_CORE.
+/// The default boot chain, no stubs: 00_Bootstrap (PersistentRoot + committed SceneCatalog) ->
+/// 02_SeynodRoot (single) -> ValVert.unity loaded ADDITIVELY as SECTOR_VALVERT_CORE.
 /// </summary>
 public class BootChainTests
 {
@@ -53,13 +53,13 @@ public class BootChainTests
     }
 
     [UnityTest, Timeout(900000)]
-    public IEnumerator Bootstrap_Menu_SessionRoot_AdditiveValVertSector()
+    public IEnumerator Bootstrap_StartsWorldInGameplayMode()
     {
         LogAssert.ignoreFailingMessages = true;
         Application.logMessageReceived += OnLog;
         ValVertEventBus.ResetForDomain(); ValVertServices.ResetForDomain();
 
-        // ---- 00_Bootstrap: PersistentRoot boots from the committed catalog, then loads the menu by logical id
+        // ---- 00_Bootstrap: PersistentRoot starts a world session by default.
         yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(Bootstrap, new LoadSceneParameters(LoadSceneMode.Single));
         yield return Until(() => PersistentRoot.Instance != null && PersistentRoot.Instance.IsReady, "PersistentRoot ready");
         var root = PersistentRoot.Instance;
@@ -68,27 +68,18 @@ public class BootChainTests
         Assert.AreEqual(Root, root.ResolveScenePath(SceneIds.SessionRoot));
         Assert.AreEqual(Sector, root.ResolveScenePath(SceneIds.SectorValVertCore));
 
-        // ---- 01_MainMenu
-        yield return Until(() => SceneManager.GetActiveScene().path == Menu, "menu loaded");
-        var menu = Object.FindFirstObjectByType<MainMenuController>();
-        Assert.IsNotNull(menu, "MainMenuController in 01_MainMenu");
-        Assert.IsFalse(root.WorldSession.IsRunning);
-        Assert.IsFalse(SceneManager.GetSceneByPath(Sector).isLoaded, "sector not loaded before 'Nouvelle partie'");
-        yield return null;
-        Assert.IsNotNull(menu.NewGameButton, "menu UI built");
-        Assert.IsFalse(menu.ContinueButton.interactable, "no save yet: 'Continuer' disabled");
-
-        // ---- "Nouvelle partie" -> 02_SeynodRoot (single) + ValVert.unity (additive, SECTOR_VALVERT_CORE)
-        menu.StartNewGame();
+        // ---- default startup -> 02_SeynodRoot + ValVert.unity (additive, SECTOR_VALVERT_CORE)
         yield return Until(() => root.WorldSession.IsRunning, "world session running");
         yield return null; yield return null;
 
         Assert.IsTrue(SceneManager.GetSceneByPath(Root).isLoaded, "02_SeynodRoot loaded");
         Assert.IsTrue(SceneManager.GetSceneByPath(Sector).isLoaded, "ValVert.unity loaded");
-        Assert.IsFalse(SceneManager.GetSceneByPath(Menu).isLoaded, "menu unloaded by the single load of the session root");
+        Assert.IsFalse(SceneManager.GetSceneByPath(Menu).isLoaded, "default startup bypasses the optional menu");
         Assert.AreEqual(Sector, SceneManager.GetActiveScene().path, "sector is the active scene (its lighting applies)");
         Assert.AreEqual(2, SceneManager.sceneCount, "exactly SESSION_ROOT + SECTOR_VALVERT_CORE");
         Assert.AreEqual(SceneIds.SectorValVertCore, root.WorldSession.StartingSectorId);
+        Assert.AreEqual(AppInputMode.Gameplay, root.Modes.CurrentMode,
+            "the player input map is enabled once the sector session is ready");
         Assert.IsTrue(root.Save.TryLoad(out var saved), "the session was saved when it started");
         Assert.AreEqual(SceneIds.SectorValVertCore, saved.sectorId); Assert.AreEqual(root.WorldSession.SessionId, saved.sessionId);
         Assert.IsTrue(ValVertEventBus.TryGetLast<WorldStartedEvent>(out var ws));
@@ -120,7 +111,7 @@ public class BootChainTests
     }
 
     [UnityTest, Timeout(900000)]
-    public IEnumerator Continue_ResumesTheSavedSession_InItsSavedSector()
+    public IEnumerator Bootstrap_ResumesSavedSessionDirectly()
     {
         LogAssert.ignoreFailingMessages = true;
         Application.logMessageReceived += OnLog;
@@ -131,12 +122,6 @@ public class BootChainTests
         yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(Bootstrap, new LoadSceneParameters(LoadSceneMode.Single));
         yield return Until(() => PersistentRoot.Instance != null && PersistentRoot.Instance.IsReady, "PersistentRoot ready");
         var root = PersistentRoot.Instance;
-        yield return Until(() => SceneManager.GetActiveScene().path == Menu, "menu loaded");
-        var menu = Object.FindFirstObjectByType<MainMenuController>();
-        yield return null;
-        Assert.IsTrue(menu.ContinueButton.interactable, "a save exists: 'Continuer' enabled");
-
-        menu.Continue();
         yield return Until(() => root.WorldSession.IsRunning, "resumed session running");
         yield return null;
         Assert.AreEqual("session-saved", root.WorldSession.SessionId, "same session id as the save");

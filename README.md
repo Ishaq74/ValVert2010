@@ -75,17 +75,17 @@ Val Vert est une **simulation narrative en monde ouvert** à Seynod : on y vit u
 |---|---|
 | Monde 2010 : terrain IGN, routes, bâtiments et chemins OSM, bois | **Fonctionne** |
 | Environnement dynamique : horloge solaire, lune, saisons, météo synthétique, lampadaires | **Fonctionne** |
-| Végétation : herbe et fleurs du pack 138810 (762 chunks), arbres, neige sur les branches | Fonctionne dans le monde restauré ; un clone doit aussi recevoir les entrées locales `VV_WORK/clean/` pour régénérer herbe/fleurs. |
+| Végétation : herbe et fleurs du pack 138810, arbres, neige sur les branches | Restaurée ; faute des masques originaux, l'option locale dérive les entrées depuis le TerrainData. Équivalence visuelle stricte non prouvée (sortie observée : 775 meshes d'herbe / 203 chunks de fleurs, scène : 762 / 191). |
 | Noyau applicatif : `PersistentRoot`, `SceneLoader`, `SceneCatalog`, `WorldSession`, `IdRegistry`, bus et registre uniques | **Fonctionne, branché, prouvé** |
-| Menu principal (français, souris, clavier, manette) : Nouvelle partie, Continuer, Options, Quitter | **Fonctionne** |
+| Menu principal (français, souris, clavier, manette) : Nouvelle partie, Continuer, Options, Quitter | **Fonctionne**, optionnel au démarrage |
 | Sauvegarde (emplacement unique, écriture atomique) et réglages (volume, qualité, plein écran) | **Fonctionne** |
-| Chaîne de démarrage `00_Bootstrap → 01_MainMenu → 02_SeynodRoot + ValVert.unity` | **Fonctionne, prouvée** |
-| Restauration d'un clone vierge (`restore_world.py`) | Paquets restaurables ; exige aussi les masques/labels locaux `<VV_WORK>/clean/` (non distribués). Le script s'arrête clairement s'ils manquent. |
-| Explorateur provisoire (`SimpleFPS`) | Déplacement à pied en mode développeur ; vol noclip via `F2`. `F1` active/quitte ce mode dans l'Éditeur ou un Development Build uniquement ; contrôleur désactivé dans Release. Aucun personnage final n'est encore construit. |
+| Démarrage par défaut `00_Bootstrap → 02_SeynodRoot + ValVert.unity` | **Fonctionne** ; reprend une sauvegarde valide, sinon démarre une session neuve. Le menu est optionnel (`startWithMainMenu`). |
+| Restauration d'un clone vierge (`restore_world.py`) | Paquets vérifiés SHA ; masques originaux optionnels. `--derive-inputs-from-terrain` produit un fallback local, non byte-identique aux masques source. |
+| Joueur provisoire (`SimpleFPS`) | Déplacement à pied (WASD, souris, Espace, Maj) en Release et en Dev. En Development Build/Éditeur, `F1` active/quitte l'exploration et `F2` commute marche/vol noclip ; commandes dev indisponibles en Release. Pas de modèle/rig final. |
 | Joueur réel, caméras, interactions, téléphone, dialogues, relations, mémoire, habitants, intérieurs | **À construire** |
 | Véhicules et parking Aldi | **Gelés** : aucune modification |
 
-Sur le clone actuel en Unity **6000.6.7f1** : compilation réussie, EditMode **17/17**, arbres **40/40** liés. Play Mode **44/45** ; l'unique échec est `FullSceneSmokeTests` (streaming des chunks au coin de la carte), car les 762 meshes d'herbe et 191 chunks de fleurs ne sont pas restaurés. `restore_world.py` s'arrête avant Unity tant que les cinq entrées locales `VV_WORK/clean/` sont absentes. L'audit classe les **963** références manquantes comme récupérables (954 assets générés + 9 exceptions gelées), mais cela ne signifie pas que le monde est entièrement restauré.
+Sur le clone actuel en Unity **6000.6.7f1** : EditMode **17/17**, PlayMode **46/46**, audit strict `AUDIT_OK` avec 9 exceptions de voitures gelées. Les builds Release et Development DX11 démarrent jusqu'au monde/menu selon configuration ; le déplacement n'a pas encore été manuellement testé dans un Player après l'entrée en session. Les masques de végétation dérivés ne prouvent pas une équivalence visuelle exacte aux sources originales.
 
 ## 3. Commandes
 
@@ -107,17 +107,18 @@ Sur le clone actuel en Unity **6000.6.7f1** : compilation réussie, EditMode **1
 | Courir | `Maj` gauche (8 m/s, marche 4 m/s) |
 | Sauter | `Espace` |
 | Forcer la météo (debug) | `F6` : Auto → Clair → Couvert → Bruine → Pluie → Brouillard → Neige |
-| Explorateur développeur (Éditeur / Development Build seulement) | `F1` entre/quitte le mode dev ; `F2` marche/vol ; en vol `Espace` monte, `Ctrl gauche` descend, `Maj gauche` accélère |
+| Joueur dans le monde (Release et Development Build) | `WASD` déplacement, souris regard, `Espace` saut, `Maj gauche` course |
+| Exploration développeur (Éditeur / Development Build seulement) | `F1` entre/quitte le mode dev ; `F2` marche/vol ; en vol `Espace` monte, `Ctrl gauche` descend, `Maj gauche` accélère |
 
-Les cartes d'actions du jeu (`Assets/Settings/Input/ValVertControls.inputactions`) définissent déjà quatre contextes : **Gameplay** (Move, Look, Interact, Pause), **UI** (Navigate, Submit, Cancel), **Developer** (ToggleDeveloper, Move), **CutScene** (Skip). Le menu utilise la carte UI ; le joueur réel adoptera Gameplay à sa construction.
+Les cartes d'actions du jeu (`Assets/Settings/Input/ValVertControls.inputactions`) définissent quatre contextes : **Gameplay**, **UI**, **Developer**, **Cutscene**. Le Bootstrap passe à Gameplay après chargement du secteur ; `SimpleFPS` lit actuellement clavier/souris directement. `startWorldSessionOnBoot` lance/reprend le monde ; `startWithMainMenu` garde priorité pour afficher le menu.
 
 ## 4. Démarrage rapide
 
 1. Installer **Unity Hub** et l'éditeur **Unity 6000.6.7f1** (module Linux/Windows/macOS selon la plateforme).
 2. Cloner avec Git LFS : `git lfs install && git clone https://github.com/polbotweb/ValVert2010 && cd ValVert2010 && git lfs pull`.
-3. Restaurer le monde complet (herbe générée, contenus tiers locaux) : voir [§14](#14-cloner-et-restaurer-le-monde-complet). La restauration de l'herbe/fleurs exige le dossier de sources local `VV_WORK/clean/`.
+3. Restaurer le monde complet (herbe générée, contenus tiers locaux) : voir [§14](#14-cloner-et-restaurer-le-monde-complet). Les masques originaux `VV_WORK/clean/` sont préférés ; `--derive-inputs-from-terrain` active le fallback documenté.
 4. Unity Hub → **Add** → dossier du projet → ouvrir.
-5. Jouer : ouvrir `Assets/Scenes/ValVert.unity` (le monde, jouable seul) **ou** `Assets/Scenes/Bootstrap/00_Bootstrap.unity` (chaîne complète avec menu), puis *Play*.
+5. Jouer dans l'Éditeur : ouvrir `Assets/Scenes/Bootstrap/00_Bootstrap.unity`, puis *Play* ; le monde démarre directement et reprend la sauvegarde s'il y en a une. Pour inspecter le terrain seul, ouvrir `Assets/Scenes/ValVert.unity`.
 
 > Ne jamais ouvrir puis enregistrer `ValVert.unity` à la main : la scène est gelée, seuls des outils idempotents la modifient (voir [§18](#18-règles-de-contribution)).
 
@@ -169,7 +170,7 @@ ValVert2010/
 ## 6. Scènes et chaîne de démarrage
 
 ```text
-[Build]  00_Bootstrap ──▶ 01_MainMenu ──▶ 02_SeynodRoot ──additif──▶ ValVert.unity   (secteur SECTOR_VALVERT_CORE)
+[Build]  00_Bootstrap ──▶ 02_SeynodRoot ──additif──▶ ValVert.unity   (secteur SECTOR_VALVERT_CORE; reprise de sauvegarde si disponible)
                                                         └─additif─▶ secteurs et intérieurs futurs
 [Autonome, conservé]   ValVert.unity seule (tests, captures, test fumée, mode « visite »)
 ```
@@ -182,7 +183,7 @@ ValVert2010/
 | `ValVert.unity` | `Assets/Scenes/` | Le monde 2010 ; premier **secteur**. Jouable seule, pour toujours. Elle ne sait rien de `PersistentRoot`. |
 
 - **`SceneCatalog`** (`Assets/Settings/Catalog/SceneCatalog.asset`) associe un identifiant logique à une scène : `BOOTSTRAP`, `MENU_MAIN`, `SESSION_ROOT`, `SECTOR_VALVERT_CORE`. Plus aucun chemin en dur.
-- `PersistentRoot` ne s'initialise **que** dans `00_Bootstrap` : ouvrir `ValVert.unity` seule ne crée aucun service applicatif et ne change aucun comportement.
+- `PersistentRoot` ne s'initialise **que** dans `00_Bootstrap` : ouvrir `ValVert.unity` seule ne crée aucun service applicatif. Le Bootstrap démarre/reprend le monde par défaut (`startWorldSessionOnBoot`) ; activer `startWithMainMenu` réactive le menu.
 - `ValVertPlayer.BuildLinux` construit explicitement la scène de monde ; la chaîne complète est prouvée par `BootChainTests` (un écouteur, une caméra, sauvegarde écrite, reprise).
 
 ## 7. Menu principal
@@ -741,7 +742,7 @@ Tests/TEST_SOCIAL_SIM
 Tests/TEST_STREAMING
 ```
 
-`00_Bootstrap` est le point d'entrée du Build Profile. Elle crée le noyau applicatif, vérifie les dépendances, lit les paramètres, puis charge le menu. Le monde est chargé ensuite dans une session indépendante.
+`00_Bootstrap` est le point d'entrée du Build Profile. Elle crée le noyau applicatif, vérifie les dépendances et lit les paramètres, puis démarre ou reprend la session ValVert (`startWorldSessionOnBoot`). Le menu peut être réactivé dans l'Inspector avec `startWithMainMenu`.
 
 ##### 17.2 Cycle de vie déterministe
 
