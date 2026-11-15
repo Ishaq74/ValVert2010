@@ -8,10 +8,10 @@ Unity 6 URP recreation of Seynod “Val Vert” (2010). Free assets only; OSM/IG
 |---|---|
 | Playable systems | `Assets/Runtime/` (World, Gameplay, Characters…) |
 | Editor generators / validation | `Assets/Editor/{Generators,Validation,Tools}/` |
-| **Source** config | `Assets/Settings/` (`Architecture`, `World`, `Rendering` = URP) — not `Assets/Generated/` |
+| **Source** config | `Assets/Settings/` (`Architecture`, `World`, `Catalog` = scene ids, `Input`, `Rendering` = URP) — not `Assets/Generated/` |
 | Generated rebuild pipeline | `Tools/rebuild/` + `Docs/generated-rebuild.md` |
 | Migration ledger | `Assets/Settings/Architecture/migration_manifest.json` |
-| Historical art still co-located | `Assets/ValVert/` (Mats/Ground/Gen…) — migrating by system |
+| World content / generated outputs | `Assets/World/` (art, terrain, materials) and `Assets/Generated/` (rebuildable outputs); the old `Assets/ValVert/` is gone |
 | Vendor (ignored) | `Assets/ThirdParty/{InnerverseInteractive,RealisticTrees,ALP_Assets,ValVertGrass}/` |
 
 ## Runtime foundations (real, minimal)

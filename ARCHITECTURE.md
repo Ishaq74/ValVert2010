@@ -1,6 +1,6 @@
 # ARCHITECTURE — Val Vert 2010 × Val Vert II
 
-> **Statut : architecture validée par le propriétaire le 15/11/2026 (« refonte intégrale »). Ce document décrit la cible et l'ordre de migration ; il ne déplace rien lui-même.** La migration est réalisée par petites PR successives (§12), chacune validée puis fusionnée normalement. Les statuts « existe / à construire » de ce document sont mis à jour à chaque étape (colonne « Statut » du §12 dans les PR correspondantes).
+> **Statut : architecture validée par le propriétaire le 15/11/2026 (« refonte intégrale »). Ce document décrit la cible et l'ordre de migration ; il ne déplace rien lui-même. Mise à jour du 15/11/2026 : les étapes 0 à 7 sont réalisées (PR #21 à #29), l'arborescence décrite ici est l'arborescence réelle.** La migration est réalisée par petites PR successives (§12), chacune validée puis fusionnée normalement. Les statuts « existe / à construire » de ce document sont mis à jour à chaque étape (colonne « Statut » du §12 dans les PR correspondantes).
 >
 > Date : 15 novembre 2026 (Europe/Paris). Base : `main` au commit `a0940a4` (après la PR #20).
 > Sources croisées :
@@ -222,7 +222,7 @@ Règle : **on ajoute, on met à jour les chemins déplacés, on ne retire aucune
 | `ValVertII.Editor` | `Assets/Editor/ValVertII/` | assemblies `ValVertII.*` | **Éditeur seul** | repris, vide |
 | *(assembly Éditeur par défaut)* | `Assets/Editor/{Generators,Tools,Validation,Debug}` | voit `ValVert.Runtime` | Éditeur | **existe**, inchangé |
 | `ValVert.Tests.PlayMode` | `Assets/Tests/PlayMode/` | `ValVert.Runtime`, Test Runner | tests | **existe** |
-| `ValVertII.Tests.EditMode` | `Assets/Tests/EditMode/` | `ValVertII.*`, Test Runner | tests | nouveau (étape 2) |
+| `ValVertII.Tests.EditMode` | `Assets/Tests/EditMode/` | `ValVertII.*`, Test Runner | tests | **fait (étape 7)** : 13 tests (bus, session, registre d'ID, catalogue, pont durable) ; reste `SceneLoader`, `ProjectValidator`, sauvegarde |
 
 ### 5.2 Graphe de dépendances autorisé (flèche = « peut référencer »)
 
@@ -259,7 +259,7 @@ Il est à la racine de `Assets/_Project/Editor/` chez lui. Le laisser là captur
 ### 6.1 État réel aujourd'hui
 
 * Seule scène du build : `Assets/Scenes/ValVert.unity` (Build Settings, `ValVertPlayer.BuildLinux`, smoke test, README). Elle porte `ValVertEnvironment` = `ValVertClock` + `ValVertSeasons` + `ValVertRuntimeBootstrap` (config `Settings/World/ValVertWorldConfig.asset`).
-* Ishaq : `00_Bootstrap` (porte `PersistentRoot`, `DontDestroyOnLoad`) → `01_MainMenu` → `02_SeynodRoot`. `PersistentRoot` charge le menu par un **chemin d'asset en dur** (`Assets/_Project/Scenes/Menus/01_MainMenu.unity`), ce qui ne fonctionne que si la scène est dans les Build Settings.
+* Ishaq : `00_Bootstrap` (porte `PersistentRoot`, `DontDestroyOnLoad`) → `01_MainMenu` → `02_SeynodRoot`. `PersistentRoot` chargeait le menu par un chemin d'asset en dur ; depuis l'étape 7 il le résout par le `SceneCatalog` (`MENU_MAIN`), le chemin sérialisé ne servant plus que de repli. La scène doit toujours figurer dans les Build Settings pour un build.
 
 ### 6.2 Cible
 
@@ -385,7 +385,7 @@ Chaque ligne : le système, **son assembly et son dossier**, ce dont il dépend,
 
 ### 10.1 Ce qui ne change pas
 
-* Chaîne de génération : OSM/IGN → `Tools/generators/*.py` → `Editor/Generators/*` (`ValVertSetup.Build`, `ValVertWoods`, `ValVertDress`…) → `Assets/ValVert/**` + scène.
+* Chaîne de génération : OSM/IGN → `Tools/generators/*.py` → `Editor/Generators/*` (`ValVertSetup.Build`, `ValVertWoods`, `ValVertDress`…) → `Assets/World/**` et `Assets/Generated/**` + scène.
 * Politique **tracked / LFS / régénéré** de `Docs/clean-clone.md` : gros maillages ville et `demfix_*` en LFS, herbe et vendeurs gitignorés, trois cibles prouvées (`sign_danger`, `asphalt_ww`, `parking`) reconstruites par `Tools/rebuild`.
 * `restore_world.py` + `vendor_manifest.json` + `generated_guid_pins.json` : un clone vierge retrouve tout le monde.
 * Gel visuel : ce qui a été validé (layout, preuves photo, zones gelées) ne bouge pas.
@@ -394,7 +394,7 @@ Chaque ligne : le système, **son assembly et son dossier**, ce dont il dépend,
 
 | Besoin | Réponse | Étape |
 |---|---|---|
-| Terrain/routes/bâtiments/matériaux encore dans `Assets/ValVert/` | continuer la migration **par système** (même méthode que props et sky : `git mv` avec `.meta`, `migration_manifest.json`, `verify_migration.py`) | 5 |
+| Terrain/routes/bâtiments/matériaux (ex-`Assets/ValVert/`, migrés à l'étape 5) | continuer la migration **par système** (même méthode que props et sky : `git mv` avec `.meta`, `migration_manifest.json`, `verify_migration.py`) | 5 |
 | Secteurs (VALVERT_NORTH/SOUTH/EAST/WEST…) | **ne pas découper avant de mesurer** (coût mémoire, temps de chargement). Le niveau 1 (activation de régions) suffit tant que le monde tient en mémoire. Le découpage suit la topologie réelle (bois, escalier du n°9, parking), pas une grille. | 6 |
 | Coordonnées (manuel §41.3) | formaliser la conversion Lambert/WGS84 → mètres locaux déjà utilisée par les générateurs dans `Docs/` (origine, projection, unités) ; ne rien changer au code | 0 |
 | Fleurs du pack 138810 | `ValVertGrassField` : cartes `grassFlower01..10`, poids par zone, couleurs saisonnières branchées sur `ValVertSeasons`/`ValVertEventBus` ; config dans `grass_field_config.json` (source), sorties dans `Generated/` | hors migration, en parallèle |
@@ -412,9 +412,9 @@ Un générateur Éditeur ne **lit jamais** l'état de jeu (sauvegardes, narratio
 | Niveau | Où | Assembly | Contenu | Statut |
 |---|---|---|---|---|
 | EditMode (domaine pur) | `Tests/EditMode/` | `ValVertII.Tests.EditMode` | `IdRegistry` (doublons, ID vides), `WorldEventBus` (ordre, idempotence, désinscription), `SceneLoader` (états, déduplication), `ProjectValidator`, sérialisation/migrations `Save`, dépendances d'assemblies (test d'architecture §5.2) | nouveau (étape 2) |
-| PlayMode synthétique | `Tests/PlayMode/` | `ValVert.Tests.PlayMode` | 25 tests existants : bus, services, bootstrap, streaming, config | **existe, doit rester vert à chaque étape** |
+| PlayMode synthétique | `Tests/PlayMode/` | `ValVert.Tests.PlayMode` | 25 tests existants : bus, services, bootstrap, streaming, config | **existe, vert à chaque étape (31/31 après l'étape 7 avec les nouveaux tests)** |
 | PlayMode scène réelle | idem | idem | `FullSceneSmokeTests` sur `Assets/Scenes/ValVert.unity` | **existe** |
-| PlayMode noyau applicatif | `Tests/PlayMode/` (nouvelle classe) | `ValVert.Tests.PlayMode` ou `ValVertII.Tests.PlayMode` | `00_Bootstrap → 02_SeynodRoot` : un seul `PersistentRoot`, services initialisés une fois, fermeture dans l'ordre inverse, pas de doublon avec `ValVertRuntimeBootstrap` | nouveau (étape 3) |
+| PlayMode noyau applicatif | `Tests/PlayMode/` (nouvelle classe) | `ValVert.Tests.PlayMode` ou `ValVertII.Tests.PlayMode` | `00_Bootstrap → 02_SeynodRoot` : un seul `PersistentRoot`, services initialisés une fois, fermeture dans l'ordre inverse, pas de doublon avec `ValVertRuntimeBootstrap` | **fait (étape 7)** : 5 tests (publication des services, retrait à l'arrêt, résolution du menu, pont durable, mode autonome) ; le chargement réel `00_Bootstrap → 02_SeynodRoot` reste à prouver |
 | Python / chaîne | `Tools/*/tests/` | — | `test_clean_clone.py`, `test_guid_refs.py`, `test_runtime_foundations.py`, tests `rebuild` | **existe** |
 | Parcours / intégration | `Tests/Integration/` | — | tranche verticale (§9) ; sauvegarde → rechargement | plus tard |
 | Performance | `Tests/Performance/` (à créer) | — | budgets mesurés (manuel §61) ; le smoke existant mesure déjà un `Tick` de streaming ≈ 1,6 ms | plus tard |
@@ -435,15 +435,19 @@ Chaque étape = **une PR**, fusion normale, pas de force-push. Chaque PR est val
 
 | Étape | Contenu | Risque | Critère d'acceptation | Retour arrière |
 |---|---|---|---|---|
-| **0 — Documents** (faite : #21, #22) | architecture, README, manuel et correspondance | très faible | — | revert |
-| **1 — Architecture plate** | ce document mis à jour selon la décision du 15/11 | nul | relu | revert |
-| **2 — Suppression de l'obsolète** | `TutorialInfo`, `Readme.asset`, `SampleScene`, `.gitkeep` inutiles, après preuve de non-référence (GUID dans YAML/JSON/binaires/`ProjectSettings`/`EditorBuildSettings`) | faible : une référence oubliée casserait un asset | outil de preuve vert ; compilation, tests, scène identiques | revert |
-| **3 — Aplatir `_Project`** | `_Project/{Runtime,Editor,Tests,Settings,Generated}` → `Assets/{Runtime,Editor,Tests,Settings,Generated}` ; URP → `Settings/Rendering` ; mise à jour de `ValVertPaths`, outils, manifestes, tests, docs | **moyen** : beaucoup de chemins en dur ; asmdef déplacés (GUID conservés) | compilation 0 erreur ; 25 tests + test de scène verts ; vérificateurs verts | `git mv` inverse (R100) |
-| **4 — Importer ValVertII** | `Runtime/{Core,Input,Player,Narrative,AI,Save,ECS,Developer}`, `Runtime/World/Sectors`, `Editor/ValVertII`, scènes `Bootstrap/Menus/SeynodRoot`, entrées, `.vscode`, règles git ; fusion d'historique d'Ishaq74 | **moyen** : compilation du noyau sous 6000.3 ; collision de GUID (vérifiée : seuls les GUID du boilerplate coïncident, non importés) | compilation 0 erreur ; tests verts ; aucun comportement nouveau à l'exécution | revert |
-| **5 — Dissoudre `Assets/ValVert`** | `ValVert/` → `World/` et `Generated/` ; art co-localisé (props, ciel) → `World/` ; mise à jour de tous les chemins et de la restauration | **élevé** : GUID, ~2 100 fichiers, chemins en dur dans les générateurs et les épingles | vérificateurs verts ; scène identique ; clone vierge restauré | `git mv` inverse |
-| **6 — Contenus tiers sous `ThirdParty`** | UNS, European Forests, pack 138810 et dérivés → `Assets/ThirdParty/…` (gitignorés, déplacés localement avec leurs `.meta`) ; mise à jour de `vendor_manifest`, `restore_world`, générateurs, `.gitignore` | moyen : fichiers non suivis, chaque worktree doit être restauré | `restore_world` + audit `AUDIT_OK` | déplacement inverse |
-| **7 — Brancher et prouver** | `SceneCatalog`, adaptateur `PersistentRoot → ValVertServices`, pont d'événements, tests EditMode du noyau | moyen : cycles de vie | scène autonome inchangée ; tests EditMode/PlayMode verts | désactiver l'adaptateur |
-| **8+ — Systèmes de jeu** | joueur, caméras, interactions, téléphone, dialogues, relations, habitants, sauvegarde, secteurs additifs, session `02_SeynodRoot` | selon le système | critères du manuel §78 | par système |
+| **0 — Documents** (**faite** : #21, #22) | architecture, README, manuel et correspondance | très faible | — | revert |
+| **1 — Architecture plate** (**faite** : #23) | ce document mis à jour selon la décision du 15/11 | nul | relu | revert |
+| **2 — Suppression de l'obsolète** (**faite** : #24) | `TutorialInfo`, `Readme.asset`, `SampleScene`, `.gitkeep` inutiles, après preuve de non-référence (GUID dans YAML/JSON/binaires/`ProjectSettings`/`EditorBuildSettings`) | faible : une référence oubliée casserait un asset | outil de preuve vert ; compilation, tests, scène identiques | revert |
+| **3 — Aplatir `_Project`** (**faite** : #25) | `_Project/{Runtime,Editor,Tests,Settings,Generated}` → `Assets/{Runtime,Editor,Tests,Settings,Generated}` ; URP → `Settings/Rendering` ; mise à jour de `ValVertPaths`, outils, manifestes, tests, docs | **moyen** : beaucoup de chemins en dur ; asmdef déplacés (GUID conservés) | compilation 0 erreur ; 25 tests + test de scène verts ; vérificateurs verts | `git mv` inverse (R100) |
+| **4 — Importer ValVertII** (**faite** : #26 ; historique d'Ishaq non fusionné, voir note) | `Runtime/{Core,Input,Player,Narrative,AI,Save,ECS,Developer}`, `Runtime/World/Sectors`, `Editor/ValVertII`, scènes `Bootstrap/Menus/SeynodRoot`, entrées, `.vscode`, règles git ; fusion d'historique d'Ishaq74 | **moyen** : compilation du noyau sous 6000.3 ; collision de GUID (vérifiée : seuls les GUID du boilerplate coïncident, non importés) | compilation 0 erreur ; tests verts ; aucun comportement nouveau à l'exécution | revert |
+| **5 — Dissoudre `Assets/ValVert`** (**faite** : #27) | `ValVert/` → `World/` et `Generated/` ; art co-localisé (props, ciel) → `World/` ; mise à jour de tous les chemins et de la restauration | **élevé** : GUID, ~2 100 fichiers, chemins en dur dans les générateurs et les épingles | vérificateurs verts ; scène identique ; clone vierge restauré | `git mv` inverse |
+| **6 — Contenus tiers sous `ThirdParty`** (**faite** : #28) | UNS, European Forests, pack 138810 et dérivés → `Assets/ThirdParty/…` (gitignorés, déplacés localement avec leurs `.meta`) ; mise à jour de `vendor_manifest`, `restore_world`, générateurs, `.gitignore` | moyen : fichiers non suivis, chaque worktree doit être restauré | `restore_world` + audit `AUDIT_OK` | déplacement inverse |
+| **7 — Brancher et prouver** (**faite** : #29) | `SceneCatalog`, adaptateur `PersistentRoot → ValVertServices`, pont d'événements, tests EditMode du noyau | moyen : cycles de vie | scène autonome inchangée ; tests EditMode/PlayMode verts | désactiver l'adaptateur |
+| **8+ — Systèmes de jeu** (à faire) | joueur, caméras, interactions, téléphone, dialogues, relations, habitants, sauvegarde, secteurs additifs, session `02_SeynodRoot` | selon le système | critères du manuel §78 | par système |
+
+**Note étape 4** : le dépôt ValVertII référence un objet LFS (`Assets/TutorialInfo/Icons/URP.png`) introuvable sur tout serveur ; son historique git ne peut donc pas être poussé. Le contenu est repris à l'identique (trailer `Co-authored-by`), l'historique d'origine reste consultable dans le dépôt d'Ishaq74.
+
+**Note étape 7** : le crochet de branchement est dans un assembly dédié `ValVertII.Bridge` (`Assets/Runtime/Bridge/`, qui référence `ValVert.Runtime` et `ValVertII.Core`) et non dans `ValVertRuntimeBootstrap` (§6.3 point 1), pour éviter un cycle d'assemblies et laisser le bootstrap de scène intact. `PersistentRoot` expose `ServicesReady` / `ServicesShuttingDown` ; `AppServicesAdapter` publie ses services dans `ValVertServices` et `ValVertDurableBridge` transmet heure, quart de saison et pluie de `ValVertEventBus` vers `WorldEventBus` (événements durables avec clé d'idempotence). Le `SceneCatalog` est dans `Assets/Settings/Catalog/SceneCatalog.asset`.
 
 **Parallèle** : fleurs du pack 138810 (en pause), correspondance des photos, captures de revue.
 

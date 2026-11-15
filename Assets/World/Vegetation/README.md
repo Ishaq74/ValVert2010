@@ -1,6 +1,6 @@
 # Runtime / World / Vegetation
 
-Field grass is **editor-generated** (chunked meshes under `Assets/ValVert/Gen/grass_*.asset`), not a runtime spawner.
+Field grass is **editor-generated** (chunked meshes under `Assets/Generated/grass_*.asset`), not a runtime spawner.
 
 - Generator: `Assets/Editor/Generators/Vegetation/ValVertGrassField.cs`
 - Config: `Assets/Settings/World/Vegetation/grass_field_config.json` (schema 2, pack cards)

@@ -1,7 +1,7 @@
 # Inventaire Props — après Entrance
 
-## Déjà migré (anciennement sous `_Project`, désormais `Assets/Runtime`)
-- `Runtime/World/Props/Entrance/` — prefab `vv_entrance` + mats/textures exclusifs (PR #11).
+## Déjà migré (anciennement sous `_Project`, désormais `Assets/World/Props`)
+- `Assets/World/Props/Entrance/` — prefab `vv_entrance` + mats/textures exclusifs (PR #11).
 - `Runtime/World/Props/Lighting/ValVertStreetLights.cs` — logique lampadaires (pas les meshes).
 
 ## Procédural (éditeur)
