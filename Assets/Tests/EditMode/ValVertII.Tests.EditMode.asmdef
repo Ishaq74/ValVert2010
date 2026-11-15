@@ -3,6 +3,8 @@
     "rootNamespace": "",
     "references": [
         "GUID:e4410d4375c032c42880e01661149c8e",
+        "ValVertII.Bridge",
+        "ValVert.Runtime",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

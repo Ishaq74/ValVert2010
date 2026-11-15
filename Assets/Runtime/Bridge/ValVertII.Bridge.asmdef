@@ -1,0 +1,14 @@
+{
+  "name": "ValVertII.Bridge",
+  "rootNamespace": "ValVertII.Bridge",
+  "references": [ "ValVert.Runtime", "ValVertII.Core" ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

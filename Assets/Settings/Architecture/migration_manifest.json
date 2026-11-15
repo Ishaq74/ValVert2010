@@ -109,7 +109,13 @@
     "Assets/Runtime/Boot/ValVertRuntimeBootstrap.cs",
     "Assets/Runtime/World/Streaming/ValVertWorldStreaming.cs",
     "Assets/Runtime/Boot/Config/ValVertWorldConfig.cs",
-    "Assets/Runtime/ValVert.Runtime.asmdef"
+    "Assets/Runtime/ValVert.Runtime.asmdef",
+    "Assets/Runtime/Core/SceneCatalog.cs",
+    "Assets/Runtime/Core/DurableEvents.cs",
+    "Assets/Runtime/Bridge/AppServicesAdapter.cs",
+    "Assets/Runtime/Bridge/ValVertDurableBridge.cs",
+    "Assets/Runtime/Bridge/ValVertII.Bridge.asmdef",
+    "Assets/Settings/Catalog/SceneCatalog.asset"
   ],
   "notMovedYet": [
     "Assets/World/Materials : matériaux partagés entre systèmes (à répartir par propriétaire exclusif)",

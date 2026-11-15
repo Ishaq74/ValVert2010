@@ -11,6 +11,12 @@ namespace ValVertII.Core
     {
         public static PersistentRoot Instance { get; private set; }
 
+        /// <summary>Raised once all services are initialised (one-way hook for adapters, e.g. ValVertII.Bridge).</summary>
+        public static event Action<PersistentRoot> ServicesReady;
+
+        /// <summary>Raised before services are shut down, so adapters can withdraw what they published.</summary>
+        public static event Action<PersistentRoot> ServicesShuttingDown;
+
         [Header("Startup")]
         [SerializeField]
         private string mainMenuScenePath =
@@ -18,6 +24,10 @@ namespace ValVertII.Core
 
         [SerializeField]
         private bool startWithMainMenu = true;
+
+        [Tooltip("Logical scene ids (MENU_MAIN, SECTOR_...). When set it replaces the raw path above.")]
+        [SerializeField]
+        private SceneCatalog sceneCatalog;
 
         [Header("Input System")]
         [SerializeField]
@@ -38,7 +48,21 @@ namespace ValVertII.Core
         public InputRouter InputRouter { get; private set; }
         public AppModeManager Modes { get; private set; }
 
+        public SceneCatalog Catalog => sceneCatalog;
+
         public bool IsReady { get; private set; }
+
+        /// <summary>Scene path for a logical id (catalog first); falls back to the serialized menu path for MENU_MAIN.</summary>
+        public string ResolveScenePath(string sceneId)
+        {
+            if (sceneCatalog != null && sceneCatalog.TryGetPath(sceneId, out string path))
+                return path;
+
+            if (sceneId == SceneIds.MenuMain && !string.IsNullOrWhiteSpace(mainMenuScenePath))
+                return mainMenuScenePath;
+
+            throw new InvalidOperationException($"Scène inconnue : '{sceneId}' (SceneCatalog manquant ?).");
+        }
 
         private void Awake()
         {
@@ -60,9 +84,10 @@ namespace ValVertII.Core
                 IsReady = true;
 
                 Logger.Info("PersistentRoot prêt.");
+                ServicesReady?.Invoke(this);
 
                 if (startWithMainMenu)
-                    await SceneLoader.LoadSingleAsync(mainMenuScenePath);
+                    await SceneLoader.LoadSingleAsync(ResolveScenePath(SceneIds.MenuMain));
             }
             catch (Exception exception)
             {
@@ -165,6 +190,10 @@ namespace ValVertII.Core
             if (_isShuttingDown) return;
 
             _isShuttingDown = true;
+
+            try { ServicesShuttingDown?.Invoke(this); }
+            catch (Exception exception) { Debug.LogException(exception); }
+
             IsReady = false;
 
             for (int i = _services.Count - 1; i >= 0; i--)

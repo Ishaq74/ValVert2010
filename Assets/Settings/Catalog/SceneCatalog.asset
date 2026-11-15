@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25eca174542748ac857cf178c726cedd, type: 3}
+  m_Name: SceneCatalog
+  m_EditorClassIdentifier: ValVertII.Core::ValVertII.Core.SceneCatalog
+  entries:
+  - id: BOOTSTRAP
+    scenePath: Assets/Scenes/Bootstrap/00_Bootstrap.unity
+  - id: MENU_MAIN
+    scenePath: Assets/Scenes/Menus/01_MainMenu.unity
+  - id: SESSION_ROOT
+    scenePath: Assets/Scenes/SeynodRoot/02_SeynodRoot.unity
+  - id: SECTOR_VALVERT_CORE
+    scenePath: Assets/Scenes/ValVert.unity
