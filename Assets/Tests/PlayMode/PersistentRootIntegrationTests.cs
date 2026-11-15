@@ -14,9 +14,13 @@ public class PersistentRootIntegrationTests
     SceneCatalog _catalog;
     InputActionAsset _actions;
 
+    string _saveDir;
+
     [SetUp]
     public void SetUp()
     {
+        _saveDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vv_pr_" + System.Guid.NewGuid().ToString("N"));
+        SaveService.DirectoryOverride = _saveDir; GameSettings.KeyPrefix = "vvtest." + System.Guid.NewGuid().ToString("N") + ".";
         ValVertEventBus.ResetForDomain(); ValVertServices.ResetForDomain();
         _actions = ScriptableObject.CreateInstance<InputActionAsset>();
         foreach (var m in new[] { "Gameplay", "UI", "Developer", "Cutscene" }) _actions.AddActionMap(m);
@@ -26,6 +30,8 @@ public class PersistentRootIntegrationTests
     [TearDown]
     public void TearDown()
     {
+        SaveService.DirectoryOverride = null; GameSettings.KeyPrefix = "valvert.";
+        if (System.IO.Directory.Exists(_saveDir)) System.IO.Directory.Delete(_saveDir, true);
         if (_go) UnityEngine.Object.DestroyImmediate(_go);
         if (_actions) UnityEngine.Object.DestroyImmediate(_actions);
         if (_catalog) UnityEngine.Object.DestroyImmediate(_catalog);
@@ -56,10 +62,12 @@ public class PersistentRootIntegrationTests
         Assert.AreSame(root.SceneLoader, ValVertServices.Get<SceneLoader>());
         Assert.AreSame(root.WorldSession, ValVertServices.Get<WorldSession>());
         Assert.AreSame(root.Logger, ValVertServices.Get<AppLogger>());
+        Assert.AreSame(root.Save, ValVertServices.Get<SaveService>());
+        Assert.AreSame(root.Settings, ValVertServices.Get<GameSettings>());
         Assert.AreSame(_catalog, ValVertServices.Get<SceneCatalog>());
         Assert.IsFalse(ValVertServices.Register(new AppLogger()), "no duplicate service: second registration refused");
         Assert.AreSame(root.Logger, ValVertServices.Get<AppLogger>());
-        foreach (IAppService s in new IAppService[] { root.Logger, root.Diagnostics, root.IdRegistry, root.SceneLoader, root.WorldSession, root.Validator, root.Modes })
+        foreach (IAppService s in new IAppService[] { root.Logger, root.Diagnostics, root.IdRegistry, root.SceneLoader, root.WorldSession, root.Validator, root.Modes, root.Save, root.Settings })
             Assert.IsTrue(s.IsInitialized, s.GetType().Name);
     }
 

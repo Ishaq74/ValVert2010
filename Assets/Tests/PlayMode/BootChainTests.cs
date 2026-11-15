@@ -19,6 +19,7 @@ public class BootChainTests
     const string Sector = "Assets/Scenes/ValVert.unity";
 
     readonly List<string> _errors = new List<string>();
+    string _saveDir;
     void OnLog(string msg, string stack, LogType t)
     {
         if (t == LogType.Exception || t == LogType.Error || t == LogType.Assert ||
@@ -26,9 +27,18 @@ public class BootChainTests
             _errors.Add(t + ": " + msg);
     }
 
+    [SetUp]
+    public void SetUp()
+    {
+        _saveDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "vv_boot_" + System.Guid.NewGuid().ToString("N"));
+        SaveService.DirectoryOverride = _saveDir; GameSettings.KeyPrefix = "vvtest." + System.Guid.NewGuid().ToString("N") + ".";
+    }
+
     [TearDown]
     public void TearDown()
     {
+        SaveService.DirectoryOverride = null; GameSettings.KeyPrefix = "valvert.";
+        if (System.IO.Directory.Exists(_saveDir)) System.IO.Directory.Delete(_saveDir, true);
         Application.logMessageReceived -= OnLog;
         LogAssert.ignoreFailingMessages = false;
         if (PersistentRoot.Instance) Object.DestroyImmediate(PersistentRoot.Instance.gameObject);
@@ -64,6 +74,9 @@ public class BootChainTests
         Assert.IsNotNull(menu, "MainMenuController in 01_MainMenu");
         Assert.IsFalse(root.WorldSession.IsRunning);
         Assert.IsFalse(SceneManager.GetSceneByPath(Sector).isLoaded, "sector not loaded before 'Nouvelle partie'");
+        yield return null;
+        Assert.IsNotNull(menu.NewGameButton, "menu UI built");
+        Assert.IsFalse(menu.ContinueButton.interactable, "no save yet: 'Continuer' disabled");
 
         // ---- "Nouvelle partie" -> 02_SeynodRoot (single) + ValVert.unity (additive, SECTOR_VALVERT_CORE)
         menu.StartNewGame();
@@ -76,6 +89,8 @@ public class BootChainTests
         Assert.AreEqual(Sector, SceneManager.GetActiveScene().path, "sector is the active scene (its lighting applies)");
         Assert.AreEqual(2, SceneManager.sceneCount, "exactly SESSION_ROOT + SECTOR_VALVERT_CORE");
         Assert.AreEqual(SceneIds.SectorValVertCore, root.WorldSession.StartingSectorId);
+        Assert.IsTrue(root.Save.TryLoad(out var saved), "the session was saved when it started");
+        Assert.AreEqual(SceneIds.SectorValVertCore, saved.sectorId); Assert.AreEqual(root.WorldSession.SessionId, saved.sessionId);
         Assert.IsTrue(ValVertEventBus.TryGetLast<WorldStartedEvent>(out var ws));
         Assert.AreEqual(SceneIds.SectorValVertCore, ws.StartingSectorId);
 
@@ -101,6 +116,33 @@ public class BootChainTests
         Assert.IsTrue(t.IsFaulted, "second session refused");
         t.Exception.Handle(_ => true);
 
+        CollectionAssert.IsEmpty(_errors, "no unexpected errors/warnings in the log:\n" + string.Join("\n", _errors));
+    }
+
+    [UnityTest, Timeout(900000)]
+    public IEnumerator Continue_ResumesTheSavedSession_InItsSavedSector()
+    {
+        LogAssert.ignoreFailingMessages = true;
+        Application.logMessageReceived += OnLog;
+        ValVertEventBus.ResetForDomain(); ValVertServices.ResetForDomain();
+        string started = new System.DateTime(2026, 11, 1, 8, 0, 0, System.DateTimeKind.Utc).ToString("o");
+        new SaveService().Write(new SaveData { sessionId = "session-saved", sectorId = SceneIds.SectorValVertCore, startedUtc = started });
+
+        yield return UnityEditor.SceneManagement.EditorSceneManager.LoadSceneAsyncInPlayMode(Bootstrap, new LoadSceneParameters(LoadSceneMode.Single));
+        yield return Until(() => PersistentRoot.Instance != null && PersistentRoot.Instance.IsReady, "PersistentRoot ready");
+        var root = PersistentRoot.Instance;
+        yield return Until(() => SceneManager.GetActiveScene().path == Menu, "menu loaded");
+        var menu = Object.FindFirstObjectByType<MainMenuController>();
+        yield return null;
+        Assert.IsTrue(menu.ContinueButton.interactable, "a save exists: 'Continuer' enabled");
+
+        menu.Continue();
+        yield return Until(() => root.WorldSession.IsRunning, "resumed session running");
+        yield return null;
+        Assert.AreEqual("session-saved", root.WorldSession.SessionId, "same session id as the save");
+        Assert.AreEqual(started, root.WorldSession.StartedUtc.ToString("o"));
+        Assert.IsTrue(SceneManager.GetSceneByPath(Root).isLoaded && SceneManager.GetSceneByPath(Sector).isLoaded);
+        Assert.AreEqual(Sector, SceneManager.GetActiveScene().path);
         CollectionAssert.IsEmpty(_errors, "no unexpected errors/warnings in the log:\n" + string.Join("\n", _errors));
     }
 }
