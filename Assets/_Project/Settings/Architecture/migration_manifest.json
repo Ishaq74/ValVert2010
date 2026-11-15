@@ -76,7 +76,7 @@
     "demtiles / m_Bld (derived)"
   ],
   "grassPack138810": {
-    "status": "awaiting_local_cache_import",
-    "integration": "ValVertGrassField pack_cutout — not wired until authentic paths inspected"
+    "status": "integrated_private_thirdparty",
+    "integration": "ValVertGrassField pack_cutout (grass01/grass02 cards); homemade grass_blades.png + .mat removed (no remaining GUID refs)"
   }
 }

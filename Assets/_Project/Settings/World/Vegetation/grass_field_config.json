@@ -1,10 +1,9 @@
 {
-  "schemaVersion": "1",
-  "materialMode": "legacy_homemade",
-  "legacyAlbedoPath": "Assets/ValVert/Gen/grass_blades.png",
+  "schemaVersion": "2",
+  "materialMode": "pack_cutout",
   "rootName": "V3_Grass",
   "meshAssetPrefix": "grass_",
-  "materialName": "grass_blades",
+  "materialName": "grass_pack",
   "seed": 5,
   "chunkSize": 32.0,
   "parkSpacing": 0.75,
@@ -23,12 +22,39 @@
   "pack": {
     "assetStoreId": "138810",
     "assetStoreUrl": "https://assetstore.unity.com/packages/2d/textures-materials/nature/grass-flowers-pack-free-138810",
-    "status": "awaiting_acquisition",
-    "localRoot": "",
+    "status": "integrated_private_thirdparty",
     "kindExpected": "2d_textures_materials",
-    "albedoRelative": "",
-    "note": "Fill localRoot + albedoRelative ONLY after genuine package inspect. Do not invent atlas UV or filenames. Import into ignored Assets/ThirdParty/<verified folder>."
+    "packageSha256": "b2278e2c7ea8ca005f6958af3e810ab554b04bea0adf4714320e3a00cb50c750",
+    "localRoot": "Assets/ThirdParty/ALP_Assets/GrassFlowersFREE",
+    "cards": [
+      {
+        "file": "Textures/GrassFlowers/grass01.tga",
+        "guid": "91a1945982e98be4d9fe3e3d12fdebd8",
+        "weightMeadow": 0.7,
+        "weightPark": 0.35
+      },
+      {
+        "file": "Textures/GrassFlowers/grass02.tga",
+        "guid": "cf3069941001b5c46b1f13d4551d0fd9",
+        "weightMeadow": 0.3,
+        "weightPark": 0.65
+      }
+    ],
+    "note": "Authentic Asset Store package (2D alpha cards, 1024x1024 TGA; inspected from the .unitypackage). Imported ONLY under ignored Assets/ThirdParty/. Flower cards (grassFlower01-10) are not used yet."
   },
-  "notes": "SOURCE config (not generated). Geometry remains crossed-quad batching (pack is 2D). exclusionMasks listed here are documentary; Build() uses the same named Mask()/Lab/Hidden/Built paths hard-wired to match historical ValVertWoods.Grass. Switch materialMode to pack_cutout only after filling pack.localRoot+albedoRelative from genuine 138810 inspect. Homemade blade path removed only once pack mode proven. Grass mesh rebuild not claimed proven/idempotent until CreateAsset GUID-stable path validated.",
-  "exclusionMasksNote": "documentary; runtime uses veg_excl/canopy_orig/veg_meadow + Lab/Hidden/Built"
+  "notes": "SOURCE config (not generated). Geometry stays crossed-quad batching (pack is 2D). One submesh per card texture (original textures, no derived atlas). Pack-derived materials are generated under the ignored materialFolder, never committed. Exclusion masks unchanged (veg_excl / canopy_orig / veg_meadow / Lab / Hidden / Built raycast).",
+  "exclusionMasksNote": "documentary; runtime uses veg_excl/canopy_orig/veg_meadow + Lab/Hidden/Built",
+  "materialFolder": "Assets/ThirdParty/ValVertGrass",
+  "cardHeightPark": [
+    0.3,
+    0.55
+  ],
+  "cardHeightMeadow": [
+    0.45,
+    0.85
+  ],
+  "cardWidthFactor": [
+    0.9,
+    1.2
+  ]
 }
