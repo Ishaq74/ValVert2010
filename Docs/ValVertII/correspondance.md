@@ -13,7 +13,7 @@ Voir `ARCHITECTURE.md` pour la destination de chaque système. Le manuel est dan
 | Seynod contemporain | Monde reconstitué **vers 2010** (OSM, IGN ortho 2006-2010). L'époque du jeu est une décision ouverte (ARCHITECTURE.md §14, O1). |
 | Cartes d'entrée `Player`, `UI`, `Developer`, `Cinematic` (§20) | Le code d'Ishaq (`InputRouter`) attend `Gameplay`, `UI`, `Developer`, `Cutscene`. Ce sont ces noms qui font foi tant que l'asset d'entrée n'est pas finalisé. |
 | Racine `Assets/_ValVertII/` (Tome XIV) | Racine réelle : `Assets/_Project/` (voir ARCHITECTURE.md §3). |
-| « Aucun projet Unity n'a été créé » | Un noyau applicatif (« Phase 2 ») existe chez Ishaq ; il est repris sous `Assets/_Project/Scripts/Core/` et reste **à prouver** ici. |
+| « Aucun projet Unity n'a été créé » | Un noyau applicatif (« Phase 2 ») existe chez Ishaq ; il est repris sous `Assets/Runtime/Core/` (compile sous 6000.3 après un correctif d'API : `FindObjectsByType(FindObjectsSortMode.None)`) et reste **à prouver** ici. |
 
 ## Statut par tome / section
 

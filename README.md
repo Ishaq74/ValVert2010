@@ -48,7 +48,7 @@ Val Vert II est une **simulation narrative en monde ouvert** à Seynod : on vit 
 | Herbe du pack 138810 (762 chunks) | **Fonctionne** ; fleurs du pack : en pause |
 | Fondations runtime : `ValVertEventBus`, `ValVertServices`, `ValVertRuntimeBootstrap`, `ValVertWorldStreaming` | **Fonctionne, 25 tests Play Mode + test de la scène complète** |
 | Reconstruction / restauration d'un clone vierge (`Tools/rebuild`, `restore_world.py`) | **Fonctionne** (3 cibles prouvées + régénération prouvée de l'herbe) |
-| Noyau applicatif de Val Vert II (`PersistentRoot`, `SceneLoader`, `WorldEventBus`, `IdRegistry`…) | **Repris du dépôt d'Ishaq74, à prouver** |
+| Noyau applicatif de Val Vert II (`PersistentRoot`, `SceneLoader`, `WorldEventBus`, `IdRegistry`…) | **Importé de ValVertII (historique conservé) ; compile sous 6000.3 ; à brancher et à prouver** |
 | Joueur, caméras, téléphone, dialogues, relations, habitants, sauvegarde, intérieurs | **À construire** (`SimpleFPS` est un joueur provisoire) |
 | Véhicules et parking Aldi | **Gelés** : aucune modification |
 
@@ -97,7 +97,7 @@ Sans les paquets Asset Store, le script s'arrête en indiquant le nom et le SHA2
 
 Conception complète : **[`ARCHITECTURE.md`](ARCHITECTURE.md)**. Décision du propriétaire du 15/11/2026 : **pas d'enveloppe `_Project`, pas de couches dupliquées** (pas de `Scripts/` à côté de `Runtime/`, pas de dossier historique `ValVert/` à côté de l'arborescence neuve) ; on supprime le contenu obsolète prouvé non référencé (tutoriel Unity…), chaque chose a **un seul emplacement** directement sous `Assets/`, les contenus tiers restent séparés.
 
-**Arborescence actuelle (après l'étape 3 : `_Project` supprimé)** : `Assets/Scenes/`, `Assets/Runtime/`, `Assets/Editor/`, `Assets/Tests/`, `Assets/Settings/` (`Architecture`, `World`, `Rendering` = profils URP), `Assets/Generated/`, `Assets/ValVert/` (données monde historiques, encore à dissoudre), `Assets/ThirdParty/`, `Assets/Cars/` (gelé). Le contenu de tutoriel Unity est supprimé.
+**Arborescence actuelle (après l'étape 4 : `_Project` supprimé, noyau de Val Vert II importé)** : `Assets/Scenes/`, `Assets/Runtime/`, `Assets/Editor/`, `Assets/Tests/`, `Assets/Settings/` (`Architecture`, `World`, `Rendering` = profils URP), `Assets/Generated/`, `Assets/ValVert/` (données monde historiques, encore à dissoudre), `Assets/ThirdParty/`, `Assets/Cars/` (gelé). Le contenu de tutoriel Unity est supprimé.
 
 **Arborescence cible (en cours de migration, une PR par étape)** :
 
@@ -131,7 +131,7 @@ Chaque PR de migration est validée (compilation à 0 erreur, tests Play Mode, v
 - `Docs/` : architecture, manifests de migration. Point d'entrée « 10 minutes » : `Docs/architecture-newcomer.md`.
 - `ARCHITECTURE.md` : architecture totale (Val Vert 2010 × Val Vert II).
 - `Docs/ValVertII/` : manuel maître de Val Vert II (`manuel-maitre.md`) et sa correspondance avec le projet réel (`correspondance.md`).
-- Noyau applicatif et scènes squelettes de Val Vert II (`Core`, `Bootstrap`, `Menus`, `SeynodRoot`) : arrivent avec la migration, directement dans l'arborescence cible (voir `ARCHITECTURE.md`).
+- `Assets/Runtime/Core/` (assembly `ValVertII.Core`, 13 fichiers d'Ishaq74), les assemblies vides `ValVertII.{Input,Player,Narrative,AI,Save,ECS,Developer}` (un dossier chacun sous `Assets/Runtime/`), `Assets/Runtime/World/Sectors/` (`ValVertII.World`), `Assets/Editor/ValVertII/` (`ValVertII.Editor`), `Assets/Tests/EditMode/` (`ValVertII.Tests.EditMode`), `Assets/Settings/Input/` (cartes d'entrée du manuel) et les scènes squelettes `Assets/Scenes/{Bootstrap,Menus,SeynodRoot}/` : le noyau de Val Vert II repris de https://github.com/Ishaq74/ValVertII (compilé sous Unity 6000.3, **pas encore branché ni testé** ; non ajouté aux Build Settings).
 - `Tools/architecture/`, `Tools/rebuild/`, `Tools/vegetation/` : vérificateurs de migration et de GUID, reconstruction des données générées, pré-contrôle du pack d'herbe.
 - `CREDITS_ASSETS.txt` : crédits détaillés.
 

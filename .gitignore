@@ -10,7 +10,9 @@
 /[Rr]ecordings/
 /Assets/Plugins/Editor/JetBrains*
 .vs/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
 .idea/
 .gradle/
 ExportedObj/
@@ -83,3 +85,19 @@ __pycache__/
 /Assets/ThirdParty/**
 !/Assets/ThirdParty/.gitkeep
 !/Assets/ThirdParty.meta
+
+# --- Règles ajoutées depuis ValVertII (Unity .gitignore standard) : ajouts seulement ---
+*.log
+*.slnx
+*.DotSettings.user
+*.blend1
+*.blend1.meta
+*.unitypackage.meta
+.utmp/
+mono_crash.*
+InitTestScene*.unity*
+/[Aa]ssets/[Ss]ceneDependencyCache*
+/[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+/[Aa]ssets/AddressableAssetsData/*/*.bin*
+/[Aa]ssets/Addressables_Temp*
+/ServerData
