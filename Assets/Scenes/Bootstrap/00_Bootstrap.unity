@@ -369,6 +369,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: ValVertII.Core::ValVertII.Core.PersistentRoot
   mainMenuScenePath: Assets/Scenes/Menus/01_MainMenu.unity
   startWithMainMenu: 1
+  sceneCatalog: {fileID: 11400000, guid: ddf4ef1bacaf41cd8cfefba5ec70aece, type: 2}
   inputActions: {fileID: -944628639613478452, guid: cddda87c056b6f14cb916ce0851a5af1, type: 3}
 --- !u!4 &1201622701
 Transform:
