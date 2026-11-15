@@ -74,7 +74,8 @@ Grass / m_Bld / Setup.Build : non sandboxés dans ce milestone.
 | Services | `Runtime/Boot/ValVertServices.cs` | Lightweight registry |
 | Bootstrap | `Runtime/Boot/ValVertRuntimeBootstrap.cs` | Wired from `ValVertEnvWire` |
 | Streaming | `Runtime/World/Streaming/ValVertWorldStreaming.cs` | Region SetActive by distance |
-| World config SO | `Settings/World/ValVertWorldConfig.asset` | Radii + pack status notes |
+| World config SO | script `Runtime/Boot/Config/ValVertWorldConfig.cs`, data `Settings/World/ValVertWorldConfig.asset` | Authored region list + radii (script moved out of Settings, same GUID) |
+| Runtime assembly | `Runtime/ValVert.Runtime.asmdef` | Lets Play Mode tests reference runtime code (`Tests/PlayMode`) |
 
 ## Owned migrations this pass
 

@@ -12,7 +12,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fd6bc1abf3ee94533ebe2ac33602339, type: 3}
   m_Name: ValVertWorldConfig
   m_EditorClassIdentifier: 
+  enableRegionActivation: 1
+  updateInterval: 0.5
+  minHysteresis: 10
+  safetyMargin: 8
+  regions:
+  - id: terrain_main
+    objectName: ValVertTerrain
+    policy: 1
+    perChild: 0
+    loadRadius: 0
+    unloadRadius: 0
+  - id: terrain_east
+    objectName: ValVertTerrainEast
+    policy: 1
+    perChild: 0
+    loadRadius: 0
+    unloadRadius: 0
+  - id: grass
+    objectName: V3_Grass
+    policy: 0
+    perChild: 1
+    loadRadius: 940
+    unloadRadius: 1000
+  - id: east
+    objectName: V3_East
+    policy: 0
+    perChild: 1
+    loadRadius: 1400
+    unloadRadius: 1500
   streamLoadRadius: 380
   streamUnloadRadius: 460
   grassPackAssetStoreId: '138810'
-  grassPackStatus: awaiting_acquisition
+  grassPackStatus: integrated_private_thirdparty

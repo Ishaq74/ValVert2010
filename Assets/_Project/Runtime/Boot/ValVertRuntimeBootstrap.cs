@@ -1,8 +1,19 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Wires existing clock/season/weather into EventBus + Services and registers known world
-/// streaming regions. Preserves prior component behavior; adds observable lifecycle only.
+/// Scene runtime entry point. Exactly ONE bootstrap is primary at any time (others stay inert until the
+/// primary goes away, then the oldest enabled candidate is promoted — covers additive/duplicate scenes and
+/// single-scene reloads regardless of destroy/enable order).
+///
+/// The primary:
+///  * finds the existing ValVertClock / ValVertSeasons / ValVertWeather (if the scene has them) and registers
+///    them as services (owner-safe: it only ever unregisters what it registered itself);
+///  * forwards clock/season/weather changes onto ValVertEventBus (consumers: ValVertStreetLights,
+///    ValVertGrassSeasonal, QA smoke);
+///  * creates/configures ValVertWorldStreaming (region activation) from ValVertWorldConfig.
+/// It NEVER clears the bus or the service registry globally (that is ResetForDomain, domain/test only).
 /// </summary>
 [DefaultExecutionOrder(-1000)]
 public class ValVertRuntimeBootstrap : MonoBehaviour
@@ -11,29 +22,73 @@ public class ValVertRuntimeBootstrap : MonoBehaviour
     public bool autoFindEnvSystems = true;
     public bool autoRegisterStreamingRegions = true;
 
+    static readonly List<ValVertRuntimeBootstrap> _candidates = new List<ValVertRuntimeBootstrap>();
+    public static ValVertRuntimeBootstrap Primary { get; private set; }
+    public bool IsPrimary => Primary == this;
+
     ValVertClock _clock;
     ValVertSeasons _seasons;
     ValVertWeather _weather;
     ValVertWorldStreaming _streaming;
+    readonly List<Func<bool>> _unregister = new List<Func<bool>>();
 
     float _lastYearFrac = float.NaN;
     float _lastCloud = float.NaN, _lastFog = float.NaN, _lastPrecip = float.NaN, _lastSnow = float.NaN;
 
+    public int OwnedServiceCount => _unregister.Count;
+    public ValVertWorldStreaming Streaming => _streaming;
+
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+    static void DomainReset() { _candidates.Clear(); Primary = null; }
+
     void OnEnable()
     {
-        ValVertServices.Clear();
-        ValVertEventBus.ClearAll();
-        if (autoFindEnvSystems) FindSystems();
-        RegisterServices();
-        HookClock();
-        if (autoRegisterStreamingRegions) EnsureStreaming();
+        _candidates.RemoveAll(c => c == null);
+        if (!_candidates.Contains(this)) _candidates.Add(this);
+        if (Primary == null) Promote(this);
+        else if (Primary != this)
+            Debug.LogWarning($"[VV][Boot] secondary bootstrap '{name}' inert while '{Primary.name}' is primary");
     }
 
     void OnDisable()
     {
+        _candidates.Remove(this);
+        if (Primary != this) return;
+        Shutdown();
+        Primary = null;
+        _candidates.RemoveAll(c => c == null || !c.isActiveAndEnabled);
+        if (_candidates.Count > 0) Promote(_candidates[0]);
+    }
+
+    static void Promote(ValVertRuntimeBootstrap b) { Primary = b; b.Startup(); }
+
+    void Startup()
+    {
+        _lastYearFrac = _lastCloud = _lastFog = _lastPrecip = _lastSnow = float.NaN;
+        if (autoFindEnvSystems) FindSystems();
+        Own(_clock); Own(_seasons); Own(_weather); Own(this);
+        HookClock();
+        if (autoRegisterStreamingRegions && (!config || config.enableRegionActivation)) EnsureStreaming();
+    }
+
+    void Shutdown()
+    {
         UnhookClock();
-        ValVertServices.Clear();
-        ValVertEventBus.ClearAll();
+        if (_streaming)
+        {
+            _streaming.RestoreAll();
+            // Component stays (no destroy during teardown); disabled it is inert and re-enabled on next Startup.
+            _streaming.enabled = false;
+        }
+        _streaming = null;
+        foreach (var u in _unregister) u();
+        _unregister.Clear();
+    }
+
+    void Own<T>(T svc) where T : UnityEngine.Object
+    {
+        if (!svc) return;
+        if (ValVertServices.Register(svc)) _unregister.Add(() => ValVertServices.Unregister(svc));
     }
 
     void FindSystems()
@@ -43,45 +98,32 @@ public class ValVertRuntimeBootstrap : MonoBehaviour
         _weather = FindFirstObjectByType<ValVertWeather>();
     }
 
-    void RegisterServices()
-    {
-        if (_clock) ValVertServices.Register(_clock);
-        if (_seasons) ValVertServices.Register(_seasons);
-        if (_weather) ValVertServices.Register(_weather);
-        ValVertServices.Register(this);
-    }
-
     void HookClock()
     {
         if (!_clock) return;
         _clock.Changed -= OnClockChanged;
         _clock.Changed += OnClockChanged;
-        OnClockChanged(); // publish initial
+        OnClockChanged(); // publish initial (sticky) state
     }
 
-    void UnhookClock()
-    {
-        if (_clock != null) _clock.Changed -= OnClockChanged;
-    }
+    void UnhookClock() { if (_clock != null) _clock.Changed -= OnClockChanged; }
 
     void OnClockChanged()
     {
-        if (!_clock) return;
-        ValVertEventBus.Publish(new ValVertTimeChanged(_clock.month, _clock.day, _clock.hour, _clock.Daylight01));
+        if (!_clock || !IsPrimary) return;
+        ValVertEventBus.Publish(new ValVertTimeChanged(_clock.month, _clock.day, _clock.hour, _clock.Daylight01, _clock.SunAltitudeDeg));
         float yf = _clock.YearFraction;
         if (float.IsNaN(_lastYearFrac) || Mathf.Abs(yf - _lastYearFrac) > 0.0005f)
         {
             _lastYearFrac = yf;
-            ValVertEventBus.Publish(new ValVertSeasonChanged(yf));
+            ValVertEventBus.Publish(_seasons
+                ? new ValVertSeasonChanged(yf, _seasons.LeafCover, _seasons.Autumn)
+                : new ValVertSeasonChanged(yf));
         }
         PublishWeatherIfChanged();
     }
 
-    void LateUpdate()
-    {
-        // Weather may mutate without Clock.Changed — poll lightly
-        PublishWeatherIfChanged();
-    }
+    void LateUpdate() { if (IsPrimary) PublishWeatherIfChanged(); }
 
     void PublishWeatherIfChanged()
     {
@@ -97,31 +139,37 @@ public class ValVertRuntimeBootstrap : MonoBehaviour
 
     void EnsureStreaming()
     {
-        _streaming = GetComponent<ValVertWorldStreaming>() ?? gameObject.AddComponent<ValVertWorldStreaming>();
+        _streaming = GetComponent<ValVertWorldStreaming>();
+        if (!_streaming) _streaming = gameObject.AddComponent<ValVertWorldStreaming>();
+        _streaming.enabled = true;
         if (!_streaming.viewer)
         {
             var fps = FindFirstObjectByType<SimpleFPS>();
             if (fps) _streaming.viewer = fps.transform;
             else if (Camera.main) _streaming.viewer = Camera.main.transform;
         }
-        float load = config ? config.streamLoadRadius : 380f;
-        float unload = config ? config.streamUnloadRadius : 460f;
-        TryReg("terrain_main", "ValVertTerrain", load, unload, keepWarm: true);
-        TryReg("terrain_east", "ValVertTerrainEast", load, unload, keepWarm: false);
-        TryReg("east_meshes", "V3_East", load, unload, keepWarm: false);
-        TryReg("grass", "V3_Grass", load * 0.85f, unload * 0.85f, keepWarm: true);
+        if (!config) return;   // no config: no regions (never guess)
+        _streaming.updateInterval = config.updateInterval;
+        _streaming.minHysteresis = config.minHysteresis;
+        _streaming.safetyMargin = config.safetyMargin;
+        foreach (var spec in config.regions)
+        {
+            if (spec == null || string.IsNullOrEmpty(spec.objectName)) continue;
+            var go = GameObject.Find(spec.objectName);
+            if (!go) continue;
+            float load = spec.loadRadius > 0 ? spec.loadRadius : config.streamLoadRadius;
+            float unload = spec.unloadRadius > 0 ? spec.unloadRadius : config.streamUnloadRadius;
+            bool always = spec.policy == ValVertWorldStreaming.Policy.AlwaysActive;
+            if (spec.perChild && !always) _streaming.RegisterChildren(spec.id, go.transform, load, unload);
+            else _streaming.Register(spec.id, go.transform, load, unload, always);
+        }
     }
 
-    void TryReg(string id, string objectName, float load, float unload, bool keepWarm)
-    {
-        var go = GameObject.Find(objectName);
-        if (go) _streaming.Register(id, go.transform, load, unload, keepWarm);
-    }
-
-    /// <summary>Editor/wire entry: ensure bootstrap exists on Env host.</summary>
+    /// <summary>Editor/wire entry: ensure bootstrap exists on host (components/config only).</summary>
     public static ValVertRuntimeBootstrap EnsureOn(GameObject host, ValVertWorldConfig cfg = null)
     {
-        var b = host.GetComponent<ValVertRuntimeBootstrap>() ?? host.AddComponent<ValVertRuntimeBootstrap>();
+        var b = host.GetComponent<ValVertRuntimeBootstrap>();
+        if (!b) b = host.AddComponent<ValVertRuntimeBootstrap>();
         if (cfg) b.config = cfg;
         b.autoFindEnvSystems = true;
         b.autoRegisterStreamingRegions = true;
